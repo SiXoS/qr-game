@@ -1,0 +1,35 @@
+
+init {
+    out = 0
+}
+
+run {
+    struct1 = new soManyFields(1, 2, true, createRectangle(10, 10, 20, 20), 4)
+    struct2 = new structWithArray(arrayList(~0), struct1)
+    out = out + struct1.fields
+    if (struct1.inn) {
+        out = out + 8
+    }
+    struct1.arbitrary.setPosX(30)
+    struct2.arrayField.append(16)
+    struct2.arrayField.append(32)
+    out = out + struct2.arrayField.get(1)
+    out = out + struct2.structField.order
+    struct1.some = 64
+    out += struct1.some
+}
+
+input (button, pushed) true
+
+struct structWithArray {
+    arrayField: List<number>
+    structField: soManyFields
+}
+
+struct soManyFields {
+    some: number
+    fields: number
+    inn: bool
+    arbitrary: Shape
+    order: number
+}

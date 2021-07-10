@@ -1,0 +1,28 @@
+
+init {
+    out = 0
+}
+
+run {
+    mapByType = treeMap(~0, ~true)
+    out += mapByType.size() // 0
+    mapByType.put(5, false)
+    mapByType.put(1, true)
+    out += mapByType.size() // 2
+    if (mapByType.get(5)) {
+        out += 4 // 2
+    }
+    if (mapByType.get(1)) {
+        out += 8 // 10
+    }
+    i = 4
+    for (entry in mapByType) {
+        // first key should be 1 -> 10 + 1^4 = 11
+        // second key should be 5 -> 11 + 5^5 = 3 136
+        out += pow(entry.getKey(), i++) // key should be 1 -> 10 + 1^4 = 11
+    }
+    mapByValues = treeMap(mapEntry(5, 16), mapEntry(2, 32))
+    out += mapByValues.get(2) // 3 136 + 32 = 3168
+}
+
+input (button, pushed) true

@@ -1,0 +1,29 @@
+
+init {
+    out = 0
+}
+
+run {
+    mapByType = hashMap(~0, ~true)
+    out += mapByType.size() // 0
+    mapByType.put(5, false)
+    mapByType.put(1, true)
+    out += mapByType.size() // 2
+    if (mapByType.get(5)) {
+        out += 4 // 2
+    }
+    if (mapByType.get(1)) {
+        out += 8 // 10
+    }
+    i = 4
+    for (entry in mapByType) {
+        out += entry.getKey() // 16
+        if(entry.getValue()) {
+            out += 32 // 48
+        }
+    }
+    mapByValues = hashMap(mapEntry(5, 64), mapEntry(2, 128))
+    out += mapByValues.get(2) // 176
+}
+
+input (button, pushed) true

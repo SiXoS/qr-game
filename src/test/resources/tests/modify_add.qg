@@ -1,0 +1,14 @@
+
+init {
+    out = 0
+}
+
+run {
+    out++
+    out += 2
+    if (++out == 4 && out++ == 4) {
+        out += 8
+    }
+}
+
+input (button, pushed) true

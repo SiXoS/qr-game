@@ -1,0 +1,41 @@
+
+init {
+    out = 0
+}
+
+run {
+    if (true) {
+        out = out + 1
+        out = out + 2
+    } else {
+        out = out + 100
+    }
+    if (false) {
+        out = out + 200
+    } else {
+        out = out + 4
+        if(true)
+            out = out + 8
+    }
+    if (false) {
+        out = out + 300
+    } else if (true) {
+        out = out + 16
+    } else {
+        out = out + 400
+    }
+    if (false) {
+        out = out + 500
+    } else if (false) {
+        out = out + 600
+    } else {
+        out = out + 32
+    }
+    if(true) {
+        out = out + 64
+    }
+    if (false)
+        out = out + 700
+}
+
+input (button, pushed) true

@@ -1,0 +1,16 @@
+
+init {
+    out = 0
+}
+
+run {
+    arr = arrayList(~0)
+    arr.append(1)
+    arr.append(2)
+    arr.append(4)
+    for (item in arr) {
+        out = out + item
+    }
+}
+
+input (button, pushed) true

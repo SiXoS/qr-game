@@ -1,0 +1,31 @@
+init {
+    out = 0
+}
+
+run {
+    i = 0
+    while (true) {
+        if (i == 3) {
+            break
+        }
+        out += pow(2, i++) // 1 + 2 + 4 = 7
+    }
+    i = 0
+    while (i < 5) {
+        if (i == 3) {
+            i++
+            continue
+        }
+        out += pow(2, i++) // 7 + 1 + 2 + 4 + 16 = 30
+    }
+    while (true) @aLabel {
+        while(true) @otherLabel {
+            while(true) {
+                out++ // 30 + 1 = 31
+                break @aLabel
+            }
+        }
+    }
+}
+
+input(a,b) true

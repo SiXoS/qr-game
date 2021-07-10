@@ -1,0 +1,21 @@
+
+init {
+    out = 0
+}
+
+run {
+    if (true || false) {
+        out = out + 1
+    }
+    if (false || true) {
+        out = out + 2
+    }
+    if (false || false) {
+        out = out + 4
+    }
+    if (true || true) {
+        out = out + 8
+    }
+}
+
+input (button, pushed) true

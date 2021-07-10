@@ -1,0 +1,10 @@
+
+init {
+    out = 0
+}
+
+run {
+    out = 20 / 2 / 3
+}
+
+input (button, pushed) true

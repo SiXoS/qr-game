@@ -1,0 +1,24 @@
+
+init {
+    out = 0
+}
+
+run {
+    if (true == true) {
+        out = out + 1
+    }
+    if (false == false) {
+        out = out + 2
+    }
+    if (true == false) {
+        out = out + 100
+    }
+    if (10 == 1) {
+        out = out + 200
+    }
+    if (10 == 10) {
+        out = out + 4
+    }
+}
+
+input (button, pushed) true

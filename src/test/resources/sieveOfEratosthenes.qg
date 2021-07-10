@@ -1,0 +1,26 @@
+
+init {
+    n = 0
+}
+
+run {
+    primes = arrayList(~true, n)
+    i = 0
+    while(i < n) {
+        primes.append(true)
+        i = i + 1
+    }
+    p = 2
+    while (p*p < n) {
+        if (primes.get(p)) {
+            i = p*p
+            while (i < n) {
+                primes.set(i, false)
+                i = i + p
+            }
+        }
+        p = p + 1
+    }
+}
+
+input(a,b) true

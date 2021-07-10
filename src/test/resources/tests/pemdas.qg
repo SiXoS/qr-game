@@ -1,0 +1,12 @@
+
+init {
+    out = 0
+}
+
+run {
+    a = 3 + 4 * 5
+    b = 4 * 5 + 3
+    out = a + b
+}
+
+input (button, pushed) true

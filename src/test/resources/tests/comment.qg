@@ -1,0 +1,17 @@
+
+init {
+    out = 0
+}
+
+/*
+multi-line
+comment
+should
+be ignored */
+
+run {
+    // line comment should be ignored
+    out = /* inline comment should be ignored */ 1
+}
+
+input (button, pushed) true

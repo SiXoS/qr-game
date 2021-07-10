@@ -1,0 +1,12 @@
+
+init {
+    out = 0
+}
+
+run {
+    out += true ? 1 : 0
+    out += false ? 0 : 2
+    out += true ? false : true ? 0 : 4
+}
+
+input (a,b) true

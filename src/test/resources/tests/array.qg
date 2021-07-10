@@ -1,0 +1,23 @@
+
+init {
+    out = 0
+}
+
+run {
+    arr = arrayList(~arrayList(~0))
+    inner = arrayList(1, 2, 4)
+    arr.append(inner)
+    if (arr.size() == 1) {
+        out = out + 8
+    }
+    if (arr.get(0).size() == 3) {
+        out = out + 16
+    }
+    poppedInner = arr.popFirst()
+    out = out + poppedInner.get(1)
+    if (arr.size() == 1) {
+        out = out + 32
+    }
+}
+
+input (button, pushed) true

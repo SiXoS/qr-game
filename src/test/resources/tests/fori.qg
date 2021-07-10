@@ -1,0 +1,19 @@
+
+init {
+    out = 0
+}
+
+run {
+    for(i = 0; i <= 3; i++){
+        out += pow(2, i)
+    }
+    for(i = 4, j = 7; i <= 6; i++, j++) {
+        out += pow(2, i)
+        out += pow(2, j)
+    }
+    for(; j <= 10; j++) {
+        out += pow(2, j)
+    }
+}
+
+input (button, pushed) true

@@ -1,0 +1,238 @@
+package se.lindhen.qrgame.program;
+
+import se.lindhen.qrgame.program.drawings.DefaultShapeFactory;
+import se.lindhen.qrgame.program.drawings.Shape;
+import se.lindhen.qrgame.program.drawings.ShapeFactory;
+import se.lindhen.qrgame.program.functions.Function;
+import se.lindhen.qrgame.program.functions.UserFunction;
+import se.lindhen.qrgame.program.statements.Statement;
+import se.lindhen.qrgame.util.ArrayMap;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+
+public class Program {
+
+    private Statement initialisation = null;
+    private Statement code = null;
+    private InputCode inputCode;
+
+    private ShapeFactory shapeFactory = new DefaultShapeFactory();
+    private InputManager inputManager = new InputManager();
+
+    private ArrayList<StructDefinition> structs = new ArrayList<>();
+    private final ArrayMap<Object> variables = new ArrayMap<>();
+    private final ArrayMap<Function> functions = new ArrayMap<>();
+    private ArrayList<UserFunction> userFunctions = new ArrayList<>();
+    private ArrayList<Object> stack = new ArrayList<>();
+    private Object returnValue = null;
+
+    private GameStatus status = GameStatus.RUNNING;
+    private final HashMap<Integer, Shape> drawings = new HashMap<>();
+    private int score = 0;
+
+    private int timeSinceStart = 0;
+    private int deltaTime = 0;
+    private boolean running = true;
+    private Interrupt interrupt = null;
+    private boolean trackScore;
+
+    public Program() {
+        PredefinedFunctions.getFunctions().forEach(func -> functions.put(func.id, func.function));
+    }
+
+    public Runnable initializeAndPrepareRun() {
+        initialisation.run(this);
+        long start = System.currentTimeMillis();
+        final boolean[] firstRun = {true};
+        return () -> {
+            drawings.clear();
+            long timeSinceStart = System.currentTimeMillis() - start;
+            if (firstRun[0]) {
+                deltaTime = 0;
+                firstRun[0] = false;
+            } else {
+                deltaTime = (int) (timeSinceStart - this.timeSinceStart);
+            }
+            this.timeSinceStart = (int) timeSinceStart;
+            inputCode.run(this);
+            code.run(this);
+            drawings.forEach((k, shape) -> shape.update(deltaTime / 1000f));
+        };
+    }
+
+    public Function getFunction(int id) {
+        return functions.get(id);
+    }
+
+    public void setInitStatement(Statement initStatement) {
+        initialisation = initStatement;
+    }
+
+    public void setCode(Statement code) {
+        this.code = code;
+    }
+
+    public void setVariable(int id, Object value) {
+        variables.put(id, value);
+    }
+
+    public Object getVariable(int id) {
+        return variables.get(id);
+    }
+
+    public void pushToStack(Object value) {
+        stack.add(value);
+    }
+
+    public void pushAllToStack(Collection<Object> values) {
+        stack.addAll(values);
+    }
+
+    public Object getFromStack(int index) {
+        return stack.get(stack.size() - 1 - index);
+    }
+
+    public Object popFromStack() {
+        return stack.remove(stack.size() - 1);
+    }
+
+    public void setInputManager(InputManager inputManager) {
+        this.inputManager = inputManager;
+    }
+
+    public InputManager getInputManager() {
+        return inputManager;
+    }
+
+    public Statement getInitialisation() {
+        return initialisation;
+    }
+
+    public Statement getCode() {
+        return code;
+    }
+
+    public Collection<Shape> getDrawings() {
+        return drawings.values();
+    }
+
+    public void addDrawing(Shape shape) {
+        drawings.put(shape.getId(), shape);
+    }
+
+    public int getTimeSinceStart() {
+        return timeSinceStart;
+    }
+
+    public ShapeFactory getShapeFactory() {
+        return shapeFactory;
+    }
+
+    public void setShapeFactory(ShapeFactory shapeFactory) {
+        this.shapeFactory = shapeFactory;
+    }
+
+    public StructDefinition addStructDefinition() {
+        StructDefinition structDef = new StructDefinition(structs.size());
+        structs.add(structDef);
+        return structDef;
+    }
+
+    public StructDefinition getStructDefinition(int structId) {
+        return structs.get(structId);
+    }
+
+    public ArrayList<StructDefinition> getStructDefinitions() {
+        return structs;
+    }
+
+    public void setStructDefinitions(ArrayList<StructDefinition> structs) {
+        this.structs = structs;
+    }
+
+    public void addUserFunction(UserFunction userFunction) {
+        if (userFunctions.size() != userFunction.getId()) {
+            throw new RuntimeException("User function list size did not match id. Size: " + userFunctions.size() + ", id: " + userFunction.getId());
+        }
+        userFunctions.add(userFunction);
+    }
+
+    public UserFunction getUserFunction(int id) {
+        return userFunctions.get(id);
+    }
+
+    public ArrayList<UserFunction> getUserFunctions() {
+        return userFunctions;
+    }
+
+    public void setUserFunctions(ArrayList<UserFunction> userFunctions) {
+        this.userFunctions = userFunctions;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public GameStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(GameStatus status) {
+        this.status = status;
+    }
+
+    public void setInputCode(InputCode inputCode) {
+        this.inputCode = inputCode;
+    }
+
+    public InputCode getInputCode() {
+        return inputCode;
+    }
+
+    public void setReturnValueAndExitFunction(Object value) {
+        returnValue = value;
+        running = false;
+    }
+
+    public Object getReturnValueAndResume() {
+        running = true;
+        return returnValue;
+    }
+
+    public void interruptLoop(Interrupt interrupt) {
+        running = false;
+        this.interrupt = interrupt;
+    }
+
+    public Interrupt catchInterrupt(Integer label) {
+        if (interrupt != null) {
+            if (!interrupt.hasLabel() || interrupt.getLabel().equals(label)) {
+                running = true;
+                Interrupt temp = interrupt;
+                interrupt = null;
+                return temp;
+            } else {
+                return new Interrupt(null, true);
+            }
+        }
+        return null;
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void setTrackScore(boolean trackScore) {
+        this.trackScore = trackScore;
+    }
+
+    public boolean getTrackScore() {
+        return trackScore;
+    }
+}

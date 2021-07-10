@@ -1,0 +1,26 @@
+
+init {
+    out = 0
+}
+
+run {
+    out = addTwoNumbers(1,2)
+    out += addThreeNumbers(4, 8, 16)
+    out += getSomeNumber()
+}
+
+input(a, b) true
+
+fun addTwoNumbers(n1: number, n2: number): number {
+    out = 20000
+    return n1 + n2
+}
+
+fun addThreeNumbers(n1: number, n2: number, n3: number): number {
+    return addTwoNumbers(n1, addTwoNumbers(n2, n3))
+}
+
+fun getSomeNumber(): number {
+    return 32
+    return 3000
+}

@@ -1,0 +1,26 @@
+
+init {
+    out = 0
+}
+
+run {
+    var = 10
+    when (var) {
+        1 -> out = 100
+        3, 10 -> out = 1
+        6 -> out = 200
+        default -> out = 300
+    }
+    when (false) {
+        true -> out = 400
+        false -> out += 2
+    }
+    when (var) {
+        1 -> out = 500
+        3, 11 -> out = 600
+        6 -> out = 700
+        default -> out += 4
+    }
+}
+
+input(a,b) true

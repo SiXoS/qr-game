@@ -1,0 +1,34 @@
+
+init {
+    out = 0
+}
+
+run {
+    nullVar = null: number
+    if (nullVar == null: number) {
+        out += 1
+    }
+    if (nullVar != 0) {
+        out += 2
+    }
+    if (treeMap(~0, ~true).get(1) == null: bool) {
+        out += 4
+    }
+    a = new a(8, null: b)
+    if (a.otherStruct == null: b) {
+        out += 16
+    }
+    a.otherStruct = new b(a)
+    out += a.otherStruct.firstStruct.otherStruct.firstStruct.num
+}
+
+input(bla,ble) true
+
+struct a {
+    num: number
+    otherStruct: b
+}
+
+struct b {
+    firstStruct: a
+}

@@ -1,0 +1,17 @@
+
+init {
+	snake = linkedList(new pos(10,10))
+}
+
+run {
+    for(part in snake) {
+        part.x
+    }
+}
+
+input (a,b) true
+
+struct pos {
+    x: number
+    y: number
+}

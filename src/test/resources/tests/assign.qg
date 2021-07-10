@@ -1,0 +1,17 @@
+
+init {
+    out = 0
+}
+
+run {
+    var2 = var1 = 1
+    out = var2 + var1
+    if (var3 = true) {
+        out = out + 4
+    }
+    if (var3) {
+        out = out + 8
+    }
+}
+
+input (button, pushed) true

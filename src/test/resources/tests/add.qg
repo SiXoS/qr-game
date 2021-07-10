@@ -1,0 +1,10 @@
+
+init {
+    out = 0
+}
+
+run {
+    out = 10 + 6 + 2 + -1
+}
+
+input (button, pushed) true

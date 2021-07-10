@@ -1,0 +1,30 @@
+
+init {
+    out = 0
+}
+
+run {
+    if (2 < 3) {
+        out = out + 1
+    }
+    if (3 < 3) {
+        out = out + 100
+    }
+    if (-1 < 1) {
+        out = out + 2
+    }
+    if (-2 < -1) {
+        out = out + 4
+    }
+    if (3 <= 3) {
+        out = out + 8
+    }
+    if (4 <= 3) {
+        out = out + 200
+    }
+    if (2 <= 3) {
+        out = out + 16
+    }
+}
+
+input (button, pushed) true

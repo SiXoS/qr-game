@@ -1,0 +1,11 @@
+
+init {
+    out = 0
+    temp = 1
+}
+
+run {
+    out = temp
+}
+
+input (button, pushed) true

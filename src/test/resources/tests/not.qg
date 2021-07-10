@@ -1,0 +1,15 @@
+
+init {
+    out = 0
+}
+
+run {
+    if (!true) {
+        out = out + 1
+    }
+    if (!false) {
+        out = out + 2
+    }
+}
+
+input (button, pushed) true
