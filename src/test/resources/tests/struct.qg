@@ -17,6 +17,9 @@ run {
     out = out + struct2.structField.order
     struct1.some = 64
     out += struct1.some
+
+    shapeStruct = new shapeStruct(createRectangle(0, 0, 10, 10).setSpeedPerSecondX(128))
+    out += shapeStruct.shape.getSpeedPerSecondX()
 }
 
 input (button, pushed) true
@@ -32,4 +35,8 @@ struct soManyFields {
     inn: bool
     arbitrary: Shape
     order: number
+}
+
+struct shapeStruct {
+    shape: Shape
 }

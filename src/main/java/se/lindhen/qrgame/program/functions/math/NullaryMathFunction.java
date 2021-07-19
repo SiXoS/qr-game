@@ -38,4 +38,9 @@ public abstract class NullaryMathFunction extends Function {
     }
 
     public abstract double calculate();
+
+    @Override
+    public boolean isConstant() {
+        return true;
+    }
 }

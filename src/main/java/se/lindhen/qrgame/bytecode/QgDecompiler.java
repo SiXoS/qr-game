@@ -198,7 +198,7 @@ public class QgDecompiler {
                 Type stackType = variableTypeMap.get(stackVarId);
                 return new StackVariableExpression(new Variable(stackVarId, stackType, true));
             case LITERAL_NUMBER:
-                return new NumberExpression(reader.readInt());
+                return new NumberExpression(reader.readBool() ? reader.readInt() : reader.readFloat());
             case EQUALS:
                 return new EqualsExpression(decompileExpression(), decompileExpression());
             case LITERAL_BOOL:

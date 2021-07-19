@@ -7,6 +7,6 @@ public class RadToDegFunction extends UnaryMathFunction {
 
     @Override
     public double calculate(double arg) {
-        return Math.toRadians(arg);
+        return Math.toDegrees(arg);
     }
 }

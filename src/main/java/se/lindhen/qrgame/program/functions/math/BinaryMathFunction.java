@@ -38,4 +38,9 @@ public abstract class BinaryMathFunction extends Function {
     }
 
     public abstract double calculate(double arg1, double arg2);
+
+    @Override
+    public boolean isConstant() {
+        return true;
+    }
 }

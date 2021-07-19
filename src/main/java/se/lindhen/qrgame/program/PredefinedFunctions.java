@@ -17,13 +17,9 @@ public class PredefinedFunctions {
         add(new PredefinedFunction(new ModifyScoreFunction()));
         add(new PredefinedFunction(new WonFunction()));
         add(new PredefinedFunction(new LostFunction()));
-
-        // shapes
         add(new PredefinedFunction(new EllipseFunction()));
         add(new PredefinedFunction(new RectangleFunction()));
         add(new PredefinedFunction(new CompositeShapeFunction()));
-
-        // datastructures
         add(new PredefinedFunction(new IndexedHashSetFunction()));
         add(new PredefinedFunction(new TreeSetFunction()));
         add(new PredefinedFunction(new LinkedListFunction()));
@@ -32,8 +28,6 @@ public class PredefinedFunctions {
         add(new PredefinedFunction(new MapEntryFunction()));
         add(new PredefinedFunction(new TreeMapFunction()));
         add(new PredefinedFunction(new HashMapFunction()));
-
-        // math
         add(new PredefinedFunction(new AbsFunction()));
         add(new PredefinedFunction(new ACosFunction()));
         add(new PredefinedFunction(new ASinFunction()));
@@ -58,6 +52,7 @@ public class PredefinedFunctions {
         add(new PredefinedFunction(new SinFunction()));
         add(new PredefinedFunction(new SqrtFunction()));
         add(new PredefinedFunction(new TanFunction()));
+        add(new PredefinedFunction(new TriangleFunction()));
     }};
 
     private PredefinedFunctions() {

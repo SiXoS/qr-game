@@ -1,0 +1,16 @@
+
+const HALF_PI = pi()/2
+const A_BOOL = true
+
+init {
+    out = 0
+}
+
+run {
+    out = HALF_PI
+    if (A_BOOL) {
+        out = out * 4
+    }
+}
+
+input(a,b) true

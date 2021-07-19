@@ -1,0 +1,8 @@
+
+init {
+    out = 10435.552
+}
+
+run true
+
+input(a,b) true

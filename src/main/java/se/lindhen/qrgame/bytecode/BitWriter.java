@@ -15,6 +15,10 @@ public class BitWriter {
     private int index = 0;
     private int offset = 0;
     private static final int MAX_BYTE_SIZE = (1 << 8) - 2; // -2 as our encoding doesn't support zero so we have to add all numbers by 1
+    static final int FLOAT_EXPONENT_MASK = 0x7f800000;
+    static final int FLOAT_EXPONENT_OFFSET = 23;
+    static final int FLOAT_MANTISSA_MASK = 0x007fffff;
+    static final int FLOAT_SIGN_MASK = 0x80000000;
     private String context = null;
     private final HashMap<String, Integer> contextualBitsWritten = new HashMap<>();
 
@@ -119,6 +123,26 @@ public class BitWriter {
         long rest = positiveNumber - (1L << exponent);
         write(5, exponent);
         write(exponent, (int) rest);
+    }
+
+    public void writeFloat(float number) {
+        if (Float.isInfinite(number)) {
+            writeBool(true);
+            writeBool(number > 0);
+            return;
+        }
+        writeBool(false);
+        if (Float.isNaN(number)) {
+            writeBool(true);
+            return;
+        }
+        writeBool(false);
+        int bits = Float.floatToIntBits(number);
+        int mantissa = bits & FLOAT_MANTISSA_MASK;
+        int exponent = (bits & FLOAT_EXPONENT_MASK) >>> FLOAT_EXPONENT_OFFSET;
+        writeBool((bits & FLOAT_SIGN_MASK) != 0);
+        writeInt(mantissa);
+        writePositiveByte(exponent);
     }
 
     public void writePositiveByte(int value) {

@@ -6,19 +6,19 @@ import se.lindhen.qrgame.program.types.Type;
 
 public class NumberExpression extends Expression {
 
-    private final int number;
+    private final double number;
 
-    public NumberExpression(int number) {
+    public NumberExpression(double number) {
         super(NumberType.NUMBER_TYPE);
         this.number = number;
     }
 
     @Override
     public Object calculate(Program program) {
-        return (double) number;
+        return number;
     }
 
-    public int getNumber() {
+    public double getNumber() {
         return number;
     }
 }

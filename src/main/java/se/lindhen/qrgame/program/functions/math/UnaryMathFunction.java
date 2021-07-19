@@ -38,4 +38,9 @@ public abstract class UnaryMathFunction extends Function {
     }
 
     public abstract double calculate(double arg);
+
+    @Override
+    public boolean isConstant() {
+        return true;
+    }
 }

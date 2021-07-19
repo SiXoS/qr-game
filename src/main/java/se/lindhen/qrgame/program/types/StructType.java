@@ -33,4 +33,9 @@ public class StructType extends Type {
     public int hashCode() {
         return Objects.hash(super.hashCode(), structId);
     }
+
+    @Override
+    public String toString() {
+        return "struct(" + structId + ")";
+    }
 }

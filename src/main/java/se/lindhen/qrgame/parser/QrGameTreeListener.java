@@ -38,6 +38,8 @@ public class QrGameTreeListener extends QrGameBaseListener {
     private final ArrayList<Validator> validators = new ArrayList<>();
     private final HashMap<String, Integer> labelMap = new HashMap<>();
     private final LinkedList<String> labelStack = new LinkedList<>();
+    private final HashMap<String, Expression> constants = new HashMap<>();
+    private boolean definingConstant = false;
     private int loopCounter = 0;
 
     public QrGameTreeListener(Program program, HashMap<String, Integer> optimizedVariableIds) {
@@ -103,13 +105,13 @@ public class QrGameTreeListener extends QrGameBaseListener {
     private void enterLoop(QrGameParser.LabelContext labelCtx) {
         loopCounter++;
         if (labelCtx != null) {
-            putLabel(labelCtx.WORD().getText(), labelCtx);
+            putLabel(labelCtx.NAME().getText(), labelCtx);
         }
     }
 
     private Integer exitLoop(QrGameParser.LabelContext labelCtx) {
         loopCounter--;
-        return labelCtx == null ? null : popLabel(labelCtx.WORD().getText());
+        return labelCtx == null ? null : popLabel(labelCtx.NAME().getText());
     }
 
     public Stream<ValidationResult> validate() {
@@ -120,6 +122,35 @@ public class QrGameTreeListener extends QrGameBaseListener {
     public void enterProgram(QrGameParser.ProgramContext ctx) {
         variableStack.push(new HashMap<>());
         defineStructsAndFunctions(ctx.definition());
+    }
+
+    @Override
+    public void enterConstDef(QrGameParser.ConstDefContext ctx) {
+        definingConstant = true;
+    }
+
+    @Override
+    public void exitConstDef(QrGameParser.ConstDefContext ctx) {
+        definingConstant = false;
+        String constName = ctx.CONSTANT().getText();
+        if (constants.containsKey(constName)) {
+            throw new ValidationException(ValidationResult.invalid(ctx, "Constant with name '" + constName + "' already defined"));
+        }
+        Expression expression = expressionStack.pop();
+        Type type = expression.getType();
+        Object value;
+        try {
+            value = expression.calculate(program);
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Failed to calculate constant '" + constName + "'. Did you use a non-constant expression? Error: " + e.getMessage(), e);
+        }
+        if (type.isBool()) {
+            constants.put(constName, new BoolExpression((boolean) value));
+        } else if (type.isNumber()) {
+            constants.put(constName, new NumberExpression((double) value));
+        } else {
+            throw new ValidationException(ValidationResult.invalid(ctx, "Constants can only be number or null, was '" + type + "'"));
+        }
     }
 
     @Override
@@ -150,16 +181,16 @@ public class QrGameTreeListener extends QrGameBaseListener {
     @Override
     public void enterInput(QrGameParser.InputContext ctx) {
         blockStack.push(new ArrayList<>());
-        String buttonIdVarName = ctx.WORD(0).getText();
-        String pushedElseReleasedVarName = ctx.WORD(1).getText();
+        String buttonIdVarName = ctx.NAME(0).getText();
+        String pushedElseReleasedVarName = ctx.NAME(1).getText();
         putStackVar(buttonIdVarName, NumberType.NUMBER_TYPE, 1, ctx);
         putStackVar(pushedElseReleasedVarName, BoolType.BOOL_TYPE, 0, ctx);
     }
 
     @Override
     public void exitInput(QrGameParser.InputContext ctx) {
-        Variable buttonIdVarName = getVar(ctx.WORD(0).getText(), ctx);
-        Variable pushedElseReleasedVarName = getVar(ctx.WORD(1).getText(), ctx);
+        Variable buttonIdVarName = getVar(ctx.NAME(0).getText(), ctx);
+        Variable pushedElseReleasedVarName = getVar(ctx.NAME(1).getText(), ctx);
         program.setInputCode(new InputCode(buttonIdVarName.getId(), pushedElseReleasedVarName.getId(), blockStack.pop().get(0)));
     }
 
@@ -173,7 +204,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
     public void exitStructAssign(QrGameParser.StructAssignContext ctx) {
         Expression valueExpression = expressionStack.pop();
         Expression structExpression = expressionStack.pop();
-        String field = ctx.WORD().getText();
+        String field = ctx.NAME().getText();
         if (!structExpression.getType().isStruct()) {
             throw new ValidationException(ValidationResult.invalid(ctx, "Can only assign field values on structs, was '" + structExpression.getType() + "'"));
         }
@@ -188,14 +219,16 @@ public class QrGameTreeListener extends QrGameBaseListener {
 
     @Override
     public void exitAssignExpression(QrGameParser.AssignExpressionContext ctx) {
-        String variable = ctx.WORD().getSymbol().getText();
+        validateNotDefiningConst(ctx);
+        String variable = ctx.NAME().getSymbol().getText();
         Expression popped = expressionStack.pop();
         expressionStack.push(new AssignExpression(putVar(variable, popped.getType(), ctx).getId(), popped));
     }
 
     @Override
     public void exitGetAndIncrement(QrGameParser.GetAndIncrementContext ctx) {
-        String variable = ctx.WORD().getText();
+        validateNotDefiningConst(ctx);
+        String variable = ctx.NAME().getText();
         Variable var = getVar(variable, ctx);
         expressionStack.push(new GetAndModifyExpression(var.getId(), true));
         validateNotOnStack(var, ctx);
@@ -212,7 +245,8 @@ public class QrGameTreeListener extends QrGameBaseListener {
 
     @Override
     public void exitGetAndDecrement(QrGameParser.GetAndDecrementContext ctx) {
-        String variable = ctx.WORD().getText();
+        validateNotDefiningConst(ctx);
+        String variable = ctx.NAME().getText();
         Variable var = getVar(variable, ctx);
         expressionStack.push(new GetAndModifyExpression(var.getId(), false));
         validateNotOnStack(var, ctx);
@@ -223,29 +257,30 @@ public class QrGameTreeListener extends QrGameBaseListener {
 
     @Override
     public void exitIncrementAndGet(QrGameParser.IncrementAndGetContext ctx) {
-        addAndGet(ctx, ctx.WORD().getText(), new NumberExpression(1));
+        addAndGet(ctx, ctx.NAME().getText(), new NumberExpression(1));
     }
 
     @Override
     public void exitDecrementAndGet(QrGameParser.DecrementAndGetContext ctx) {
-        addAndGet(ctx, ctx.WORD().getText(), new NumberExpression(-1));
+        addAndGet(ctx, ctx.NAME().getText(), new NumberExpression(-1));
     }
 
     @Override
     public void exitModifySubtractException(QrGameParser.ModifySubtractExceptionContext ctx) {
         Expression toAdd = expressionStack.pop();
-        addAndGet(ctx, ctx.WORD().getText(), new NegateExpression(toAdd));
+        addAndGet(ctx, ctx.NAME().getText(), new NegateExpression(toAdd));
         validators.add(() -> validateCorrectType(toAdd, NumberType.NUMBER_TYPE, ctx, "Expected number type, got '" + toAdd.getType() + "'"));
     }
 
     @Override
     public void exitModifyAddExpression(QrGameParser.ModifyAddExpressionContext ctx) {
         Expression toAdd = expressionStack.pop();
-        addAndGet(ctx, ctx.WORD().getText(), toAdd);
+        addAndGet(ctx, ctx.NAME().getText(), toAdd);
         validators.add(() -> validateCorrectType(toAdd, NumberType.NUMBER_TYPE, ctx, "Expected number type, got '" + toAdd.getType() + "'"));
     }
 
     private void addAndGet(ParserRuleContext ctx, String variableName, Expression toAdd) {
+        validateNotDefiningConst(ctx);
         Variable var = getVar(variableName, ctx);
         expressionStack.push(new AssignExpression(var.getId(), new AddExpression(new VariableExpression(var), toAdd)));
         validateNotOnStack(var, ctx);
@@ -306,7 +341,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
     @Override
     public void exitForEachLoop(QrGameParser.ForEachLoopContext ctx) {
         Statement body = blockStack.pop().get(0);
-        String targetVariable = ctx.forEachCondition().WORD().getText();
+        String targetVariable = ctx.forEachCondition().NAME().getText();
         Expression toIterate = expressionStack.pop();
         Variable variable = getVar(targetVariable, ctx.forEachCondition());
         validateNotOnStack(variable, ctx);
@@ -316,7 +351,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
 
     @Override
     public void exitForEachCondition(QrGameParser.ForEachConditionContext ctx) {
-        String targetVariable = ctx.WORD().getText();
+        String targetVariable = ctx.NAME().getText();
         Expression toIterate = expressionStack.getFirst();
         if (!toIterate.getType().isObject()) {
             throw new ValidationException(ValidationResult.invalid(ctx, "Can only iterate on objects, was '" + toIterate.getType() + "'."));
@@ -374,7 +409,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
 
     @Override
     public void exitBreakRule(QrGameParser.BreakRuleContext ctx) {
-        Integer label = ctx.WORD() != null ? getLabel(ctx.WORD().getText(), ctx) : null;
+        Integer label = ctx.NAME() != null ? getLabel(ctx.NAME().getText(), ctx) : null;
         if (label == null && loopCounter == 0) {
             validators.add(() -> ValidationResult.invalid(ctx, "Use of break without being in a loop."));
         }
@@ -383,7 +418,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
 
     @Override
     public void exitContinueRule(QrGameParser.ContinueRuleContext ctx) {
-        Integer label = ctx.WORD() != null ? getLabel(ctx.WORD().getText(), ctx) : null;
+        Integer label = ctx.NAME() != null ? getLabel(ctx.NAME().getText(), ctx) : null;
         if (label == null && loopCounter == 0) {
             validators.add(() -> ValidationResult.invalid(ctx, "Use of continue without being in a loop."));
         }
@@ -434,8 +469,8 @@ public class QrGameTreeListener extends QrGameBaseListener {
                 validators.add(() -> ValidationResult.invalid(whenCase, "Type of case was bool but type of when parameter was '" + whenType + "'"));
             }
             cases.add(whenCase.atom().BTRUE() != null);
-        } else if (whenCase.atom().WORD() != null) {
-            String word = whenCase.atom().WORD().getText();
+        } else if (whenCase.atom().NAME() != null) {
+            String word = whenCase.atom().NAME().getText();
             if (word.equals("default")) {
                 hasDefault = true;
             } else {
@@ -554,19 +589,27 @@ public class QrGameTreeListener extends QrGameBaseListener {
     public void exitAtomicOperation(QrGameParser.AtomicOperationContext ctx) {
         QrGameParser.AtomContext atom = ctx.atom();
         if (atom.NUMBER() != null) {
-            int number = Integer.parseInt(atom.NUMBER().getSymbol().getText());
+            double number = Double.parseDouble(atom.NUMBER().getSymbol().getText());
             expressionStack.push(new NumberExpression(number));
         } else if (atom.BFALSE() != null) {
             expressionStack.push(new BoolExpression(false));
         } else if (atom.BTRUE() != null) {
             expressionStack.push(new BoolExpression(true));
-        } else if (atom.WORD() != null) {
-            Variable var = getVar(atom.WORD().getText(), ctx);
+        } else if (atom.NAME() != null) {
+            validateNotDefiningConst(ctx);
+            Variable var = getVar(atom.NAME().getText(), ctx);
             if (var.isOnStack()) {
                 expressionStack.push(new StackVariableExpression(var));
             } else {
                 expressionStack.push(new VariableExpression(var));
             }
+        } else if (atom.CONSTANT() != null) {
+            String constName = atom.CONSTANT().getText();
+            Expression constantExpression = constants.get(constName);
+            if (constantExpression == null) {
+                throw new ValidationException(ValidationResult.invalid(ctx, "Constant '" + constName + "' not found."));
+            }
+            expressionStack.push(constantExpression);
         } else {
             throw new RuntimeException("Unhandled atomic case: " + atom.getText());
         }
@@ -640,7 +683,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
     @Override
     public void exitFunctionCall(QrGameParser.FunctionCallContext ctx) {
         QrGameParser.FunctionContext fctx = ctx.function();
-        String functionName = fctx.WORD().getText();
+        String functionName = fctx.NAME().getText();
 
         Expression[] args = collectArgumentExpressions(fctx.argument());
         ArrayList<Expression> arguments = new ArrayList<>(Arrays.asList(args));
@@ -658,6 +701,10 @@ public class QrGameTreeListener extends QrGameBaseListener {
 
     private void addBuiltInFunction(QrGameParser.FunctionCallContext ctx, ArrayList<Expression> arguments, Integer builtInFunctionId) {
         Function function = program.getFunction(builtInFunctionId);
+
+        if (definingConstant && !function.isConstant()) {
+            throw new ValidationException(ValidationResult.invalid(ctx, "Function '" + function.getName() + "' is not constant and cannot be used in constants."));
+        }
 
         // Validation can't be delayed as wrong arg count can lead to runtime exceptions
         ValidationResult validationResult = function.validate(arguments, ctx);
@@ -690,7 +737,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
     @Override
     public void exitMethodCall(QrGameParser.MethodCallContext ctx) {
         QrGameParser.FunctionContext functionContext = ctx.function();
-        String methodName = functionContext.WORD().getText();
+        String methodName = functionContext.NAME().getText();
 
         Expression[] args = collectArgumentExpressions(functionContext.argument());
         Expression object = expressionStack.pop();
@@ -715,7 +762,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
     public void enterFunctionDefinition(QrGameParser.FunctionDefinitionContext ctx) {
         blockStack.push(new ArrayList<>());
         variableStack.push(new HashMap<>());
-        String name = ctx.WORD().getText();
+        String name = ctx.NAME().getText();
         UserFunctionDeclaration functionDeclaration = userDeclaredFunctions.get(name);
         activeReturnType = Optional.of(functionDeclaration.getReturnType());
         // First parameter will be deepest in the stack which is why we set it to the highest index.
@@ -725,7 +772,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
     public void putVariablesForParameters(QrGameParser.ParametersContext parametersContext, int parameterIndex) {
         if (parametersContext == null) return;
 
-        String name = parametersContext.parameter().WORD().getText();
+        String name = parametersContext.parameter().NAME().getText();
         Type type = getType(parametersContext.parameter().type());
         putStackVar(name, type, parameterIndex, parametersContext.parameter());
         putVariablesForParameters(parametersContext.parameters(), parameterIndex - 1);
@@ -734,7 +781,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
     @Override
     public void exitFunctionDefinition(QrGameParser.FunctionDefinitionContext ctx) {
         Statement body = blockStack.pop().get(0);
-        String name = ctx.WORD().getText();
+        String name = ctx.NAME().getText();
         UserFunctionDeclaration functionDeclaration = userDeclaredFunctions.get(name);
         List<UserFunction.UserFunctionParameter> functionParams = mapParameterDeclarationsToParameters(functionDeclaration.getParameters(), ctx);
 
@@ -785,7 +832,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
     }
 
     private void declareStruct(QrGameParser.StructContext structContext) {
-        String structName = structContext.WORD().getText();
+        String structName = structContext.NAME().getText();
         if (structsByName.containsKey(structName)) {
             throw new ValidationException(ValidationResult.invalid(structContext, "A struct with name '" + structName + "' is already defined"));
         }
@@ -799,7 +846,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
     }
 
     private void defineStruct(QrGameParser.StructContext structContext) {
-        String structName = structContext.WORD().getText();
+        String structName = structContext.NAME().getText();
         Struct struct = structsByName.get(structName);
         structContext.structField().forEach(fieldCtx -> addField(struct, fieldCtx));
         StructDefinition structDefinition = program.getStructDefinition(struct.getId());
@@ -812,7 +859,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
     }
 
     private void addField(Struct struct, QrGameParser.StructFieldContext fieldCtx) {
-        String fieldName = fieldCtx.WORD().getText();
+        String fieldName = fieldCtx.NAME().getText();
         if (struct.addField(fieldName, getType(fieldCtx.type())) == null) {
             validators.add(() -> ValidationResult.invalid(fieldCtx, "Duplicate field '" + fieldName + "' in struct '" + struct.getName() + "'"));
         }
@@ -823,7 +870,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
     }
 
     private void declareFunction(QrGameParser.FunctionDefinitionContext functionDefinitionContext) {
-        String name = functionDefinitionContext.WORD().getText();
+        String name = functionDefinitionContext.NAME().getText();
         if (functionMap.containsKey(name)) {
             throw new ValidationException(ValidationResult.invalid(functionDefinitionContext, "There is already a built-in function with name '" + name + "'"));
         }
@@ -840,14 +887,14 @@ public class QrGameTreeListener extends QrGameBaseListener {
         if (parameters == null) {
             return;
         }
-        String varName = parameters.parameter().WORD().getText();
+        String varName = parameters.parameter().NAME().getText();
         Type type = getType(parameters.parameter().type());
         parameterList.add(new FunctionParameterDeclaration(type, varName));
         getParameters(parameters.parameters(), parameterList);
     }
 
     private Type getType(QrGameParser.TypeContext typeCtx) {
-        String baseType = typeCtx.WORD().getText();
+        String baseType = typeCtx.NAME().getText();
         switch (baseType) {
             case "number":
                 validateNoTypeArgs(typeCtx, baseType);
@@ -897,7 +944,8 @@ public class QrGameTreeListener extends QrGameBaseListener {
 
     @Override
     public final void exitStructInstantiation(QrGameParser.StructInstantiationContext ctx) {
-        String structName = ctx.WORD().getText();
+        validateNotDefiningConst(ctx);
+        String structName = ctx.NAME().getText();
         Struct struct = structsByName.get(structName);
 
         if (struct == null) {
@@ -918,7 +966,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
     @Override
     public void exitStructFetch(QrGameParser.StructFetchContext ctx) {
         Expression structExpression = expressionStack.pop();
-        String fieldName = ctx.WORD().getText();
+        String fieldName = ctx.NAME().getText();
         Type type = structExpression.getType();
         if (!type.isStruct()) {
             throw new ValidationException(ValidationResult.invalid(ctx, "Can only fetch fields from structs, was '" + type + "'"));
@@ -950,5 +998,11 @@ public class QrGameTreeListener extends QrGameBaseListener {
     private void addBiOperatorValidator(ParserRuleContext ctx, Expression lhs, Expression rhs, Type type) {
         validators.add(() -> validateCorrectType(lhs, type, ctx, "LHS should be " + type + ", is '" + lhs.getType() + "'"));
         validators.add(() -> validateCorrectType(rhs, type, ctx, "RHS should be " + type + ", is '" + rhs.getType() + "'"));
+    }
+
+    private void validateNotDefiningConst(ParserRuleContext ctx) {
+        if (definingConstant) {
+            throw new ValidationException(ValidationResult.invalid(ctx, "Non-constant expression cannot be used when defining constant."));
+        }
     }
 }

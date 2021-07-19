@@ -5,11 +5,12 @@ import se.lindhen.qrgame.program.objects.QgClass;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ObjectType extends Type {
 
     private final QgClass<?> qgClass;
-    private List<Type> innerTypes;
+    private final List<Type> innerTypes;
 
     public ObjectType(QgClass<?> qgClass, Type... innerTypes) {
         super(BaseType.OBJECT);
@@ -28,6 +29,17 @@ public class ObjectType extends Type {
 
     public QgClass<?> getQgClass() {
         return qgClass;
+    }
+
+    @Override
+    public String toString() {
+        String innerTypeString = "";
+        if (!innerTypes.isEmpty()) {
+            innerTypeString = innerTypes.stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining(",", "<", ">")) ;
+        }
+        return qgClass.getName() + innerTypeString;
     }
 
     @Override

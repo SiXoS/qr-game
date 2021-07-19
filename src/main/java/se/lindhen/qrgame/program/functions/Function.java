@@ -24,6 +24,7 @@ public abstract class Function {
     public abstract Object execute(ArrayList<Expression> arguments, Program program);
     public abstract ValidationResult validate(ArrayList<Expression> arguments, ParserRuleContext ctx);
     public abstract Optional<Integer> getConstantParameterCount();
+    public abstract boolean isConstant();
 
     public String getName() {
         return name;

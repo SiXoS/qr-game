@@ -13,7 +13,7 @@ run {
     if (arr.get(0).size() == 3) {
         out = out + 16
     }
-    poppedInner = arr.popFirst()
+    poppedInner = arr.pop()
     out = out + poppedInner.get(1)
     if (arr.size() == 1) {
         out = out + 32

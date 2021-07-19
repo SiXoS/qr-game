@@ -1,12 +1,14 @@
 grammar QrGame;
 
-program: init run input definition*;
+program: constDef* init run input definition*;
+
+constDef: CONSTANT_KEYWORD CONSTANT ASSIGN expression;
 
 init: 'init' statement;
 
 run: 'run' statement;
 
-input: 'input' LPAREN WORD ',' WORD RPAREN statement;
+input: 'input' LPAREN NAME ',' NAME RPAREN statement;
 
 statement
     : conditional #conditionalStatement
@@ -30,7 +32,7 @@ conditionalElse: conditional 'else' statement;
 whileLoop: 'while' LPAREN expression RPAREN label? statement;
 
 forEachLoop: 'for' LPAREN forEachCondition RPAREN label? statement;
-forEachCondition: WORD 'in' expression;
+forEachCondition: NAME 'in' expression;
 
 forLoop: 'for' LPAREN forLoopPartInit? SEMICOLON expression SEMICOLON forLoopPartEnd? RPAREN label? statement;
 forLoopPartInit: forLoopPart;
@@ -42,15 +44,15 @@ whenParameter: expression;
 whenClause: whenCase ARROW statement;
 whenCase: atom (',' whenCase)?;
 
-label: LABEL WORD;
+label: LABEL NAME;
 
 returnStatement: 'return' expression?;
-breakRule: 'break' (LABEL WORD)?;
-continueRule: 'continue' (LABEL WORD)?;
+breakRule: 'break' (LABEL NAME)?;
+continueRule: 'continue' (LABEL NAME)?;
 
 expression
    :  expression DOT function # methodCall
-   |  expression DOT WORD #structFetch
+   |  expression DOT NAME #structFetch
    |  MINUS expression #negateExpression
    |  NOT expression #notExpression
    |  expression (TIMES | DIV | MOD) expression # multiplicativeOperation
@@ -68,46 +70,48 @@ expression
    |  function # functionCall
    |  LPAREN expression RPAREN # parenthesis
    |  TYPEFETCH expression # typeFetch
-   |  expression DOT WORD ASSIGN expression # structAssign
-   |  WORD ASSIGN expression # assignExpression
-   |  WORD MODIFY_ADD expression # modifyAddExpression
-   |  WORD MODIFY_SUBTRACT expression # modifySubtractException
-   |  WORD INCREMENT # getAndIncrement
-   |  INCREMENT WORD # incrementAndGet
-   |  WORD DECREMENT # getAndDecrement
-   |  DECREMENT WORD # decrementAndGet
+   |  expression DOT NAME ASSIGN expression # structAssign
+   |  NAME ASSIGN expression # assignExpression
+   |  NAME MODIFY_ADD expression # modifyAddExpression
+   |  NAME MODIFY_SUBTRACT expression # modifySubtractException
+   |  NAME INCREMENT # getAndIncrement
+   |  INCREMENT NAME # incrementAndGet
+   |  NAME DECREMENT # getAndDecrement
+   |  DECREMENT NAME # decrementAndGet
    |  NULL COLON type # nullExpression
    |  atom # atomicOperation
    ;
 
-function: WORD LPAREN argument? RPAREN;
+function: NAME LPAREN argument? RPAREN;
 argument: expression (',' argument)?;
 
-structInstantiation: NEW WORD LPAREN argument? RPAREN;
+structInstantiation: NEW NAME LPAREN argument? RPAREN;
 
-atom: BFALSE | BTRUE | WORD | NUMBER;
+atom: BFALSE | BTRUE | NAME | NUMBER | CONSTANT;
 
 definition: struct | functionDefinition;
 
-struct: STRUCT WORD LBIRD structField+ RBIRD;
-structField: WORD COLON type;
+struct: STRUCT NAME LBIRD structField+ RBIRD;
+structField: NAME COLON type;
 
-functionDefinition: 'fun' WORD LPAREN parameters? RPAREN (COLON type)? statement;
+functionDefinition: 'fun' NAME LPAREN parameters? RPAREN (COLON type)? statement;
 parameters: parameter (',' parameters)?;
-parameter: WORD COLON type;
+parameter: NAME COLON type;
 
-type: WORD genericType?;
+type: NAME genericType?;
 genericType: LESS genericTypeArg GREATER;
 genericTypeArg: type (',' genericTypeArg)?;
 
-NUMBER : [0-9]+;
+NUMBER : [0-9]+('.'[0-9]+)?;
 BTRUE: 'true';
 BFALSE: 'false';
 STRUCT: 'struct';
 NEW: 'new';
 NULL: 'null';
 ELSE: 'else';
-WORD : [a-zA-Z0-9_]+;
+CONSTANT_KEYWORD: 'const';
+CONSTANT : [A-Z0-9_]+;
+NAME : [a-zA-Z0-9_]+;
 TIMES : '*';
 DIV : '/';
 MOD : '%';

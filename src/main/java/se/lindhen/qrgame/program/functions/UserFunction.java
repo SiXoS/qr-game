@@ -67,6 +67,11 @@ public class UserFunction extends Function {
     }
 
     @Override
+    public boolean isConstant() {
+        return false;
+    }
+
+    @Override
     public ValidationResult validate(ArrayList<Expression> arguments, ParserRuleContext ctx) {
         return validateArguments(arguments, ctx, argumentTypes);
     }

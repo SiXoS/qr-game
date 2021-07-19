@@ -38,4 +38,9 @@ public class MapEntryFunction extends Function {
     public Optional<Integer> getConstantParameterCount() {
         return Optional.empty();
     }
+
+    @Override
+    public boolean isConstant() {
+        return true;
+    }
 }

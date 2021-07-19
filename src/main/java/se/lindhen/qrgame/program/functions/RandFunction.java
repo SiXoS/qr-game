@@ -41,4 +41,9 @@ public class RandFunction extends Function {
     public Optional<Integer> getConstantParameterCount() {
         return Optional.of(2);
     }
+
+    @Override
+    public boolean isConstant() {
+        return false;
+    }
 }

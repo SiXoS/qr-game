@@ -210,7 +210,14 @@ public class QgCompiler {
         if (expression instanceof NumberExpression) {
             writer.setContext("number");
             writer.writeCommand(LITERAL_NUMBER);
-            writer.writeInt(((NumberExpression) expression).getNumber());
+            double number = ((NumberExpression) expression).getNumber();
+            if (isInt(number)) {
+                writer.writeBool(true);
+                writer.writeInt((int) number);
+            } else {
+                writer.writeBool(false);
+                writer.writeFloat((float) number);
+            }
             writer.exitContext();
         } else if (expression instanceof AddExpression) {
             writer.setContext("add");
@@ -367,6 +374,10 @@ public class QgCompiler {
         } else {
             throw new UnsupportedOperationException("Expression not implemented: " + expression.getClass().getName());
         }
+    }
+
+    private boolean isInt(double number) {
+        return number == (int) number;
     }
 
     private void compileExpressions(Iterable<Expression> subExpressions) {

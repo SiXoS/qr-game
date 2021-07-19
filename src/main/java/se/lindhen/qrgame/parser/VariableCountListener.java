@@ -18,19 +18,19 @@ public class VariableCountListener extends QrGameBaseListener {
 
     @Override
     public void enterParameter(QrGameParser.ParameterContext ctx) {
-        stackVariables.add(ctx.WORD().getText());
+        stackVariables.add(ctx.NAME().getText());
     }
 
     @Override
     public void enterAtom(QrGameParser.AtomContext ctx) {
-        if (ctx.WORD() != null) {
-            trackVariable(ctx.WORD().getText());
+        if (ctx.NAME() != null) {
+            trackVariable(ctx.NAME().getText());
         }
     }
 
     @Override
     public void enterAssignExpression(QrGameParser.AssignExpressionContext ctx) {
-        trackVariable(ctx.WORD().getText());
+        trackVariable(ctx.NAME().getText());
     }
 
     private void trackVariable(String varName) {

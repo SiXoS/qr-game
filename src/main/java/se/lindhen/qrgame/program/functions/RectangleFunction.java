@@ -43,4 +43,9 @@ public class RectangleFunction extends Function {
     public Optional<Integer> getConstantParameterCount() {
         return Optional.of(4);
     }
+
+    @Override
+    public boolean isConstant() {
+        return false;
+    }
 }

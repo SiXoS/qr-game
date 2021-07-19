@@ -40,4 +40,9 @@ public class WonFunction extends Function {
     public Optional<Integer> getConstantParameterCount() {
         return Optional.of(0);
     }
+
+    @Override
+    public boolean isConstant() {
+        return false;
+    }
 }

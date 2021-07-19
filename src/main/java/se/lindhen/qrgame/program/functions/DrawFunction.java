@@ -40,4 +40,9 @@ public class DrawFunction extends Function {
     public Optional<Integer> getConstantParameterCount() {
         return Optional.of(1);
     }
+
+    @Override
+    public boolean isConstant() {
+        return false;
+    }
 }

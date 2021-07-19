@@ -100,6 +100,61 @@ public class ByteCodeTest {
         writeAndReadPositiveByte(255);
     }
 
+    @Test
+    public void testWriteAndReadArbitraryFloat() {
+        writeAndReadFloat(135.643F);
+    }
+
+    @Test
+    public void testWriteAndReadArbitraryNegativeFloat() {
+        writeAndReadFloat(-135.6345F);
+    }
+
+    @Test
+    public void testWriteAndReadBigFloat() {
+        writeAndReadFloat(400000000F);
+    }
+
+    @Test
+    public void testWriteAndReadVeryNegativeFloat() {
+        writeAndReadFloat(-400000000F);
+    }
+
+    @Test
+    public void testWriteAndReadBigDecimalFloat() {
+        writeAndReadFloat(4000.23364554353545353453534535345345645344F);
+    }
+
+    @Test
+    public void testWriteAndReadVeryNegativeDecimalFloat() {
+        writeAndReadFloat(-400.4522523F);
+    }
+
+    @Test
+    public void testWriteAndReadZeroFloat() {
+        writeAndReadFloat(0F);
+    }
+
+    @Test
+    public void testWriteAndReadOneFloat() {
+        writeAndReadFloat(1F);
+    }
+
+    @Test
+    public void testWriteAndReadMinusOneFloat() {
+        writeAndReadFloat(-1F);
+    }
+
+    @Test
+    public void testWriteAndReadMaxFloat() {
+        writeAndReadFloat(Float.MAX_VALUE);
+    }
+
+    @Test
+    public void testWriteAndReadMinFloat() {
+        writeAndReadFloat(Float.MIN_VALUE);
+    }
+
     private void writeAndReadInt(int number) {
         BitWriter writer = new BitWriter();
         writer.writeInt(number);
@@ -114,6 +169,14 @@ public class ByteCodeTest {
         BitReader reader = new BitReader(writer.getBuffer());
         int result = reader.readPositiveByte();
         Assert.assertEquals(number, result);
+    }
+
+    private void writeAndReadFloat(float number) {
+        BitWriter writer = new BitWriter();
+        writer.writeFloat(number);
+        BitReader reader = new BitReader(writer.getBuffer());
+        double result = reader.readFloat();
+        Assert.assertEquals(number, result, 0.000001);
     }
 
 }

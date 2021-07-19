@@ -30,7 +30,8 @@ public class ListClass extends QgClass<ListClass.ListObject> {
         methods.add(new LambdaMethod<>(new ConstantGenericType(VoidType.VOID_TYPE), "append", (obj, args, vars) -> obj.add(args.get(0).calculate(vars)), new GenericInnerType()));
         methods.add(new LambdaMethod<>(new ConstantGenericType(NumberType.NUMBER_TYPE), "size", (list, args, vars) -> list.size()));
         methods.add(new LambdaMethod<>(new ConstantGenericType(VoidType.VOID_TYPE), "push", (list, args, vars) -> list.push(args.get(0).calculate(vars)), new GenericInnerType()));
-        methods.add(new LambdaMethod<>(new GenericInnerType(), "popFirst", (list, args, vars) -> list.popFirst()));
+        methods.add(new LambdaMethod<>(new GenericInnerType(), "pop", (list, args, vars) -> list.pop()));
+        methods.add(new LambdaMethod<>(new GenericInnerType(), "peek", (list, args, vars) -> list.peek()));
         methods.add(new LambdaMethod<>(new ConstantGenericType(BoolType.BOOL_TYPE), "remove", (list, args, prog) -> list.remove(args.get(0).calculate(prog)), new GenericInnerType()));
         methods.add(new ForEachMethod<>("addAll", ListObject::add));
         methods.add(new ForEachMethod<>("removeAll", ListObject::remove));
@@ -103,12 +104,16 @@ public class ListClass extends QgClass<ListClass.ListObject> {
         }
 
         public Object push(Object calculate) {
-            list.add(calculate);
+            list.add(0, calculate);
             return null;
         }
 
-        public Object popFirst() {
+        public Object pop() {
             return list.remove(0);
+        }
+
+        public Object peek() {
+            return list.isEmpty() ? null : list.get(0);
         }
 
         public boolean remove(Object value) {

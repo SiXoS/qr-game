@@ -80,7 +80,7 @@ public class ShapeClass extends QgClass<ShapeClass.ShapeObject> {
     private class SetShapeParamFunction extends LambdaMethod<ShapeObject, ConstantGenericType> {
         public SetShapeParamFunction(String name, ShapeParamConsumer function) {
             super(
-                    new ConstantGenericType(objectType),
+                    new ConstantGenericType(new ObjectType(ShapeClass.this)),
                     name,
                     (shape, args, vars) -> {
                         Object value = args.get(0).calculate(vars);

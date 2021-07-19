@@ -1,7 +1,6 @@
 package se.lindhen.qrgame.bytecode;
 
-import static se.lindhen.qrgame.bytecode.BitWriter.COMMAND_SIZE;
-import static se.lindhen.qrgame.bytecode.BitWriter.COMMON_COMMAND_SIZE;
+import static se.lindhen.qrgame.bytecode.BitWriter.*;
 
 public class BitReader {
 
@@ -90,6 +89,21 @@ public class BitReader {
         int exponent = read(3);
         int rest = read(exponent);
         return (1 << exponent) + rest - 1;
+    }
+
+    public float readFloat() {
+        boolean isInfinite = readBool();
+        if (isInfinite) {
+            return readBool() ? Float.POSITIVE_INFINITY : Float.NEGATIVE_INFINITY;
+        }
+        boolean isNan = readBool();
+        if (isNan) {
+            return Float.NaN;
+        }
+        int negativeBit = readBool() ? FLOAT_SIGN_MASK : 0;
+        int mantissa = readInt();
+        int exponent = readPositiveByte();
+        return Float.intBitsToFloat(negativeBit | (exponent << FLOAT_EXPONENT_OFFSET) | mantissa);
     }
 
     public boolean readBool() {

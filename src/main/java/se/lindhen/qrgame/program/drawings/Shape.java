@@ -18,7 +18,6 @@ public abstract class Shape {
     private double accelerationPerSecondX;
     private double accelerationPerSecondY;
     private double rotationDegSpeedPerSecond;
-    private boolean hidden;
     protected List<Shape> children;
 
     public Shape(double posX, double posY) {
@@ -84,14 +83,6 @@ public abstract class Shape {
 
     public int getId() {
         return id;
-    }
-
-    public boolean isHidden() {
-        return hidden;
-    }
-
-    public void setHidden(boolean hidden) {
-        this.hidden = hidden;
     }
 
     public double getPosX() {
