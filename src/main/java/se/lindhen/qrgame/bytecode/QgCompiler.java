@@ -211,14 +211,19 @@ public class QgCompiler {
             writer.setContext("number");
             writer.writeCommand(LITERAL_NUMBER);
             double number = ((NumberExpression) expression).getNumber();
-            if (isInt(number)) {
+            if (isLong(number)) {
                 writer.writeBool(true);
-                writer.writeInt((int) number);
+                writer.exitContext();
+                writer.setContext("integerNumber");
+                writer.writeLong((long) number);
+                writer.exitContext();
             } else {
                 writer.writeBool(false);
-                writer.writeFloat((float) number);
+                writer.exitContext();
+                writer.setContext("irrationalNumber");
+                writer.writeDouble(number);
+                writer.exitContext();
             }
-            writer.exitContext();
         } else if (expression instanceof AddExpression) {
             writer.setContext("add");
             writer.writeCommand(ADD);
@@ -376,8 +381,8 @@ public class QgCompiler {
         }
     }
 
-    private boolean isInt(double number) {
-        return number == (int) number;
+    private boolean isLong(double number) {
+        return number == (long) number;
     }
 
     private void compileExpressions(Iterable<Expression> subExpressions) {

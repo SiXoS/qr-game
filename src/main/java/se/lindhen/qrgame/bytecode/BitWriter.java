@@ -2,23 +2,25 @@ package se.lindhen.qrgame.bytecode;
 
 import se.lindhen.qrgame.qr.QrCreator;
 
+import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class BitWriter {
 
-
     static final int COMMAND_SIZE = 5;
     static final int COMMON_COMMAND_SIZE = 2;
-    // We don't divide by 4 here because we want to avoid out of bounds exceptions
-    private final int[] buffer = new int[QrCreator.BYTES_IN_QR_CODE];
+    // Multiply by 4 to avoid out of bounds exceptions
+    private final byte[] buffer = new byte[QrCreator.BYTES_IN_QR_CODE*4];
     private int index = 0;
-    private int offset = 0;
+    private byte offset = 0;
     private static final int MAX_BYTE_SIZE = (1 << 8) - 2; // -2 as our encoding doesn't support zero so we have to add all numbers by 1
-    static final int FLOAT_EXPONENT_MASK = 0x7f800000;
-    static final int FLOAT_EXPONENT_OFFSET = 23;
-    static final int FLOAT_MANTISSA_MASK = 0x007fffff;
-    static final int FLOAT_SIGN_MASK = 0x80000000;
+    private static final int MAX_WORD_SIZE = (1 << 16) - 2;
+    static final long DOUBLE_EXPONENT_MASK = 0x7ff0000000000000L;
+    static final int DOUBLE_EXPONENT_OFFSET = 52;
+    static final long DOUBLE_MANTISSA_MASK = 0x000fffffffffffffL;
+    static final long DOUBLE_SIGN_MASK = 0x8000000000000000L;
     private String context = null;
     private final HashMap<String, Integer> contextualBitsWritten = new HashMap<>();
 
@@ -27,43 +29,57 @@ public class BitWriter {
         write(command.isCommon() ? COMMON_COMMAND_SIZE : COMMAND_SIZE, command.getCode());
     }
 
-    public void write(int size, int value) {
-        assert size <= 32;
+    public void write(int size, long value) {
+        assert size <= 64;
         trackBytesWritten(size, context == null ? "unknown" : context);
-        if (size < 32) {
-            int maskedValue = value & ((1 << size) - 1);
+        if (size < 64) {
+            long maskedValue = value & ((1L << size) - 1L);
             if (maskedValue != value) {
-                throw new IllegalArgumentException("The value '" + value + "' (" + Integer.toString(value, 2) + ") does not fit in " + size + " bits");
+                throw new IllegalArgumentException("The value '" + value + "' (" + Long.toString(value, 2) + ") does not fit in " + size + " bits");
             }
         }
         /*
-         * example: xxxxxxxx xxxxxxxx xxxxxxxx xx000000
-         * offset: 26
-         * to insert: aaaa (size 4)
-         * to get how much we need to left shift our number we do 32 - size - offset (32 - 4 - 26 = 2) which becomes:
-         * aaaa00. We or this with the current value:
-         * xxxxxxxx xxxxxxxx xxxxxxxx xx000000
-         *                              aaaa00
-         * ----------------------------------- OR
-         * xxxxxxxx xxxxxxxx xxxxxxxx xxaaaa00
-         */
-        if (size + offset <= 32) {
-            buffer[index] = buffer[index] | (value << (32 - size - offset) );
-            offset += size; // don't need to check if offset == 32. Second if-case will solve that on next write.
-        /*
          * Too big to fit in what's left. Need to split the number. Push as much as possible to current index and rest to next.
-         * example: xxxxxxxx xxxxxxxx xxxxxxxx xxxx0000
-         * offset: 28
-         * to insert: aaaaaa (size 6)
-         * calculate how much that can't fit: size - (32 - offset) (6 - 32 + 28 = 2)
-         * 1. Shift off the overflow and place it in current buffer
-         * 2. Move the overflow to the leftmost bits (32 - overflow (32 - 2) = 30)
+         * example: [xxxxx000]
+         * offset: 5
+         * to insert: aaaaaaaaaa (size 10)
+         * calculate how much to store: 8 - offset = 8 - 5 = 3
+         * calculate overflow: size - toStore = 8
+         * Shift off the overflow and place it in current buffer [xxxxxaaa]
+         * create mask for what's left: (1 << overflow) - 1 = 100000000 - 1 = 11111111
+         * mask the value: aaa aaaaaaa & 11111111 = aaaaaaaa
+         * reset offset
+         * set size to overflow
          */
-        } else {
-            int overflow = size - (32 - offset);
-            buffer[index] = buffer[index] | (value >>> overflow);
-            buffer[++index] = buffer[index] | (value << (32 - overflow));
-            offset = overflow;
+        while (size + offset > 8) {
+            int toStore = 8 - offset;
+            int overflow = size - toStore;
+            buffer[index] = (byte) (buffer[index] | (value >>> overflow));
+            value = value & ((1L << overflow) - 1L);
+            index++;
+            offset = 0;
+            size = overflow;
+        }
+        /*
+         * example: xx000000
+         * offset: 2
+         * to insert: aaaa (size 4)
+         * to get how much we need to left shift our number we do 8 - size - offset (8 - 4 - 2 = 2) which becomes:
+         * When left-shifted we get aaaa00
+         * aaaa00. We or this with the current value:
+         * xx000000
+         *   aaaa00
+         * -------- OR
+         * xxaaaa00
+         * and add the size to the offset (2 + 4 = 6 which is the new ofset)
+         */
+        if (size > 0) {
+            buffer[index] = (byte) (buffer[index] | (value << (8 - size - offset)));
+            offset += size;
+            if (offset == 8) {
+                index++;
+                offset = 0;
+            }
         }
     }
 
@@ -87,75 +103,79 @@ public class BitWriter {
     }
 
     public byte[] getBuffer() {
-        return intArrayToByteArray(buffer, index + 1);
+        return Arrays.copyOf(buffer, index + 1);
     }
 
-    public static byte[] intArrayToByteArray(int[] data, int size) {
-        byte[] bytes = new byte[size*4];
-        int bytesIndex = 0;
-        for (int i = 0; i < size; i++) {
-            bytes[bytesIndex++] = (byte) (data[i] >>> 24);
-            bytes[bytesIndex++] = (byte) (data[i] >>> 16);
-            bytes[bytesIndex++] = (byte) (data[i] >>> 8);
-            bytes[bytesIndex++] = (byte) data[i];
-        }
-        return bytes;
+    public void writeInt(int number) {
+        writeSignedNumber(number, Integer.MIN_VALUE, Integer.MAX_VALUE, 5);
+    }
+
+    public void writeLong(long number) {
+        writeSignedNumber(number, Long.MIN_VALUE, Long.MAX_VALUE, 6);
     }
 
     /*
      * example: 135
-     * log2(135) = 7.07 (00111b0)
-     * rest = 135 - (1 << 7 = 1000000b0 = 64) = 71 (1000111b0) (notice that the required bits for the rest is the same as floor(log2(135)))
+     * exponent = numberOfBits(135) - 1 = numberOfBits(1000 0111) - 1 = 7
+     * rest = 135 - (1 << 7 = 100 0000 = 64) = 71 (100 0111) (notice that the required bits for the rest is the same as the value of exponent)
      *
      */
-    public void writeInt(int number) {
-        if(number == Integer.MIN_VALUE) {
-            throw new IllegalArgumentException("Can only write integers down to one more than minimum value");
+    private void writeSignedNumber(long number, long minValue, long maxValue, int exponentSize) {
+        if(number <= minValue) {
+            throw new IllegalArgumentException("Value too small, must be greater than " + minValue);
         }
-        long positiveNumber = number < 0 ? -((long) number) + Integer.MAX_VALUE : number; // using long as unsigned int
-        if(positiveNumber == 0) {
+        if(number == 0) {
             writeBool(true);
             return;
         } else {
             writeBool(false);
         }
-        int exponent = (int) Math.floor(MathUtil.log2(positiveNumber));
-        long rest = positiveNumber - (1L << exponent);
-        write(5, exponent);
-        write(exponent, (int) rest);
+        BigInteger bigNumber = number < 0 ? BigInteger.valueOf(-number).add(BigInteger.valueOf(maxValue)) : BigInteger.valueOf(number);
+        int exponent = bigNumber.bitLength() - 1;
+        long rest = bigNumber.subtract(BigInteger.ONE.shiftLeft(exponent)).longValueExact();
+        write(exponentSize, exponent);
+        write(exponent, rest);
     }
 
-    public void writeFloat(float number) {
-        if (Float.isInfinite(number)) {
+    public void writeDouble(double number) {
+        if (Double.isInfinite(number)) {
             writeBool(true);
             writeBool(number > 0);
             return;
         }
         writeBool(false);
-        if (Float.isNaN(number)) {
+        if (Double.isNaN(number)) {
             writeBool(true);
             return;
         }
         writeBool(false);
-        int bits = Float.floatToIntBits(number);
-        int mantissa = bits & FLOAT_MANTISSA_MASK;
-        int exponent = (bits & FLOAT_EXPONENT_MASK) >>> FLOAT_EXPONENT_OFFSET;
-        writeBool((bits & FLOAT_SIGN_MASK) != 0);
-        writeInt(mantissa);
-        writePositiveByte(exponent);
+        long bits = Double.doubleToLongBits(number);
+        long mantissa = bits & DOUBLE_MANTISSA_MASK;
+        int exponent = (int) ((bits & DOUBLE_EXPONENT_MASK) >>> DOUBLE_EXPONENT_OFFSET);
+        writeBool((bits & DOUBLE_SIGN_MASK) != 0);
+        writeLong(mantissa);
+        writePositiveWord(exponent);
     }
 
     public void writePositiveByte(int value) {
+        writeUnsignedValue(value, MAX_BYTE_SIZE, 3);
+    }
+
+    private void writePositiveWord(int value) {
+        writeUnsignedValue(value, MAX_WORD_SIZE, 4);
+    }
+
+    private void writeUnsignedValue(int value, int maxSize, int exponentSize) {
         if (value < 0) {
-            throw new IllegalArgumentException("Bytes have to be zero or greater, was " + value);
+            throw new IllegalArgumentException("Unsigned values have to be zero or greater, was " + value);
         }
-        if (value > MAX_BYTE_SIZE) {
-            throw new IllegalArgumentException("Bytes has to be less than " + MAX_BYTE_SIZE + ", was " + value);
+        if (value > maxSize) {
+            throw new IllegalArgumentException("Unsigned value has to be less than " + maxSize + ", was " + value);
         }
         int actualValue = value + 1;
         int exponent = (int) Math.floor(MathUtil.log2(actualValue));
         int rest = actualValue - (1 << exponent);
-        write(3, exponent);
+        write(exponentSize, exponent);
         write(exponent, rest);
     }
 
@@ -164,6 +184,6 @@ public class BitWriter {
     }
 
     public int getBytesWritten() {
-        return index*4 + (int) Math.ceil(offset/8.0);
+        return index + (int) Math.ceil(offset/8.0);
     }
 }

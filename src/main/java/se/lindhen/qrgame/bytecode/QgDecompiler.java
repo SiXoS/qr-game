@@ -30,7 +30,7 @@ public class QgDecompiler {
 
     public Program decompile() {
         program = new Program();
-        int version = reader.read(4);
+        int version = (int) reader.read(4);
         if (version != VERSION) {
             throw new RuntimeException("Cannot read version " + version);
         }
@@ -88,7 +88,7 @@ public class QgDecompiler {
     }
 
     private Type decompileType() {
-        TypeCode typeCode = TypeCode.fromCode(reader.read(4));
+        TypeCode typeCode = TypeCode.fromCode((int) reader.read(4));
         switch (typeCode) {
             case NUMBER: return NumberType.NUMBER_TYPE;
             case BOOL: return BoolType.BOOL_TYPE;
@@ -198,7 +198,7 @@ public class QgDecompiler {
                 Type stackType = variableTypeMap.get(stackVarId);
                 return new StackVariableExpression(new Variable(stackVarId, stackType, true));
             case LITERAL_NUMBER:
-                return new NumberExpression(reader.readBool() ? reader.readInt() : reader.readFloat());
+                return new NumberExpression(reader.readBool() ? reader.readLong() : reader.readDouble());
             case EQUALS:
                 return new EqualsExpression(decompileExpression(), decompileExpression());
             case LITERAL_BOOL:

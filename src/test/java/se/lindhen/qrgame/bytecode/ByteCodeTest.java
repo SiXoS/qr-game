@@ -24,7 +24,7 @@ public class ByteCodeTest {
         byte[] buffer = writer.getBuffer();
         BitReader reader = new BitReader(buffer);
         for (int[] pair : toWrite) {
-            int actual = reader.read(pair[0]);
+            int actual = (int) reader.read(pair[0]);
             Assert.assertEquals("Expected " + Integer.toString(pair[1], 16) + " with size " + pair[0] + " but got " + Integer.toString(actual, 16), pair[1], actual);
         }
     }
@@ -76,6 +76,48 @@ public class ByteCodeTest {
     }
 
     @Test
+    public void testWriteAndReadArbitraryLong() {
+        writeAndReadLong(135);
+    }
+
+    @Test
+    public void testWriteAndReadArbitraryNegativeLong() {
+        writeAndReadLong(-135);
+    }
+
+    @Test
+    public void testWriteAndReadZeroLong() {
+        writeAndReadLong(0);
+    }
+
+    @Test
+    public void testWriteAndReadOneLong() {
+        writeAndReadLong(1);
+    }
+
+    @Test
+    public void testWriteAndReadMinusOneLong() {
+        writeAndReadLong(-1);
+    }
+
+    @Test
+    public void testWriteAndReadMaxLong() {
+        writeAndReadLong(Long.MAX_VALUE);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testWriteAndReadMinLong() {
+        Long number = Long.MIN_VALUE;
+        BitWriter writer = new BitWriter();
+        writer.writeLong(number);
+    }
+
+    @Test
+    public void testWriteAndReadOneMoreThanMinLong() {
+        writeAndReadLong(Long.MIN_VALUE + 1);
+    }
+
+    @Test
     public void testWriteAndReadMaxPosByte() {
         writeAndReadPositiveByte(254);
     }
@@ -101,58 +143,58 @@ public class ByteCodeTest {
     }
 
     @Test
-    public void testWriteAndReadArbitraryFloat() {
-        writeAndReadFloat(135.643F);
+    public void testWriteAndReadArbitraryDouble() {
+        writeAndReadDouble(135.643);
     }
 
     @Test
-    public void testWriteAndReadArbitraryNegativeFloat() {
-        writeAndReadFloat(-135.6345F);
+    public void testWriteAndReadArbitraryNegativeDouble() {
+        writeAndReadDouble(-135.6345);
     }
 
     @Test
-    public void testWriteAndReadBigFloat() {
-        writeAndReadFloat(400000000F);
+    public void testWriteAndReadBigDouble() {
+        writeAndReadDouble(400000000D);
     }
 
     @Test
-    public void testWriteAndReadVeryNegativeFloat() {
-        writeAndReadFloat(-400000000F);
+    public void testWriteAndReadVeryNegativeDouble() {
+        writeAndReadDouble(-400000000D);
     }
 
     @Test
-    public void testWriteAndReadBigDecimalFloat() {
-        writeAndReadFloat(4000.23364554353545353453534535345345645344F);
+    public void testWriteAndReadBigDecimalDouble() {
+        writeAndReadDouble(4000.23364554353545353453534535345345645344);
     }
 
     @Test
-    public void testWriteAndReadVeryNegativeDecimalFloat() {
-        writeAndReadFloat(-400.4522523F);
+    public void testWriteAndReadVeryNegativeDecimalDouble() {
+        writeAndReadDouble(-400.4522523);
     }
 
     @Test
-    public void testWriteAndReadZeroFloat() {
-        writeAndReadFloat(0F);
+    public void testWriteAndReadZeroDouble() {
+        writeAndReadDouble(0D);
     }
 
     @Test
-    public void testWriteAndReadOneFloat() {
-        writeAndReadFloat(1F);
+    public void testWriteAndReadOneDouble() {
+        writeAndReadDouble(1D);
     }
 
     @Test
-    public void testWriteAndReadMinusOneFloat() {
-        writeAndReadFloat(-1F);
+    public void testWriteAndReadMinusOneDouble() {
+        writeAndReadDouble(-1D);
     }
 
     @Test
-    public void testWriteAndReadMaxFloat() {
-        writeAndReadFloat(Float.MAX_VALUE);
+    public void testWriteAndReadMaxDouble() {
+        writeAndReadDouble(Double.MAX_VALUE);
     }
 
     @Test
-    public void testWriteAndReadMinFloat() {
-        writeAndReadFloat(Float.MIN_VALUE);
+    public void testWriteAndReadMinDouble() {
+        writeAndReadDouble(Double.MIN_VALUE);
     }
 
     private void writeAndReadInt(int number) {
@@ -160,6 +202,13 @@ public class ByteCodeTest {
         writer.writeInt(number);
         BitReader reader = new BitReader(writer.getBuffer());
         int result = reader.readInt();
+        Assert.assertEquals(number, result);
+    }
+    private void writeAndReadLong(long number) {
+        BitWriter writer = new BitWriter();
+        writer.writeLong(number);
+        BitReader reader = new BitReader(writer.getBuffer());
+        long result = reader.readLong();
         Assert.assertEquals(number, result);
     }
 
@@ -171,11 +220,11 @@ public class ByteCodeTest {
         Assert.assertEquals(number, result);
     }
 
-    private void writeAndReadFloat(float number) {
+    private void writeAndReadDouble(Double number) {
         BitWriter writer = new BitWriter();
-        writer.writeFloat(number);
+        writer.writeDouble(number);
         BitReader reader = new BitReader(writer.getBuffer());
-        double result = reader.readFloat();
+        double result = reader.readDouble();
         Assert.assertEquals(number, result, 0.000001);
     }
 

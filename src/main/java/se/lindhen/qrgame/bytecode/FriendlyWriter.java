@@ -11,7 +11,7 @@ public class FriendlyWriter extends BitWriter {
     }
 
     @Override
-    public void write(int size, int value) {
+    public void write(int size, long value) {
         stringBuffer.append("(");
         stringBuffer.append(size);
         stringBuffer.append(":");
