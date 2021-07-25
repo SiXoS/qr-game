@@ -11,7 +11,7 @@ run {
     if (nullVar != 0) {
         out += 2
     }
-    if (treeMap(~0, ~true).get(1) == null: bool) {
+    if (treeMap(:number, :bool).get(1) == null: bool) {
         out += 4
     }
     a = new a(8, null: b)

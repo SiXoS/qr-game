@@ -5,7 +5,7 @@ init {
 
 run {
     struct1 = new soManyFields(1, 2, true, createRectangle(10, 10, 20, 20), 4)
-    struct2 = new structWithArray(arrayList(~0), struct1)
+    struct2 = new structWithArray(arrayList(:number), struct1)
     out = out + struct1.fields
     if (struct1.inn) {
         out = out + 8

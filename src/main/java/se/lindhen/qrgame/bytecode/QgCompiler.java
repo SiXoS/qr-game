@@ -3,8 +3,6 @@ package se.lindhen.qrgame.bytecode;
 import se.lindhen.qrgame.program.*;
 import se.lindhen.qrgame.program.functions.Function;
 import se.lindhen.qrgame.program.functions.UserFunction;
-import se.lindhen.qrgame.program.objects.Method;
-import se.lindhen.qrgame.program.objects.QgClass;
 import se.lindhen.qrgame.program.statements.ForEachStatement;
 import se.lindhen.qrgame.program.statements.IfStatement;
 import se.lindhen.qrgame.program.statements.WhileStatement;
@@ -291,11 +289,11 @@ public class QgCompiler {
             writer.writeCommand(OR);
             writer.exitContext();
             compileExpressions(expression.getSubExpressions());
-        } else if (expression instanceof TypeFetchExpression) {
-            writer.setContext("typeFetch");
-            writer.writeCommand(TYPE_FETCH);
+        } else if (expression instanceof TypeExpression) {
+            writer.setContext("typeExpression");
+            writer.writeCommand(TYPE_EXPRESSION);
+            compileType(((TypeExpression) expression).getTypeValue());
             writer.exitContext();
-            compileExpressions(expression.getSubExpressions());
         } else if (expression instanceof VariableExpression) {
             writer.setContext("getVariable");
             writer.writeCommand(GET_VARIABLE);

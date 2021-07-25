@@ -132,7 +132,7 @@ public class BitWriter {
         }
         BigInteger bigNumber = number < 0 ? BigInteger.valueOf(-number).add(BigInteger.valueOf(maxValue)) : BigInteger.valueOf(number);
         int exponent = bigNumber.bitLength() - 1;
-        long rest = bigNumber.subtract(BigInteger.ONE.shiftLeft(exponent)).longValueExact();
+        long rest = bigNumber.subtract(BigInteger.ONE.shiftLeft(exponent)).longValue();
         write(exponentSize, exponent);
         write(exponent, rest);
     }

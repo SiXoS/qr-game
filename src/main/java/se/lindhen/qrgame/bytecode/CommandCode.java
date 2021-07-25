@@ -23,7 +23,7 @@ public enum CommandCode {
     CONDITIONAL(15, false),
     WHEN(16, false),
     EQUALS(17, false),
-    TYPE_FETCH(18, false),
+    TYPE_EXPRESSION(18, false),
     BLOCK(19, false),
     NEGATE(20, false),
     EXPRESSION_STATEMENT(21, false),

@@ -245,8 +245,8 @@ public class QgDecompiler {
                     args2.add(decompileExpression());
                 }
                 return new MethodCallExpression(objectExpression, methodId, args2);
-            case TYPE_FETCH:
-                return new TypeFetchExpression(decompileExpression());
+            case TYPE_EXPRESSION:
+                return new TypeExpression(decompileType());
             case NEGATE:
                 return new NegateExpression(decompileExpression());
             case NEW_STRUCT:

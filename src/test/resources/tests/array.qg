@@ -4,7 +4,7 @@ init {
 }
 
 run {
-    arr = arrayList(~arrayList(~0))
+    arr = arrayList(:List<number>)
     inner = arrayList(1, 2, 4)
     arr.append(inner)
     if (arr.size() == 1) {

@@ -69,7 +69,7 @@ expression
    |  structInstantiation # structInstantiationCall
    |  function # functionCall
    |  LPAREN expression RPAREN # parenthesis
-   |  TYPEFETCH expression # typeFetch
+   |  COLON type # typeExpression
    |  expression DOT NAME ASSIGN expression # structAssign
    |  NAME ASSIGN expression # assignExpression
    |  NAME MODIFY_ADD expression # modifyAddExpression
@@ -140,7 +140,6 @@ OR: '||';
 QUESTION: '?';
 COLON: ':';
 SEMICOLON: ';';
-TYPEFETCH: '~';
 DOT: '.';
 ARROW: '->';
 LABEL: '@';

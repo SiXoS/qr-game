@@ -580,9 +580,9 @@ public class QrGameTreeListener extends QrGameBaseListener {
     }
 
     @Override
-    public void exitTypeFetch(QrGameParser.TypeFetchContext ctx) {
-        Expression valueExpression = expressionStack.pop();
-        expressionStack.push(new TypeFetchExpression(valueExpression));
+    public void exitTypeExpression(QrGameParser.TypeExpressionContext ctx) {
+        Type type = getType(ctx.type());
+        expressionStack.push(new TypeExpression(type));
     }
 
     @Override

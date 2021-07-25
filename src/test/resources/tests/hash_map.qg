@@ -4,7 +4,7 @@ init {
 }
 
 run {
-    mapByType = hashMap(~0, ~true)
+    mapByType = hashMap(:number, :bool)
     out += mapByType.size() // 0
     mapByType.put(5, false)
     mapByType.put(1, true)

@@ -93,7 +93,7 @@ public class BitReader {
         int exponent = (int) read(exponentSize);
         long rest = read(exponent);
         BigInteger unsigned = BigInteger.ONE.shiftLeft(exponent).add(BigInteger.valueOf(rest));
-        return unsigned.compareTo(BigInteger.valueOf(maxValue)) > 0 ? -unsigned.subtract(BigInteger.valueOf(maxValue)).longValueExact() : unsigned.longValueExact();
+        return unsigned.compareTo(BigInteger.valueOf(maxValue)) > 0 ? -unsigned.subtract(BigInteger.valueOf(maxValue)).longValue() : unsigned.longValue();
     }
 
     public int readPositiveByte() {

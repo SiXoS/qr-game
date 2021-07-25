@@ -4,7 +4,7 @@ init {
 }
 
 run {
-    arr = arrayList(~0)
+    arr = arrayList(:number)
     arr.append(1)
     arr.append(2)
     arr.append(4)

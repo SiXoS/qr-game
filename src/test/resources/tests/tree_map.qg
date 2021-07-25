@@ -4,7 +4,7 @@ init {
 }
 
 run {
-    mapByType = treeMap(~0, ~true)
+    mapByType = treeMap(:number, :bool)
     out += mapByType.size() // 0
     mapByType.put(5, false)
     mapByType.put(1, true)
