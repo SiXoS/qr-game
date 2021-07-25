@@ -16,7 +16,7 @@ statement
     | whileLoop #whileLoopStatement
     | forEachLoop #forEachLoopStatement
     | forLoop #forLoopStatement
-    | when #whenStatement
+    | whenStmt #whenStatement
     | returnStatement #aReturnStatement
     | breakRule #breakStatement
     | continueRule # continueStatement
@@ -39,10 +39,13 @@ forLoopPartInit: forLoopPart;
 forLoopPartEnd: forLoopPart;
 forLoopPart: expression (',' forLoopPart)?;
 
-when: 'when' LPAREN whenParameter RPAREN LBIRD whenClause+ RBIRD;
+whenStmt: 'when' LPAREN whenParameter RPAREN LBIRD whenStatementClause+ RBIRD;
 whenParameter: expression;
-whenClause: whenCase ARROW statement;
+whenStatementClause: whenCase ARROW statement;
 whenCase: atom (',' whenCase)?;
+
+whenExpr: 'when' LPAREN whenParameter RPAREN LBIRD whenExpressionClause+ RBIRD;
+whenExpressionClause: whenCase ARROW expression;
 
 label: LABEL NAME;
 
@@ -51,7 +54,8 @@ breakRule: 'break' (LABEL NAME)?;
 continueRule: 'continue' (LABEL NAME)?;
 
 expression
-   :  expression DOT function # methodCall
+   :  whenExpr #whenExpression
+   |  expression DOT function # methodCall
    |  expression DOT NAME #structFetch
    |  MINUS expression #negateExpression
    |  NOT expression #notExpression
@@ -143,6 +147,6 @@ SEMICOLON: ';';
 DOT: '.';
 ARROW: '->';
 LABEL: '@';
-WS: [ \t\r\n\u000C]+ -> skip;
+WS: [ \t\r\n\u000C]+ -> channel(HIDDEN);
 COMMENT: '/*' .*? '*/' -> skip;
 LINE_COMMENT: '//' ~[\r\n]* -> skip;

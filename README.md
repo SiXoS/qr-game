@@ -31,12 +31,12 @@ init {
 }
 
 run {
-  coords = new pos(490, 490)
-  when(position) {
-    0 -> coords = new pos(490, 390)
-    1 -> coords = new pos(590, 490)
-    2 -> coords = new pos(490, 590)
-    3 -> coords = new pos(390, 490)
+  coords = when(position) {
+    0 -> new pos(490, 390)
+    1 -> new pos(590, 490)
+    2 -> new pos(490, 590)
+    3 -> new pos(390, 490)
+    default -> new pos(490, 490)
   }
   draw(createRectangle(coords.x, coords.y, 20, 20))
 }

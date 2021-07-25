@@ -140,7 +140,7 @@ public class QgDecompiler {
                 return new ForEachStatement(toIterate, var, decompileStatement(), hasForEachLabel ? reader.readPositiveByte() : null);
             case WHEN:
                 boolean hasDefault = reader.readBool();
-                WhenStatementBuilder builder = new WhenStatementBuilder();
+                WhenBuilder builder = WhenBuilder.whenStatementBuilder();
                 if (hasDefault) {
                     builder.setDefaultCase(decompileStatement());
                 }
@@ -149,7 +149,7 @@ public class QgDecompiler {
                 for (int i = 0; i < clauseCount; i++) {
                     builder.putClause(readWhenClause(builder.getParameterType()), decompileStatement());
                 }
-                return builder.build();
+                return builder.buildStatement();
             case RETURN:
                 boolean hasValue = reader.readBool();
                 if (hasValue) {
@@ -279,6 +279,18 @@ public class QgDecompiler {
                 return new StructAssignExpression(decompileExpression(), structField, decompileExpression());
             case CONDITIONAL:
                 return new ConditionalExpression(decompileExpression(), decompileExpression(), decompileExpression());
+            case WHEN:
+                boolean hasDefault = reader.readBool();
+                WhenBuilder builder = WhenBuilder.whenExpressionBuilder();
+                if (hasDefault) {
+                    builder.setDefaultCase(decompileExpression());
+                }
+                builder.setToCompare(decompileExpression());
+                int clauseCount = reader.readPositiveByte();
+                for (int i = 0; i < clauseCount; i++) {
+                    builder.putClause(readWhenClause(builder.getParameterType()), decompileExpression());
+                }
+                return builder.buildExpression();
             default:
                 throw new UnrecognizedCommandException("Received unexpected command " + commandCode + " when decompiling expression.", isFallback);
         }

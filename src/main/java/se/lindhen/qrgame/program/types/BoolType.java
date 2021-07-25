@@ -1,7 +1,5 @@
 package se.lindhen.qrgame.program.types;
 
-import java.util.Objects;
-
 public class BoolType extends Type {
 
     public final static BoolType BOOL_TYPE = new BoolType();
@@ -13,5 +11,10 @@ public class BoolType extends Type {
     @Override
     public boolean isComparable() {
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "bool";
     }
 }

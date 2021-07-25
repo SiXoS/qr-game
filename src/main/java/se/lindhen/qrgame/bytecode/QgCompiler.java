@@ -374,6 +374,21 @@ public class QgCompiler {
             compileExpression(conditionalExpression.getCondition());
             compileExpression(conditionalExpression.getTrueCase());
             compileExpression(conditionalExpression.getFalseCase());
+        } else if (expression instanceof WhenExpression) {
+            WhenExpression whenStatement = (WhenExpression) expression;
+            writer.setContext("when");
+            writer.writeCommand(WHEN);
+            writer.writeBool(whenStatement.getDefaultCase() != null);
+            writer.exitContext();
+            if (whenStatement.getDefaultCase() != null) {
+                compileExpression(whenStatement.getDefaultCase());
+            }
+            compileExpression(whenStatement.getToCompare());
+            writer.writePositiveByte(whenStatement.getCases().size());
+            whenStatement.getCases().forEach((aCase, caseBody) -> {
+                compileWhenCase(whenStatement.getToCompare().getType(), aCase);
+                compileExpression(caseBody);
+            });
         } else {
             throw new UnsupportedOperationException("Expression not implemented: " + expression.getClass().getName());
         }

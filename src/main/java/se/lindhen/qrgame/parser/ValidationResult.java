@@ -1,6 +1,7 @@
 package se.lindhen.qrgame.parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.misc.Interval;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,7 +23,8 @@ public class ValidationResult {
     }
 
     public static ValidationResult invalid(ParserRuleContext ctx, String message) {
-        String error = "Error at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine() + " in expression '" + ctx.getText() + "': " + message;
+        String relevantCode = ctx.start.getInputStream().getText(new Interval(ctx.start.getStartIndex(), ctx.stop.getStopIndex()));
+        String error = "Error at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine() + "; \"" + message + "\" in: '" + relevantCode + "'";
         return new ValidationResult(false, Collections.singletonList(error));
     }
 

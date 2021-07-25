@@ -25,7 +25,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
     private int currentLabelIndex = 0;
     private final LinkedList<HashMap<String, Variable>> variableStack = new LinkedList<>();
     private final LinkedList<ArrayList<Statement>> blockStack = new LinkedList<>();
-    private final LinkedList<WhenStatementBuilder> whenStack = new LinkedList<>();
+    private final LinkedList<WhenBuilder> whenStack = new LinkedList<>();
     private final HashMap<String, Struct> structsByName = new HashMap<>();
     private final HashMap<Integer, Struct> structsById = new HashMap<>();
     private final HashMap<String, Integer> functionMap = new HashMap<>();
@@ -269,14 +269,14 @@ public class QrGameTreeListener extends QrGameBaseListener {
     public void exitModifySubtractException(QrGameParser.ModifySubtractExceptionContext ctx) {
         Expression toAdd = expressionStack.pop();
         addAndGet(ctx, ctx.NAME().getText(), new NegateExpression(toAdd));
-        validators.add(() -> validateCorrectType(toAdd, NumberType.NUMBER_TYPE, ctx, "Expected number type, got '" + toAdd.getType() + "'"));
+        validateCorrectType(toAdd, NumberType.NUMBER_TYPE, ctx, "Expected number type, got '" + toAdd.getType() + "'");
     }
 
     @Override
     public void exitModifyAddExpression(QrGameParser.ModifyAddExpressionContext ctx) {
         Expression toAdd = expressionStack.pop();
         addAndGet(ctx, ctx.NAME().getText(), toAdd);
-        validators.add(() -> validateCorrectType(toAdd, NumberType.NUMBER_TYPE, ctx, "Expected number type, got '" + toAdd.getType() + "'"));
+        validateCorrectType(toAdd, NumberType.NUMBER_TYPE, ctx, "Expected number type, got '" + toAdd.getType() + "'");
     }
 
     private void addAndGet(ParserRuleContext ctx, String variableName, Expression toAdd) {
@@ -299,9 +299,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
         Expression condition = expressionStack.pop();
         Statement statement = blockStack.pop().get(0);
         blockStack.getFirst().add(new IfStatement(condition, statement));
-        validators.add(() ->
-                validateCorrectType(condition, BoolType.BOOL_TYPE, ctx, "Condition in if statement should be bool, was '" + condition.getType() + "'")
-        );
+        validateCorrectType(condition, BoolType.BOOL_TYPE, ctx, "Condition in if statement should be bool, was '" + condition.getType() + "'");
     }
 
     @Override
@@ -329,7 +327,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
         Expression condition = expressionStack.pop();
         Integer label = exitLoop(ctx.label());
         blockStack.getFirst().add(new WhileStatement(condition, body, label));
-        validators.add(() -> validateCorrectType(condition, BoolType.BOOL_TYPE, ctx, "Condition in while statement should be bool, was '" + condition.getType() + "'"));
+        validateCorrectType(condition, BoolType.BOOL_TYPE, ctx, "Condition in while statement should be bool, was '" + condition.getType() + "'");
     }
 
     @Override
@@ -385,7 +383,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
             addAll(init);
             add(new WhileStatement(condition, body, new BlockStatement(new ArrayList<>(endOfLoop)), label));
         }}));
-        validators.add(() -> validateCorrectType(condition, BoolType.BOOL_TYPE, ctx.expression(), "Expression in for-i loop must be of type boolean, was '" + condition.getType() + "'"));
+        validateCorrectType(condition, BoolType.BOOL_TYPE, ctx.expression(), "Expression in for-i loop must be of type boolean, was '" + condition.getType() + "'");
     }
 
     private List<Statement> getForLoopParts(QrGameParser.ForLoopPartContext forLoopPart) {
@@ -426,8 +424,13 @@ public class QrGameTreeListener extends QrGameBaseListener {
     }
 
     @Override
-    public void enterWhen(QrGameParser.WhenContext ctx) {
-        whenStack.push(new WhenStatementBuilder());
+    public void enterWhenStmt(QrGameParser.WhenStmtContext ctx) {
+        whenStack.push(WhenBuilder.whenStatementBuilder());
+    }
+
+    @Override
+    public void enterWhenExpr(QrGameParser.WhenExprContext ctx) {
+        whenStack.push(WhenBuilder.whenExpressionBuilder());
     }
 
     @Override
@@ -436,12 +439,12 @@ public class QrGameTreeListener extends QrGameBaseListener {
     }
 
     @Override
-    public void enterWhenClause(QrGameParser.WhenClauseContext ctx) {
+    public void enterWhenStatementClause(QrGameParser.WhenStatementClauseContext ctx) {
         blockStack.push(new ArrayList<>());
     }
 
     @Override
-    public void exitWhenClause(QrGameParser.WhenClauseContext ctx) {
+    public void exitWhenStatementClause(QrGameParser.WhenStatementClauseContext ctx) {
         List<Object> cases = new ArrayList<>();
         boolean hasDefault = getCases(ctx.whenCase(), cases);
         Statement statement = blockStack.pop().get(0);
@@ -450,6 +453,19 @@ public class QrGameTreeListener extends QrGameBaseListener {
         }
         if (hasDefault) {
             whenStack.getFirst().setDefaultCase(statement);
+        }
+    }
+
+    @Override
+    public void exitWhenExpressionClause(QrGameParser.WhenExpressionClauseContext ctx) {
+        List<Object> cases = new ArrayList<>();
+        boolean hasDefault = getCases(ctx.whenCase(), cases);
+        Expression expression = expressionStack.pop();
+        for (Object aCase : cases) {
+            whenStack.getFirst().putClause(aCase, expression);
+        }
+        if (hasDefault) {
+            whenStack.getFirst().setDefaultCase(expression);
         }
     }
 
@@ -483,8 +499,20 @@ public class QrGameTreeListener extends QrGameBaseListener {
     }
 
     @Override
-    public void exitWhen(QrGameParser.WhenContext ctx) {
-        blockStack.getFirst().add(whenStack.pop().build());
+    public void exitWhenStmt(QrGameParser.WhenStmtContext ctx) {
+        blockStack.getFirst().add(whenStack.pop().buildStatement());
+    }
+
+    @Override
+    public void exitWhenExpr(QrGameParser.WhenExprContext ctx) {
+        WhenExpression whenExpression = whenStack.pop().buildExpression();
+        if (whenExpression.getDefaultCase() == null) {
+            validators.add(() -> ValidationResult.invalid(ctx, "'when' expression must have default case"));
+        }
+        Type defaultType = whenExpression.getDefaultCase().getType();
+        whenExpression.getCases().values()
+                .forEach(expression -> validateCorrectType(expression, defaultType, ctx, "Expressions in when clause had different types. Default case is '" + defaultType + "' but found '" + expression.getType() + "' in other cases."));
+        expressionStack.push(whenExpression);
     }
 
     @Override
@@ -558,14 +586,14 @@ public class QrGameTreeListener extends QrGameBaseListener {
     public void exitNegateExpression(QrGameParser.NegateExpressionContext ctx) {
         Expression toNegate = expressionStack.pop();
         expressionStack.push(new NegateExpression(toNegate));
-        validators.add(() -> validateCorrectType(toNegate, NumberType.NUMBER_TYPE, ctx, "Can only negate numbers, was '" + toNegate.getType() + "'"));
+        validateCorrectType(toNegate, NumberType.NUMBER_TYPE, ctx, "Can only negate numbers, was '" + toNegate.getType() + "'");
     }
 
     @Override
     public void exitNotExpression(QrGameParser.NotExpressionContext ctx) {
         Expression toInvert = expressionStack.pop();
         expressionStack.push(new NotExpression(toInvert));
-        validators.add(() -> validateCorrectType(toInvert, BoolType.BOOL_TYPE, ctx, "Not operator expects boolean, was '" + toInvert.getType() + "'"));
+        validateCorrectType(toInvert, BoolType.BOOL_TYPE, ctx, "Not operator expects boolean, was '" + toInvert.getType() + "'");
 
     }
 
@@ -574,8 +602,8 @@ public class QrGameTreeListener extends QrGameBaseListener {
         Expression falseCase = expressionStack.pop();
         Expression trueCase = expressionStack.pop();
         Expression condition = expressionStack.pop();
-        validators.add(() -> validateCorrectType(condition, BoolType.BOOL_TYPE, ctx, "Condition should be boolean but was '" + condition.getType() + "'"));
-        validators.add(() -> validateCorrectType(trueCase, falseCase.getType(), ctx, "Both branches must be the same type. True case was '" + trueCase.getType() + "' but false case was '" + falseCase.getType() + "'"));
+        validateCorrectType(condition, BoolType.BOOL_TYPE, ctx, "Condition should be boolean but was '" + condition.getType() + "'");
+        validateCorrectType(trueCase, falseCase.getType(), ctx, "Both branches must be the same type. True case was '" + trueCase.getType() + "' but false case was '" + falseCase.getType() + "'");
         expressionStack.push(new ConditionalExpression(condition, trueCase, falseCase));
     }
 
@@ -643,7 +671,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
         Expression rhs = expressionStack.pop();
         Expression lhs = expressionStack.pop();
         expressionStack.push(new EqualsExpression(lhs, rhs));
-        validators.add(() -> validateCorrectType(rhs, lhs.getType(), ctx, "LHS is type '" + lhs.getType() + "' but RHS is '" + rhs.getType() + "'"));
+        validateCorrectType(rhs, lhs.getType(), ctx, "LHS is type '" + lhs.getType() + "' but RHS is '" + rhs.getType() + "'");
     }
 
     @Override
@@ -653,7 +681,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
         validateCorrectType(lhs, rhs.getType(), ctx, "LHS");
         validateCorrectType(rhs, lhs.getType(), ctx, "RHS");
         expressionStack.push(new NotExpression(new EqualsExpression(lhs, rhs)));
-        validators.add(() -> validateCorrectType(rhs, lhs.getType(), ctx, "LHS is type '" + lhs.getType() + "' but rhs is '" + rhs.getType() + "'"));
+        validateCorrectType(rhs, lhs.getType(), ctx, "LHS is type '" + lhs.getType() + "' but rhs is '" + rhs.getType() + "'");
     }
 
     @Override
@@ -958,7 +986,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
         }
         struct.getFields().forEach((name, structField) -> {
             Expression parameter = arguments[structField.getId()];
-            validators.add(() -> validateCorrectType(parameter, structField.getType(), ctx, "Parameter '" + name + "' to '" + structName + "' is type '" + parameter.getType() + "' but expected '" + structField.getType() + "'"));
+             validateCorrectType(parameter, structField.getType(), ctx, "Parameter '" + name + "' to '" + structName + "' is type '" + parameter.getType() + "' but expected '" + structField.getType() + "'");
         });
         expressionStack.push(new StructInstantiationExpression(struct.getId(), arguments));
     }
@@ -987,17 +1015,19 @@ public class QrGameTreeListener extends QrGameBaseListener {
         }
     }
 
-    protected ValidationResult validateCorrectType(Expression expression, Type type, ParserRuleContext ctx, String message) {
-        if (!type.equals(expression.getType())) {
-            return ValidationResult.invalid(ctx, message);
-        } else {
-            return ValidationResult.valid();
-        }
+    protected void validateCorrectType(Expression expression, Type type, ParserRuleContext ctx, String message) {
+        validators.add(() -> {
+            if (!type.equals(expression.getType())) {
+                return ValidationResult.invalid(ctx, message);
+            } else {
+                return ValidationResult.valid();
+            }
+        });
     }
 
     private void addBiOperatorValidator(ParserRuleContext ctx, Expression lhs, Expression rhs, Type type) {
-        validators.add(() -> validateCorrectType(lhs, type, ctx, "LHS should be " + type + ", is '" + lhs.getType() + "'"));
-        validators.add(() -> validateCorrectType(rhs, type, ctx, "RHS should be " + type + ", is '" + rhs.getType() + "'"));
+        validateCorrectType(lhs, type, ctx, "LHS should be " + type + ", is '" + lhs.getType() + "'");
+        validateCorrectType(rhs, type, ctx, "RHS should be " + type + ", is '" + rhs.getType() + "'");
     }
 
     private void validateNotDefiningConst(ParserRuleContext ctx) {

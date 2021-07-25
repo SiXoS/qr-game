@@ -21,6 +21,11 @@ run {
         6 -> out = 700
         default -> out += 4
     }
+    out += when (12) {
+        12 -> 8
+        11 -> 800
+        default -> 0
+    }
 }
 
 input(a,b) true

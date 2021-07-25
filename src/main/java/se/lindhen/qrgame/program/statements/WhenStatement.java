@@ -27,7 +27,7 @@ public class WhenStatement extends Statement {
 
     @Override
     public boolean alwaysReturns() {
-        return defaultCase == null && cases.values().stream().allMatch(Statement::alwaysReturns);
+        return defaultCase != null && defaultCase.alwaysReturns() && cases.values().stream().allMatch(Statement::alwaysReturns);
     }
 
     public Expression getToCompare() {

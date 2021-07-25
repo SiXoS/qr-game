@@ -33,4 +33,9 @@ public class TypeType extends Type {
     public int hashCode() {
         return Objects.hash(super.hashCode(), actualType);
     }
+
+    @Override
+    public String toString() {
+        return "typeValue";
+    }
 }
