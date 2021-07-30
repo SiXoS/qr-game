@@ -1,0 +1,10 @@
+
+init {
+    true && 1
+    2 || false
+    !treeMap(:number, :number)
+}
+
+run true
+
+input(a,b) true

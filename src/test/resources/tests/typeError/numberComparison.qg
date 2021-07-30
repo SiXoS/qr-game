@@ -1,0 +1,14 @@
+
+init {
+    num = 1
+    boolean = true
+    num == true
+    num < true
+    num <= arrayList(:number)
+    num > 6
+    num >= boolean
+}
+
+run true
+
+input(a,b) true

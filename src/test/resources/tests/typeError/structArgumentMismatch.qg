@@ -1,0 +1,12 @@
+
+init {
+    var = new aStruct(1, 2)
+}
+
+run true
+
+input(a,b) true
+
+struct aStruct {
+    aVal: number
+}

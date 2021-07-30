@@ -1,0 +1,12 @@
+
+init {
+    var = new missingStruct(1)
+}
+
+run true
+
+input(a,b) true
+
+struct aStruct {
+    aVal: number
+}

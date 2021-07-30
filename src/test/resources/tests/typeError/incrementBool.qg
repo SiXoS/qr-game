@@ -1,0 +1,9 @@
+
+init {
+    val = true
+    val++
+}
+
+run true
+
+input(a,b) true

@@ -1,0 +1,10 @@
+
+init {
+    out = 1
+}
+
+run {
+    return 2
+}
+
+input(a,b) true

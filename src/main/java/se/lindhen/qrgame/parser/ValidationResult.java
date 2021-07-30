@@ -24,7 +24,7 @@ public class ValidationResult {
 
     public static ValidationResult invalid(ParserRuleContext ctx, String message) {
         String relevantCode = ctx.start.getInputStream().getText(new Interval(ctx.start.getStartIndex(), ctx.stop.getStopIndex()));
-        String error = "Error at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine() + "; \"" + message + "\" in: '" + relevantCode + "'";
+        String error = "Error at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine() + "; \"" + message + "\" in: \"" + relevantCode + "\"";
         return new ValidationResult(false, Collections.singletonList(error));
     }
 

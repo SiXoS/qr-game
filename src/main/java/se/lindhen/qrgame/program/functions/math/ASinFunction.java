@@ -7,6 +7,6 @@ public class ASinFunction extends UnaryMathFunction {
 
     @Override
     public double calculate(double arg) {
-        return Math.sin(arg);
+        return Math.asin(arg);
     }
 }

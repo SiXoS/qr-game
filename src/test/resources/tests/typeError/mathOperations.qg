@@ -1,0 +1,14 @@
+
+init {
+    true * false
+    1 * false
+    true + 2
+    false - 2
+    1 / true
+    1 % arrayList(:number)
+    var = -true
+}
+
+run true
+
+input(a,b) true

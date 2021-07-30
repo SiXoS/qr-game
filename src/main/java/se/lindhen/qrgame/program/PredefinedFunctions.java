@@ -53,6 +53,7 @@ public class PredefinedFunctions {
         add(new PredefinedFunction(new SqrtFunction()));
         add(new PredefinedFunction(new TanFunction()));
         add(new PredefinedFunction(new TriangleFunction()));
+        add(new PredefinedFunction(new AssertFunction()));
     }};
 
     private PredefinedFunctions() {

@@ -1,0 +1,10 @@
+
+init true
+
+run {
+    draw(createTriangle(10, 12, 14, 16))
+    draw(createEllipse(15, 17, 19, 21))
+}
+
+input(a,b) true
+

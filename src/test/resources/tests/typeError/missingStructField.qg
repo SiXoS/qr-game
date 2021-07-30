@@ -1,0 +1,13 @@
+
+init {
+    var = new aStruct(1)
+    var.thisDoesNotExist
+}
+
+run true
+
+input(a,b) true
+
+struct aStruct {
+    aVal: number
+}

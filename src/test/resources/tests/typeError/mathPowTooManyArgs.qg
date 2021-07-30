@@ -1,0 +1,8 @@
+
+init {
+    val = pow(1,2,3)
+}
+
+run true
+
+input(a,b) true

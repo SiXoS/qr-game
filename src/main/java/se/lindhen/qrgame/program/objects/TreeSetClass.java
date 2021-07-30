@@ -30,6 +30,8 @@ public class TreeSetClass extends QgClass<TreeSetClass.TreeSetObject> {
         methods.add(new LambdaMethod<>(new ConstantGenericType(NumberType.NUMBER_TYPE), "size", (list, args, vars) -> list.size()));
         methods.add(new LambdaMethod<>(new ConstantGenericType(BoolType.BOOL_TYPE), "remove", (set, args, vars) -> set.remove(args.get(0).calculate(vars)), new GenericInnerType()));
         methods.add(new LambdaMethod<>(new ConstantGenericType(BoolType.BOOL_TYPE), "contains", (set, args, vars) -> set.contains(args.get(0).calculate(vars)), new GenericInnerType()));
+        methods.add(new LambdaMethod<>(new GenericInnerType(), "first", (set, obj, prog) -> set.first()));
+        methods.add(new LambdaMethod<>(new GenericInnerType(), "last", (set, obj, prog) -> set.last()));
         methods.add(new LambdaMethod<>(new GenericInnerType(), "next", (set, args, vars) -> set.nextValue(args.get(0).calculate(vars)), new GenericInnerType()));
         methods.add(new LambdaMethod<>(new GenericInnerType(), "previous", (set, args, vars) -> set.previousValue(args.get(0).calculate(vars)), new GenericInnerType()));
         methods.add(new ForEachMethod<>("addAll", TreeSetObject::add));
@@ -106,6 +108,14 @@ public class TreeSetClass extends QgClass<TreeSetClass.TreeSetObject> {
 
         public Object previousValue(Object item) {
             return set.lower(item);
+        }
+
+        public Object first() {
+            return set.first();
+        }
+
+        public Object last() {
+            return set.last();
         }
 
         public TreeSet<Object> getBackingSet() {

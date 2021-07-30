@@ -24,6 +24,20 @@ run {
     }
     mapByValues = hashMap(mapEntry(5, 64), mapEntry(2, 128))
     out += mapByValues.get(2) // 176
+    assert(mapByType.getOrDefault(6, true))
+    assert(mapByType.containsKey(5))
+    assert(mapByType.removeKey(5))
+    assert(!mapByType.containsKey(5))
+    assert(mapByType.get(5) == null: bool)
+    assert(!mapByType.remove(1, false))
+    assert(mapByType.remove(1, true))
+    assert(mapByValues.values().size() == 2)
+    assert(mapByValues.keys().size() == 2)
+    mapByValues.put(6, 4)
+    mapByValues.removeAllKeys(arrayList(2, 6))
+    assert(mapByValues.size() == 1)
+    assert(!mapByValues.containsKey(2))
+    assert(!mapByValues.containsKey(6))
 }
 
 input (button, pushed) true

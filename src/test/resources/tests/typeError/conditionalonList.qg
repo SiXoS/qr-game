@@ -1,0 +1,8 @@
+
+init {
+    linkedList(:number) ? true : false
+}
+
+run true
+
+input(a,b) true

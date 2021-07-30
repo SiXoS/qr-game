@@ -1,0 +1,48 @@
+
+init {
+    out = 0
+}
+
+run {
+    mapByType = treeMap(:number, :bool)
+    out += mapByType.size() // 0
+    mapByType.put(5, false)
+    mapByType.put(1, true)
+    out += mapByType.size() // 2
+    if (mapByType.get(5)) {
+        out += 4 // 2
+    }
+    if (mapByType.get(1)) {
+        out += 8 // 10
+    }
+    i = 4
+    for (entry in mapByType) {
+        // first key should be 1 -> 10 + 1^4 = 11
+        // second key should be 5 -> 11 + 5^5 = 3 136
+        out += pow(entry.getKey(), i++) // key should be 1 -> 10 + 1^4 = 11
+    }
+    mapByValues = treeMap(mapEntry(5, 16), mapEntry(2, 32))
+    out += mapByValues.get(2) // 3 136 + 32 = 3168
+    assert(mapByType.getOrDefault(6, true))
+    assert(mapByType.containsKey(5))
+    assert(mapByType.removeKey(5))
+    assert(!mapByType.containsKey(5))
+    assert(mapByType.get(5) == null: bool)
+    assert(!mapByType.remove(1, false))
+    assert(mapByType.remove(1, true))
+    assert(mapByValues.values().size() == 2)
+    assert(mapByValues.keys().size() == 2)
+    mapByValues.put(6, 4)
+    assert(mapByValues.firstKey() == 2)
+    assert(mapByValues.firstEntry().getKey() == 2)
+    assert(mapByValues.firstEntry().getValue() == 32)
+    assert(mapByValues.nextKey(2) == 5)
+    assert(mapByValues.nextKey(5) == mapByValues.lastKey())
+    assert(mapByValues.previousKey(6) == 5)
+    mapByValues.removeAllKeys(arrayList(2, 6))
+    assert(mapByValues.size() == 1)
+    assert(!mapByValues.containsKey(2))
+    assert(!mapByValues.containsKey(6))
+}
+
+input (button, pushed) true

@@ -27,8 +27,9 @@ public class TreeMapClass extends QgClass<TreeMapClass.TreeMapValue> {
         methods.add(new LambdaMethod<>(new GenericInnerType(1), "get", (obj, args, prog) -> obj.get(args.get(0).calculate(prog)), new GenericInnerType(0)));
         methods.add(new LambdaMethod<>(new GenericInnerType(1), "getOrDefault", (obj, args, prog) -> obj.getOrDefault(args.get(0).calculate(prog), args.get(1).calculate(prog)), new GenericInnerType(0), new GenericInnerType(1)));
         methods.add(new LambdaMethod<>(new ConstantGenericType(VoidType.VOID_TYPE), "put", (obj, args, prog) -> obj.put(args.get(0).calculate(prog), args.get(1).calculate(prog)), new GenericInnerType(0), new GenericInnerType(1)));
-        methods.add(new LambdaMethod<>(new ConstantGenericType(BoolType.BOOL_TYPE), "containsKey", (obj, args, prog) -> obj.containsKey(args.get(0).calculate(prog))));
-        methods.add(new LambdaMethod<>(new ConstantGenericType(BoolType.BOOL_TYPE), "removeKey", (obj, args, prog) -> obj.removeKey(args.get(0).calculate(prog))));
+        methods.add(new LambdaMethod<>(new ConstantGenericType(BoolType.BOOL_TYPE), "containsKey", (obj, args, prog) -> obj.containsKey(args.get(0).calculate(prog)), new GenericInnerType(0)));
+        methods.add(new LambdaMethod<>(new ConstantGenericType(BoolType.BOOL_TYPE), "removeKey", (obj, args, prog) -> obj.removeKey(args.get(0).calculate(prog)), new GenericInnerType(0)));
+        methods.add(new LambdaMethod<>(new ConstantGenericType(BoolType.BOOL_TYPE), "remove", (obj, args, prog) -> obj.remove(args.get(0).calculate(prog), args.get(1).calculate(prog)), new GenericInnerType(0), new GenericInnerType(1)));
         methods.add(new LambdaMethod<>(new GenericInnerType(0), "nextKey", (obj, args, prog) -> obj.nextKey(args.get(0).calculate(prog)), new GenericInnerType(0)));
         methods.add(new LambdaMethod<>(new GenericInnerType(0), "previousKey", (obj, args, prog) -> obj.previousKey(args.get(0).calculate(prog)), new GenericInnerType(0)));
         methods.add(new LambdaMethod<>(new GenericEntryType(), "nextEntry", (obj, args, prog) -> obj.nextEntry(args.get(0).calculate(prog)), new GenericInnerType(0)));
@@ -168,8 +169,8 @@ public class TreeMapClass extends QgClass<TreeMapClass.TreeMapValue> {
             return MapEntryClass.getQgClass().createInstance(entry.getKey(), getKeyType(), entry.getValue(), getValueType());
         }
 
-        public void remove(Object key, Object value) {
-            map.remove(key, value);
+        public boolean remove(Object key, Object value) {
+            return map.remove(key, value);
         }
 
         public ListClass.ListObject values() {

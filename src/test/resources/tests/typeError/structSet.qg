@@ -1,0 +1,8 @@
+
+init {
+    true.fieldName = 2
+}
+
+run true
+
+input(a,b) true

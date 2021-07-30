@@ -1,0 +1,8 @@
+
+init {
+    val2 = arrayList(:number, 1, 2)
+}
+
+run true
+
+input(a,b) true

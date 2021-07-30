@@ -1,0 +1,9 @@
+init true
+
+run true
+
+input(a,b) true
+
+fun thisNeverReturns(): number {
+    return
+}

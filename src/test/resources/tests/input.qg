@@ -1,0 +1,14 @@
+
+init {
+    out = 0
+    inputOut = 1
+}
+
+run {
+    out = inputOut
+}
+
+input(button, pressedElseReleased) {
+    pressedModifier = pressedElseReleased ? 1 : 10
+    inputOut = inputOut*(button+1) + pressedModifier // some expression where order matters. (button+1) to not multiply by zero.
+}
