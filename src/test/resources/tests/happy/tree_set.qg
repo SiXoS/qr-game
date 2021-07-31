@@ -23,16 +23,16 @@ run {
     setByValues = treeSet(10, 13)
     setByValues.addAll(linkedList(3, 13, 27))
     out += setByValues.size() // 24
-    assert(setByType.contains(5))
-    assert(setByType.remove(5))
-    assert(!setByType.contains(5))
-    assert(setByValues.first() == 3)
-    assert(setByValues.next(3) == 10)
-    assert(setByValues.last() == 27)
-    assert(setByValues.previous(13) == 10)
+    assert(1, setByType.contains(5))
+    assert(2, setByType.remove(5))
+    assert(3, !setByType.contains(5))
+    assert(4, setByValues.first() == 3)
+    assert(5, setByValues.next(3) == 10)
+    assert(6, setByValues.last() == 27)
+    assert(7, setByValues.previous(13) == 10)
     setByValues.removeAll(arrayList(3, 6))
-    assert(setByValues.size() == 3)
-    assert(!setByValues.contains(3))
+    assert(8, setByValues.size() == 3)
+    assert(9, !setByValues.contains(3))
 }
 
 input (button, pushed) true
