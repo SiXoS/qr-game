@@ -32,8 +32,8 @@ public class Program {
     private final HashMap<Integer, Shape> drawings = new HashMap<>();
     private int score = 0;
 
-    private int timeSinceStart = 0;
-    private int deltaTime = 0;
+    private int secondsSinceStart = 0;
+    private double secondsDeltaTime = 0;
     private boolean running = true;
     private Interrupt interrupt = null;
     private boolean trackScore;
@@ -50,15 +50,15 @@ public class Program {
             drawings.clear();
             long timeSinceStart = System.currentTimeMillis() - start;
             if (firstRun[0]) {
-                deltaTime = 0;
+                secondsDeltaTime = 0;
                 firstRun[0] = false;
             } else {
-                deltaTime = (int) (timeSinceStart - this.timeSinceStart);
+                secondsDeltaTime = (timeSinceStart - this.secondsSinceStart) / 1000.0;
             }
-            this.timeSinceStart = (int) timeSinceStart;
+            this.secondsSinceStart = (int) timeSinceStart;
             inputCode.run(this);
             code.run(this);
-            drawings.forEach((k, shape) -> shape.update(deltaTime / 1000f));
+            drawings.forEach((k, shape) -> shape.update(secondsDeltaTime));
         };
     }
 
@@ -122,8 +122,12 @@ public class Program {
         drawings.put(shape.getId(), shape);
     }
 
-    public int getTimeSinceStart() {
-        return timeSinceStart;
+    public double getSecondsSinceStart() {
+        return secondsSinceStart;
+    }
+
+    public double getSecondsDeltaTime() {
+        return secondsDeltaTime;
     }
 
     public ShapeFactory getShapeFactory() {

@@ -59,6 +59,7 @@ public class ShapeClass extends QgClass<ShapeClass.ShapeObject> {
         methods.add(new GetShapeParamFunction("getAccelerationPerSecondY", Shape::getAccelerationPerSecondY));
         methods.add(new GetShapeParamFunction("getRotationDegSpeedPerSecond", Shape::getRotationDegSpeedPerSecond));
         methods.add(new LambdaMethod<ShapeObject, GenericType>(new ConstantGenericType(VoidType.VOID_TYPE), "addChild", (shape, args, prog) -> shape.addChild((ShapeObject) args.get(0).calculate(prog)), new ConstantGenericType(objectType)));
+        methods.add(new LambdaMethod<ShapeObject, GenericType>(new ConstantGenericType(VoidType.VOID_TYPE), "update", (shape, args, prog) -> shape.update(prog.getSecondsDeltaTime())));
         return methods;
     }
 
@@ -127,6 +128,11 @@ public class ShapeClass extends QgClass<ShapeClass.ShapeObject> {
 
         public Void addChild(ShapeObject child) {
             shape.addChild(child.getShape());
+            return null;
+        }
+
+        public Void update(double deltaTime) {
+            shape.update(deltaTime);
             return null;
         }
 

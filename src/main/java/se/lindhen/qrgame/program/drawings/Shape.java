@@ -146,12 +146,13 @@ public abstract class Shape {
                 Double.compare(shape.speedPerSecondY, speedPerSecondY) == 0 &&
                 Double.compare(shape.accelerationPerSecondX, accelerationPerSecondX) == 0 &&
                 Double.compare(shape.accelerationPerSecondY, accelerationPerSecondY) == 0 &&
-                Double.compare(shape.rotationDegSpeedPerSecond, rotationDegSpeedPerSecond) == 0;
+                Double.compare(shape.rotationDegSpeedPerSecond, rotationDegSpeedPerSecond) == 0 &&
+                id == shape.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(posX, posY, scaleX, scaleY, rotationDeg, speedPerSecondX, speedPerSecondY, accelerationPerSecondX, accelerationPerSecondY, rotationDegSpeedPerSecond);
+        return Objects.hash(id, posX, posY, scaleX, scaleY, rotationDeg, speedPerSecondX, speedPerSecondY, accelerationPerSecondX, accelerationPerSecondY, rotationDegSpeedPerSecond);
     }
 
     public enum Type {

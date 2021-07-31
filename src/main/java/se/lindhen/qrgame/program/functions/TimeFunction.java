@@ -25,7 +25,7 @@ public class TimeFunction extends Function {
 
     @Override
     public Object execute(ArrayList<Expression> arguments, Program program) {
-        return (double) program.getTimeSinceStart();
+        return program.getSecondsSinceStart();
     }
 
     @Override
