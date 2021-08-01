@@ -14,9 +14,7 @@ import se.lindhen.qrgame.qr.QrCreator;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
-import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -55,42 +53,33 @@ public class Compile implements Runnable {
             if (overwriteTarget) {
                 System.out.println(String.format("Target file '%s' already exists. Will overwrite.", imageFileName));
             } else {
-                System.err.println(String.format("Target file '%s' already exists. Specify '-f' to overwrite", imageFileName));
-                System.exit(1);
+                throw new CliException(String.format("Target file '%s' already exists. Specify '-f' to overwrite", imageFileName), CliErrorCode.TARGET_EXISTS);
             }
+        }
+        if (!outputFile.getParentFile().canWrite()) {
+            throw new CliException(String.format("Cannot write to target file '%s'. Permission denied.", imageFileName), CliErrorCode.TARGET_FILE_PERMISSION_DENIED);
         }
     }
 
     private Program parseProgram() {
         File file = new File(codeFileName);
         if (file.exists() && !file.canRead()) {
-            System.err.println(String.format("No read access for '%s'", codeFileName));
-            System.exit(1);
+            throw new CliException(String.format("No read access for '%s'", codeFileName), CliErrorCode.SOURCE_FILE_PERMISSION_DENIED);
         }
         Charset charset = this.charset == null ? Charset.defaultCharset() : Charset.forName(this.charset);
         try(InputStream codeInputStream = new FileInputStream(file)) {
             return ProgramParser.parseProgram(codeInputStream, charset);
         } catch (FileNotFoundException e) {
-            System.err.println(String.format("File '%s' not found.", codeFileName));
-            System.exit(1);
+            throw new CliException(String.format("File '%s' not found.", codeFileName), e, CliErrorCode.SOURCE_NOT_FOUND);
         } catch (IOException e) {
-            System.err.println(String.format("Failed to read input file: '%s'", e.getMessage()));
-            System.exit(1);
+            throw new CliException(String.format("Failed to read input file: '%s'", codeFileName), e, CliErrorCode.UNKNOWN);
         } catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
-            System.err.println(String.format("Could not load charset '%s'. Got error: '%s'", charset, e.getMessage()));
-            System.exit(1);
+            throw new CliException(String.format("Could not load charset '%s'. Got error: '%s'", charset, e.getMessage()), e, CliErrorCode.ILLEGAL_CHARSET);
         } catch (ParseException e) {
-            System.err.println(String.format("Parsing failed: %s%s", System.lineSeparator(), e.getMessage()));
-            System.exit(1);
+            throw new CliException(String.format("Parsing failed: %s%s", System.lineSeparator(), e.getMessage()), e, CliErrorCode.PARSE_FAILED);
         } catch (ValidationException e) {
-            System.err.println(String.format("Validation failed: %s%s", System.lineSeparator(), e.getMessage()));
-            System.exit(1);
-        } catch (RuntimeException e) {
-            System.err.println("Unexpected exception:");
-            e.printStackTrace(System.err);
-            System.exit(1);
+            throw new CliException(String.format("Validation failed: %s%s", System.lineSeparator(), e.getMessage()), e, CliErrorCode.VALIDATE_FAILED);
         }
-        return null;
     }
 
     private byte[] compile(Program program) {
@@ -108,8 +97,7 @@ public class Compile implements Runnable {
                     .collect(Collectors.joining(System.lineSeparator())));
         }
         if (bytesWritten > QrCreator.BYTES_IN_QR_CODE) {
-            System.err.println("Size of compiled code exceeds max storage in the largest QR code.");
-            System.exit(1);
+            throw new CliException("Size of compiled code exceeds max storage in the largest QR code.", CliErrorCode.BYTECODE_TOO_LARGE);
         }
         return buffer;
     }
@@ -118,8 +106,7 @@ public class Compile implements Runnable {
         try {
             QrCreator.createQrImage(compiledCode, new File(imageFileName).toPath(), resolution);
         } catch (IOException | WriterException e) {
-            System.err.println(String.format("Could not create output image: %s", e.getMessage()));
-            System.exit(1);
+            throw new CliException(String.format("Could not create output image: %s", e.getMessage()), e, CliErrorCode.UNKNOWN);
         }
     }
 

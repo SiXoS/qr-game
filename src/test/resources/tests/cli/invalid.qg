@@ -1,0 +1,11 @@
+
+init {
+    out = 0
+}
+
+run {
+    out = 1
+    wait, this doesn't make sense
+}
+
+input (a,b) true
