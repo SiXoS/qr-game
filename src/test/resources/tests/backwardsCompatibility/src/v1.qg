@@ -1,0 +1,91 @@
+
+const TWO = 2
+
+init {
+    out = 0
+    assert(0, out == 0)
+}
+
+run {
+    assert(15, out == 1) // from input code
+    if (true) {
+        out++
+    }
+    if (false) {
+        assert(1, false)
+    } else if (1 == 0) {
+        assert(2, false)
+    } else {
+        out++
+    }
+    aVar = 1
+    while (aVar < 5) {
+        out++
+        aVar += 2
+    }
+    assert(3, out == 5)
+    assert(4, aVar == 5)
+    aList = linkedList(1,2,3)
+    assert(5, aList.size() == 3)
+    for (elem in aList) {
+        out = out + elem
+    }
+    if (aList.get(10) == null: number) {
+        out++
+    }
+    assert(6, out == 12)
+    for (i = 0; i < 5; i++) {
+        out++
+    }
+    when (3) {
+        1 -> true
+        3 -> out++
+    }
+    if (!aFunction(1, TWO)) {
+        out++
+    }
+    assert(7, out == 19)
+    aVar = 1
+    while (true) @aLabel {
+        while(true) {
+            out++
+            if(++aVar > 5) {
+                break@aLabel
+            }
+        }
+    }
+    assert(8, out == 24)
+    for(i = 0; i < 10; i++) {
+        if (i < 9) {
+            continue
+        }
+        out++
+    }
+    out += when (3) {
+         1 -> 1000
+         default -> 1
+    }
+    assert(9, out == 26)
+    theStruct = new aStruct(2, true)
+    out += theStruct.fieldOne
+    theStruct.fieldOne = 1
+    out += theStruct.fieldOne
+    out += theStruct.fieldTwo ? 1 : 2000
+    assert(10, out == 30)
+    out = -out
+}
+
+input (button, pressedElseReleased) {
+    if (button == 2 && pressedElseReleased) {
+        out++
+    }
+}
+
+fun aFunction(num1: number, num2: number): bool {
+    return num1 - num2 > 0
+}
+
+struct aStruct {
+    fieldOne: number
+    fieldTwo: bool
+}

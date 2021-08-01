@@ -61,20 +61,16 @@ public class QgCompileErrorTest {
         private List<Integer> errorLines = new ArrayList<>();
 
         public ErrorTestCase(String name) {
-            this.name = name;
+            super(name);
         }
 
         @Override
-        public void addResult(String fileContent) {
+        public void setResult(String fileContent) {
             for (String line : fileContent.split("\r\n|\r|\n")) {
                 errorLines.add(Integer.parseInt(line.trim()));
             }
         }
 
-        @Override
-        public String toString() {
-            return name;
-        }
     }
 
 }

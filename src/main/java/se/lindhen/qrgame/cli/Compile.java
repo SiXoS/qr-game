@@ -32,6 +32,9 @@ public class Compile implements Runnable {
     @Option(names = {"-c", "--charset"}, description = "Charset for input file. Default is based on system locale")
     String charset;
 
+    @Option(names = {"-r", "--resolution"}, description = "Resolution of output image in pixels. Default is 1000.", defaultValue = "1000")
+    int resolution;
+
     @Parameters(index = "0", paramLabel = "<qg code path>", arity = "1", description = "Path to qg code")
     String codeFileName;
 
@@ -113,7 +116,7 @@ public class Compile implements Runnable {
 
     private void generateQrCode(byte[] compiledCode) {
         try {
-            QrCreator.createQrImage(compiledCode, new File(imageFileName).toPath());
+            QrCreator.createQrImage(compiledCode, new File(imageFileName).toPath(), resolution);
         } catch (IOException | WriterException e) {
             System.err.println(String.format("Could not create output image: %s", e.getMessage()));
             System.exit(1);

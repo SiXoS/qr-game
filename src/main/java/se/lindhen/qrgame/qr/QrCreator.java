@@ -23,8 +23,12 @@ public class QrCreator {
     public static final int BYTES_IN_QR_CODE = 2952;
 
     public static void createQrImage(byte[] data, Path output) throws IOException, WriterException {
+        createQrImage(data, output, 1000);
+    }
+
+    public static void createQrImage(byte[] data, Path output, int size) throws IOException, WriterException {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
-        BitMatrix bitMatrix = qrCodeWriter.encode(byteArrayToString(data), BarcodeFormat.QR_CODE, 1000, 1000);
+        BitMatrix bitMatrix = qrCodeWriter.encode(byteArrayToString(data), BarcodeFormat.QR_CODE, size, size);
         MatrixToImageWriter.writeToPath(bitMatrix, "png", output);
     }
 

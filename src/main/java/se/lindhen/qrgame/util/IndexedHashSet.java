@@ -58,6 +58,9 @@ public class IndexedHashSet<E> extends AbstractSet<E> {
      * @param id An arbitrary position. Has to be less than size.
      */
     public E get(int id) {
+        if (id >= size()) {
+            return null;
+        }
         return dta.get(id);
     }
 

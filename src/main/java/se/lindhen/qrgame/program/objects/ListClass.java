@@ -86,6 +86,9 @@ public class ListClass extends QgClass<ListClass.ListObject> {
         }
 
         public Object get(int index) {
+            if (index >= size()) {
+                return null;
+            }
             return list.get(index);
         }
 
@@ -109,6 +112,9 @@ public class ListClass extends QgClass<ListClass.ListObject> {
         }
 
         public Object pop() {
+            if (list.isEmpty()) {
+                return null;
+            }
             return list.remove(0);
         }
 

@@ -62,16 +62,11 @@ public class QgFileTest {
         public double result;
 
         public TestCase(String name) {
-            this.name = name;
+            super(name);
         }
 
         @Override
-        public String toString() {
-            return name;
-        }
-
-        @Override
-        public void addResult(String fileContent) {
+        public void setResult(String fileContent) {
             result = Double.parseDouble(fileContent);
         }
     }
