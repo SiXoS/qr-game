@@ -9,7 +9,8 @@ public enum CliErrorCode {
     ILLEGAL_CHARSET(6),
     PARSE_FAILED(7),
     VALIDATE_FAILED(8),
-    BYTECODE_TOO_LARGE(9);
+    BYTECODE_TOO_LARGE(9),
+    TARGET_DIR_NOT_FOUND(10);
 
     private final int exitCode;
 

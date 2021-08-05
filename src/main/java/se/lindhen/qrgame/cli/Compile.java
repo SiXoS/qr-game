@@ -15,6 +15,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -56,7 +57,14 @@ public class Compile implements Runnable {
                 throw new CliException(String.format("Target file '%s' already exists. Specify '-f' to overwrite", imageFileName), CliErrorCode.TARGET_EXISTS);
             }
         }
-        if (!outputFile.getParentFile().canWrite()) {
+        File parent = new File(Paths.get(outputFile.getAbsolutePath())
+                .normalize()
+                .getParent()
+                .toString());
+        if (!parent.exists()) {
+            throw new CliException(String.format("Parent directory '%s' to target file '%s' does not exist", parent.getAbsolutePath(), outputFile.getAbsolutePath()), CliErrorCode.TARGET_DIR_NOT_FOUND);
+        }
+        if (!parent.canWrite()) {
             throw new CliException(String.format("Cannot write to target file '%s'. Permission denied.", imageFileName), CliErrorCode.TARGET_FILE_PERMISSION_DENIED);
         }
     }

@@ -58,6 +58,8 @@ public class ShapeClass extends QgClass<ShapeClass.ShapeObject> {
         methods.add(new GetShapeParamFunction("getAccelerationPerSecondX", Shape::getAccelerationPerSecondX));
         methods.add(new GetShapeParamFunction("getAccelerationPerSecondY", Shape::getAccelerationPerSecondY));
         methods.add(new GetShapeParamFunction("getRotationDegSpeedPerSecond", Shape::getRotationDegSpeedPerSecond));
+        methods.add(new LambdaMethod<ShapeObject, GenericType>(new ConstantGenericType(new ObjectType(ShapeClass.this)), "setColorBackground", (shape, args, prog) -> shape.setColorBackground()));
+        methods.add(new LambdaMethod<ShapeObject, GenericType>(new ConstantGenericType(new ObjectType(ShapeClass.this)), "setColorForeground", (shape, args, prog) -> shape.setColorForeground()));
         methods.add(new LambdaMethod<ShapeObject, GenericType>(new ConstantGenericType(VoidType.VOID_TYPE), "addChild", (shape, args, prog) -> shape.addChild((ShapeObject) args.get(0).calculate(prog)), new ConstantGenericType(objectType)));
         methods.add(new LambdaMethod<ShapeObject, GenericType>(new ConstantGenericType(VoidType.VOID_TYPE), "update", (shape, args, prog) -> shape.update(prog.getSecondsDeltaTime())));
         return methods;
@@ -148,6 +150,16 @@ public class ShapeClass extends QgClass<ShapeClass.ShapeObject> {
                 return false;
             }
             return shape.equals(((ShapeObject) obj).shape);
+        }
+
+        public ShapeObject setColorBackground() {
+            shape.setColorBackground();
+            return this;
+        }
+
+        public ShapeObject setColorForeground() {
+            shape.setColorForeground();
+            return this;
         }
     }
 

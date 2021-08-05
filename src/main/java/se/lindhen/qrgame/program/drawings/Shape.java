@@ -18,6 +18,7 @@ public abstract class Shape {
     private double accelerationPerSecondX;
     private double accelerationPerSecondY;
     private double rotationDegSpeedPerSecond;
+    private Color color = Color.FOREGROUND;
     protected List<Shape> children;
 
     public Shape(double posX, double posY) {
@@ -81,6 +82,14 @@ public abstract class Shape {
         this.rotationDegSpeedPerSecond = rotationDegSpeedPerSecond;
     }
 
+    public void setColorForeground() {
+        color = Color.FOREGROUND;
+    }
+
+    public void setColorBackground() {
+        color = Color.BACKGROUND;
+    }
+
     public int getId() {
         return id;
     }
@@ -123,6 +132,10 @@ public abstract class Shape {
 
     public double getRotationDegSpeedPerSecond() {
         return rotationDegSpeedPerSecond;
+    }
+
+    public Color getColor() {
+        return color;
     }
 
     public void addChild(Shape child) {
