@@ -17,6 +17,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 @RunWith(Parameterized.class)
 public class BackwardsCompatibilityTest {
@@ -48,9 +49,9 @@ public class BackwardsCompatibilityTest {
         byte[] compiled = QrCreator.readQrImage(testCase.qrResource);
         QgDecompiler qgDecompiler = new QgDecompiler(compiled);
         Program decompiledProgram = qgDecompiler.decompile();
-        Runnable runnable = decompiledProgram.initializeAndPrepareRun();
+        Consumer<Integer> iteration = decompiledProgram.initializeAndPrepareRun();
         decompiledProgram.getInputManager().triggerButton(InputManager.Input.LEFT_BOTTOM, true);
-        runnable.run();
+        iteration.accept(100);
         Assert.assertEquals(testCase.result, (double) decompiledProgram.getVariable(getOutVarId(decompiledProgram)), 0.001);
     }
 

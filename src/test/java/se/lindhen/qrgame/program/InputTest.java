@@ -7,6 +7,7 @@ import se.lindhen.qrgame.program.statements.BlockStatement;
 import se.lindhen.qrgame.program.statements.ExpressionStatement;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,13 +17,13 @@ public class InputTest {
     public void testPressButton() throws IOException {
         Program program = Util.readProgramFromStream(getClass().getResourceAsStream("/tests/input.qg"));
         int outVarId = getOutVarId(program);
-        Runnable iteration = program.initializeAndPrepareRun();
+        Consumer<Integer> iteration = program.initializeAndPrepareRun();
         InputManager inputManager = program.getInputManager();
         inputManager.triggerButton(InputManager.Input.LEFT_LEFT, true);
-        iteration.run();
+        iteration.accept(100);
         assertEquals(5.0, (double) program.getVariable(outVarId), 0.01);
         inputManager.triggerButton(InputManager.Input.RIGHT_LEFT, true);
-        iteration.run();
+        iteration.accept(100);
         assertEquals(41.0, (double) program.getVariable(outVarId), 0.01);
     }
 
@@ -30,13 +31,13 @@ public class InputTest {
     public void testReleaseButton() throws IOException {
         Program program = Util.readProgramFromStream(getClass().getResourceAsStream("/tests/input.qg"));
         int outVarId = getOutVarId(program);
-        Runnable iteration = program.initializeAndPrepareRun();
+        Consumer<Integer> iteration = program.initializeAndPrepareRun();
         InputManager inputManager = program.getInputManager();
         inputManager.triggerButton(InputManager.Input.LEFT_LEFT, false);
-        iteration.run();
+        iteration.accept(100);
         assertEquals(14.0, (double) program.getVariable(outVarId), 0.01);
         inputManager.triggerButton(InputManager.Input.RIGHT_LEFT, false);
-        iteration.run();
+        iteration.accept(100);
         assertEquals(122.0, (double) program.getVariable(outVarId), 0.01);
     }
 
@@ -44,11 +45,11 @@ public class InputTest {
     public void pressingAndReleasingButtonShouldTriggerBothEvents() throws IOException {
         Program program = Util.readProgramFromStream(getClass().getResourceAsStream("/tests/input.qg"));
         int outVarId = getOutVarId(program);
-        Runnable iteration = program.initializeAndPrepareRun();
+        Consumer<Integer> iteration = program.initializeAndPrepareRun();
         InputManager inputManager = program.getInputManager();
         inputManager.triggerButton(InputManager.Input.LEFT_LEFT, true);
         inputManager.triggerButton(InputManager.Input.LEFT_LEFT, false);
-        iteration.run();
+        iteration.accept(100);
         assertEquals(30.0, (double) program.getVariable(outVarId), 0.01);
     }
 
@@ -56,11 +57,11 @@ public class InputTest {
     public void sameButtonTwiceShouldTriggerBothEvents() throws IOException {
         Program program = Util.readProgramFromStream(getClass().getResourceAsStream("/tests/input.qg"));
         int outVarId = getOutVarId(program);
-        Runnable iteration = program.initializeAndPrepareRun();
+        Consumer<Integer> iteration = program.initializeAndPrepareRun();
         InputManager inputManager = program.getInputManager();
         inputManager.triggerButton(InputManager.Input.LEFT_LEFT, true);
         inputManager.triggerButton(InputManager.Input.LEFT_LEFT, true);
-        iteration.run();
+        iteration.accept(100);
         assertEquals(21.0, (double) program.getVariable(outVarId), 0.01);
     }
 
@@ -68,7 +69,7 @@ public class InputTest {
     public void orderOfButtonsMatter() throws IOException {
         Program program = Util.readProgramFromStream(getClass().getResourceAsStream("/tests/input.qg"));
         int outVarId = getOutVarId(program);
-        Runnable iteration = program.initializeAndPrepareRun();
+        Consumer<Integer> iteration = program.initializeAndPrepareRun();
         InputManager inputManager = program.getInputManager();
         inputManager.triggerButton(InputManager.Input.LEFT_LEFT, true);
         inputManager.triggerButton(InputManager.Input.RIGHT_BOTTOM, true);
@@ -77,7 +78,7 @@ public class InputTest {
         inputManager.triggerButton(InputManager.Input.RIGHT_RIGHT, false);
         inputManager.triggerButton(InputManager.Input.LEFT_TOP, true);
         inputManager.triggerButton(InputManager.Input.LEFT_RIGHT, false);
-        iteration.run();
+        iteration.accept(100);
         assertEquals(6692.0, (double) program.getVariable(outVarId), 0.01);
     }
 

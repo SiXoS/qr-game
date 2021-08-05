@@ -5,6 +5,7 @@ import org.junit.Test;
 import se.lindhen.qrgame.program.Program;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 public class ProfileTest {
 
@@ -41,10 +42,10 @@ public class ProfileTest {
         System.out.println("Java version took " + took + "ms");
 
         Program program = Util.readProgramFromStream(getClass().getResourceAsStream("/sieveOfEratosthenes.qg"));
-        Runnable runnable = program.initializeAndPrepareRun();
+        Consumer<Integer> iteration = program.initializeAndPrepareRun();
         program.setVariable(0, (double) max);
         before = System.currentTimeMillis();
-        runnable.run();
+        iteration.accept(100);
         took = System.currentTimeMillis() - before;
         System.out.println("QG took " + took + "ms");
         /*List<Value> backingList = program.getVariable(1).getList().getBackingList();

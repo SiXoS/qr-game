@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import static se.lindhen.qrgame.Util.readProgramFromStream;
 
@@ -37,8 +38,8 @@ public class QgFileTest {
     @Test
     public void parseAndRun() throws IOException {
         Program program = readProgramFromStream(new ByteArrayInputStream(testCase.program.getBytes()));
-        Runnable runnable = program.initializeAndPrepareRun();
-        runnable.run();
+        Consumer<Integer> iteration = program.initializeAndPrepareRun();
+        iteration.accept(100);
         Assert.assertEquals(testCase.result, (double) program.getVariable(getOutVarId(program)), 0.001);
     }
 
@@ -49,8 +50,8 @@ public class QgFileTest {
         byte[] compiled = compiler.compile();
         QgDecompiler qgDecompiler = new QgDecompiler(compiled);
         Program decompiledProgram = qgDecompiler.decompile();
-        Runnable runnable = decompiledProgram.initializeAndPrepareRun();
-        runnable.run();
+        Consumer<Integer> iteration = decompiledProgram.initializeAndPrepareRun();
+        iteration.accept(100);
         Assert.assertEquals(testCase.result, (double) decompiledProgram.getVariable(getOutVarId(program)), 0.001);
     }
 

@@ -11,6 +11,7 @@ import se.lindhen.qrgame.util.ArrayMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.function.Consumer;
 
 public class Program {
 
@@ -42,20 +43,12 @@ public class Program {
         PredefinedFunctions.getFunctions().forEach(func -> functions.put(func.id, func.function));
     }
 
-    public Runnable initializeAndPrepareRun() {
+    public Consumer<Integer> initializeAndPrepareRun() {
         initialisation.run(this);
-        long start = System.currentTimeMillis();
-        final boolean[] firstRun = {true};
-        return () -> {
+        return dt -> {
             drawings.clear();
-            long timeSinceStart = System.currentTimeMillis() - start;
-            if (firstRun[0]) {
-                secondsDeltaTime = 0;
-                firstRun[0] = false;
-            } else {
-                secondsDeltaTime = (timeSinceStart - this.secondsSinceStart) / 1000.0;
-            }
-            this.secondsSinceStart = (int) timeSinceStart;
+            secondsDeltaTime = dt / 1000.0;
+            secondsSinceStart += secondsDeltaTime;
             inputCode.run(this);
             code.run(this);
             drawings.forEach((k, shape) -> shape.update(secondsDeltaTime));
