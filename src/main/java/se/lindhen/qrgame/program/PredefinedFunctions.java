@@ -27,6 +27,7 @@ public class PredefinedFunctions {
             add(new PredefinedFunction(new RandFunction(), 1));
             add(new PredefinedFunction(new TimeFunction(), 2));
             add(new PredefinedFunction(new AssertFunction(), 44));
+            add(new PredefinedFunction(new TimeDiffFunction(), 45));
 
             // game state
             add(new PredefinedFunction(new GetScoreFunction(), 3));

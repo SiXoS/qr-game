@@ -2,7 +2,7 @@ package se.lindhen.qrgame.program.functions.math;
 
 public class ASinFunction extends UnaryMathFunction {
     public ASinFunction() {
-        super("asin");
+        super("aSin");
     }
 
     @Override

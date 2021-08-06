@@ -26,7 +26,7 @@ public class CollectionConstructionUtils {
             if (arguments.size() == 2) {
                 backingCollection = collectionCreator.apply((int)(double)arguments.get(1).calculate(program));
             } else {
-                backingCollection = collectionCreator.apply(0);
+                backingCollection = collectionCreator.apply(10);
             }
         } else {
             backingCollection = collectionCreator.apply(arguments.size());

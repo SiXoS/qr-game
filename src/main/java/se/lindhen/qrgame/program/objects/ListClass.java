@@ -32,7 +32,11 @@ public class ListClass extends QgClass<ListClass.ListObject> {
         methods.add(new LambdaMethod<>(new ConstantGenericType(VoidType.VOID_TYPE), "push", (list, args, vars) -> list.push(args.get(0).calculate(vars)), new GenericInnerType()));
         methods.add(new LambdaMethod<>(new GenericInnerType(), "pop", (list, args, vars) -> list.pop()));
         methods.add(new LambdaMethod<>(new GenericInnerType(), "peek", (list, args, vars) -> list.peek()));
+        methods.add(new LambdaMethod<>(new ConstantGenericType(VoidType.VOID_TYPE), "pushLast", (list, args, vars) -> list.pushLast(args.get(0).calculate(vars)), new GenericInnerType()));
+        methods.add(new LambdaMethod<>(new GenericInnerType(), "popLast", (list, args, vars) -> list.popLast()));
+        methods.add(new LambdaMethod<>(new GenericInnerType(), "peekLast", (list, args, vars) -> list.peekLast()));
         methods.add(new LambdaMethod<>(new ConstantGenericType(BoolType.BOOL_TYPE), "remove", (list, args, prog) -> list.remove(args.get(0).calculate(prog)), new GenericInnerType()));
+        methods.add(new LambdaMethod<>(new GenericInnerType(), "removeAt", (list, args, prog) -> list.removeAt((int)(double)args.get(0).calculate(prog)), new ConstantGenericType(NumberType.NUMBER_TYPE)));
         methods.add(new ForEachMethod<>("addAll", ListObject::add));
         methods.add(new ForEachMethod<>("removeAll", ListObject::remove));
         return methods;
@@ -86,13 +90,14 @@ public class ListClass extends QgClass<ListClass.ListObject> {
         }
 
         public Object get(int index) {
-            if (index >= size()) {
+            if (index >= list.size()) {
                 return null;
             }
             return list.get(index);
         }
 
         public Object set(int index, Object element) {
+            if (index >= list.size()) return null;
             list.set(index, element);
             return null;
         }
@@ -122,8 +127,29 @@ public class ListClass extends QgClass<ListClass.ListObject> {
             return list.isEmpty() ? null : list.get(0);
         }
 
+        public Object pushLast(Object calculate) {
+            list.add(calculate);
+            return null;
+        }
+
+        public Object popLast() {
+            if (list.isEmpty()) {
+                return null;
+            }
+            return list.remove(list.size() - 1);
+        }
+
+        public Object peekLast() {
+            return list.isEmpty() ? null : list.get(list.size() - 1);
+        }
+
         public boolean remove(Object value) {
             return list.remove(value);
+        }
+
+        public Object removeAt(int index) {
+            if (index >= list.size()) return null;
+            return list.remove(index);
         }
 
         public List<Object> getBackingList() {

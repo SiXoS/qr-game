@@ -2,7 +2,7 @@ package se.lindhen.qrgame.program.functions.math;
 
 public class ACosFunction extends UnaryMathFunction {
     public ACosFunction() {
-        super("acos");
+        super("aCos");
     }
 
     @Override

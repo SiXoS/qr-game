@@ -111,10 +111,12 @@ public class TreeSetClass extends QgClass<TreeSetClass.TreeSetObject> {
         }
 
         public Object first() {
+            if (set.isEmpty()) return null;
             return set.first();
         }
 
         public Object last() {
+            if (set.isEmpty()) return null;
             return set.last();
         }
 

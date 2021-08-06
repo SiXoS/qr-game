@@ -2,7 +2,7 @@ package se.lindhen.qrgame.program.functions.math;
 
 public class ATanFunction extends UnaryMathFunction {
     public ATanFunction() {
-        super("atan");
+        super("aTan");
     }
 
     @Override

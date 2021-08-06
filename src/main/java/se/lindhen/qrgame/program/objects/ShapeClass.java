@@ -60,7 +60,7 @@ public class ShapeClass extends QgClass<ShapeClass.ShapeObject> {
         methods.add(new GetShapeParamFunction("getRotationDegSpeedPerSecond", Shape::getRotationDegSpeedPerSecond));
         methods.add(new LambdaMethod<ShapeObject, GenericType>(new ConstantGenericType(new ObjectType(ShapeClass.this)), "setColorBackground", (shape, args, prog) -> shape.setColorBackground()));
         methods.add(new LambdaMethod<ShapeObject, GenericType>(new ConstantGenericType(new ObjectType(ShapeClass.this)), "setColorForeground", (shape, args, prog) -> shape.setColorForeground()));
-        methods.add(new LambdaMethod<ShapeObject, GenericType>(new ConstantGenericType(VoidType.VOID_TYPE), "addChild", (shape, args, prog) -> shape.addChild((ShapeObject) args.get(0).calculate(prog)), new ConstantGenericType(objectType)));
+        methods.add(new LambdaMethod<ShapeObject, GenericType>(new ConstantGenericType(new ObjectType(ShapeClass.this)), "addChild", (shape, args, prog) -> shape.addChild((ShapeObject) args.get(0).calculate(prog)), new ConstantGenericType(objectType)));
         methods.add(new LambdaMethod<ShapeObject, GenericType>(new ConstantGenericType(VoidType.VOID_TYPE), "update", (shape, args, prog) -> shape.update(prog.getSecondsDeltaTime())));
         return methods;
     }
@@ -128,9 +128,9 @@ public class ShapeClass extends QgClass<ShapeClass.ShapeObject> {
             return shape;
         }
 
-        public Void addChild(ShapeObject child) {
+        public ShapeObject addChild(ShapeObject child) {
             shape.addChild(child.getShape());
-            return null;
+            return this;
         }
 
         public Void update(double deltaTime) {

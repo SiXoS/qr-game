@@ -26,9 +26,9 @@ public class HashMapClass extends QgClass<HashMapClass.HashMapValue> {
         methods.add(new LambdaMethod<>(new ConstantGenericType(NumberType.NUMBER_TYPE), "size", (obj, args, prog) -> obj.size()));
         methods.add(new LambdaMethod<>(new GenericInnerType(1), "get", (obj, args, prog) -> obj.get(args.get(0).calculate(prog)), new GenericInnerType(0)));
         methods.add(new LambdaMethod<>(new GenericInnerType(1), "getOrDefault", (obj, args, prog) -> obj.getOrDefault(args.get(0).calculate(prog), args.get(1).calculate(prog)), new GenericInnerType(0), new GenericInnerType(1)));
-        methods.add(new LambdaMethod<>(new ConstantGenericType(VoidType.VOID_TYPE), "put", (obj, args, prog) -> obj.put(args.get(0).calculate(prog), args.get(1).calculate(prog)), new GenericInnerType(0), new GenericInnerType(1)));
+        methods.add(new LambdaMethod<>(new GenericInnerType(1), "put", (obj, args, prog) -> obj.put(args.get(0).calculate(prog), args.get(1).calculate(prog)), new GenericInnerType(0), new GenericInnerType(1)));
         methods.add(new LambdaMethod<>(new ConstantGenericType(BoolType.BOOL_TYPE), "containsKey", (obj, args, prog) -> obj.containsKey(args.get(0).calculate(prog)), new GenericInnerType(0)));
-        methods.add(new LambdaMethod<>(new ConstantGenericType(BoolType.BOOL_TYPE), "removeKey", (obj, args, prog) -> obj.removeKey(args.get(0).calculate(prog)), new GenericInnerType(0)));
+        methods.add(new LambdaMethod<>(new GenericInnerType(1), "removeKey", (obj, args, prog) -> obj.removeKey(args.get(0).calculate(prog)), new GenericInnerType(0)));
         methods.add(new LambdaMethod<>(new ConstantGenericType(BoolType.BOOL_TYPE), "remove", (obj, args, prog) -> obj.remove(args.get(0).calculate(prog), args.get(1).calculate(prog)), new GenericInnerType(0), new GenericInnerType(1)));
         methods.add(new LambdaMethod<>(new ListWithValueTypeAsInnerType(), "values", (obj, args, prog) -> obj.values()));
         methods.add(new LambdaMethod<>(new SetWithKeyTypeAsInnerType(HashSetClass.getQgClass()), "keys", (obj, args, prog) -> obj.keys()));
@@ -92,8 +92,7 @@ public class HashMapClass extends QgClass<HashMapClass.HashMapValue> {
         }
 
         public Object put(Object key, Object value) {
-            map.put(key, value);
-            return null;
+            return map.put(key, value);
         }
 
         public boolean containsKey(Object key) {
@@ -104,8 +103,8 @@ public class HashMapClass extends QgClass<HashMapClass.HashMapValue> {
             return map.getOrDefault(key, defaultValue);
         }
 
-        public boolean removeKey(Object key) {
-            return map.remove(key) != null;
+        public Object removeKey(Object key) {
+            return map.remove(key);
         }
 
         public boolean remove(Object key, Object value) {

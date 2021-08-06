@@ -25,7 +25,7 @@ run {
     out += mapByValues.get(2) // 3 136 + 32 = 3168
     assert(1, mapByType.getOrDefault(6, true))
     assert(2, mapByType.containsKey(5))
-    assert(3, mapByType.removeKey(5))
+    assert(3, mapByType.removeKey(5) == false)
     assert(4, !mapByType.containsKey(5))
     assert(5, mapByType.get(5) == null: bool)
     assert(6, !mapByType.remove(1, false))
