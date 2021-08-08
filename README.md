@@ -1,5 +1,7 @@
 # QR Game
 
+![Build status](https://github.com/SiXoS/qr-game/actions/workflows/build.yml/badge.svg)
+
 Compiler and runtime for the QG language. QG is designed for creating games that can be compiled to a QR code.
 The language focuses on small byte code footprint, ease of use and basic type safety.
 
