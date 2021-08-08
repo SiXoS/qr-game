@@ -5,13 +5,39 @@
 Compiler and runtime for the QG language. QG is designed for creating games that can be compiled to a QR code.
 The language focuses on small byte code footprint, ease of use and basic type safety.
 
+## Requirements
+
+Requires Java 8 and maven.
+
 ## Usage
 
 Compile a program using:
 ```
 mvn install
-java -jar target/qr-game-compiler-1.0-SNAPSHOT-jar-with-dependencies.jar compile code.qg output_qr.png
+bin/qgc_source.sh compile code.qg output_qr.png
 ```
+
+## Performance
+
+The runtime is executed in Java and is therefore slower than Java, about 10-15 times slower.
+This might sound a lot but as this language is designed for simple, tiny 2D games it 
+should not pose a big issue.
+
+## Security
+
+Since this enables running code directly from a QR-code, security is a concern. The language
+is purposely built to have no knowledge of the outside world.
+
+The only "input" that the language has is provided actively by the running device.
+This includes execution of the input block and the time since the last frame
+executed. The program has a concept of time but "epoch" is at the launch of the game.
+
+The only "output" that the language can produce is a list of objects that should be
+drawn. These are polled by the running device.
+
+The only malicious use of this language is hogging resources. The running device should
+add some logic to detect this. i.e. if an iteration takes too long to run or if it's using
+too much memory.
 
 ## Small example
 Example UI and code for a small "game". It with a square in the center. 
