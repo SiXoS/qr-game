@@ -1,5 +1,5 @@
 ignore:
-  - "se/lindhen/qrgame/QrGameParser.*"
-  - "se/lindhen/qrgame/QrGameListener.*"
-  - "se/lindhen/qrgame/QrGameBaseListener.*"
-  - "se/lindhen/qrgame/QrGameLexer.*"
+  - "**/se/lindhen/qrgame/QrGameParser.*"
+  - "**/se/lindhen/qrgame/QrGameListener.*"
+  - "**/se/lindhen/qrgame/QrGameBaseListener.*"
+  - "**/se/lindhen/qrgame/QrGameLexer.*"
