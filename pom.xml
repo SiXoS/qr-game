@@ -41,6 +41,38 @@
         <maven.compiler.source>1.8</maven.compiler.source>
     </properties>
 
+    <profiles>
+        <profile>
+            <id>coverage</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.8.7</version>
+                        <executions>
+                            <!-- Prepares the property pointing to the JaCoCo runtime agent
+                            which is passed as VM argument when Maven the Surefire plugin is executed. -->
+                            <execution>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <!-- Ensures that the code coverage report is created after
+                            all tests have been run. -->
+                            <execution>
+                                <id>generate-report</id>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
@@ -64,6 +96,12 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
             <version>1.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.7</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
