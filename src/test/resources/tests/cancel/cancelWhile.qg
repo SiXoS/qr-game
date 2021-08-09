@@ -1,0 +1,14 @@
+
+init {
+    out = 0
+}
+
+run {
+    someBool = true
+    while (true) {
+        someBool = !someBool
+    }
+    out = 1
+}
+
+input(a,b) true

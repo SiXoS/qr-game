@@ -28,7 +28,10 @@ public class ForEachStatement extends Statement {
             program.setVariable(targetVarId, iterator.next());
             body.run(program);
             Interrupt interrupt = program.catchInterrupt(label);
-            if (interrupt != null && interrupt.isBreakElseContinue()) {
+            if (interrupt != null) {
+                if (interrupt.isBreakElseContinue())
+                    break;
+            } else if (!program.isRunning()) {
                 break;
             }
         }

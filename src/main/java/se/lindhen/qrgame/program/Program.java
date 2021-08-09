@@ -36,6 +36,7 @@ public class Program {
     private int secondsSinceStart = 0;
     private double secondsDeltaTime = 0;
     private boolean running = true;
+    private boolean canceled = false;
     private Interrupt interrupt = null;
     private boolean trackScore;
 
@@ -222,7 +223,15 @@ public class Program {
     }
 
     public boolean isRunning() {
-        return running;
+        return running && !canceled;
+    }
+
+    public void cancel() {
+        canceled = true;
+    }
+
+    public boolean isCanceled() {
+        return canceled;
     }
 
     public void setTrackScore(boolean trackScore) {

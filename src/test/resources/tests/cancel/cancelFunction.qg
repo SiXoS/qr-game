@@ -1,0 +1,19 @@
+
+init {
+    out = 0
+}
+
+run {
+    out = runForever()
+    out++
+}
+
+input(a,b) true
+
+fun runForever(): number {
+    someBool = true
+    while (true) {
+        someBool = !someBool
+    }
+    return 1
+}

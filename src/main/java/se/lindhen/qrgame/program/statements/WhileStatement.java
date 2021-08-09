@@ -27,7 +27,10 @@ public class WhileStatement extends Statement {
         while ((boolean) condition.calculate(program)) {
             body.run(program);
             Interrupt interrupt = program.catchInterrupt(label);
-            if (interrupt != null && interrupt.isBreakElseContinue()) {
+            if (interrupt != null) {
+                if (interrupt.isBreakElseContinue())
+                    break;
+            } else if (!program.isRunning()) {
                 break;
             }
             if (hasPostBody())
