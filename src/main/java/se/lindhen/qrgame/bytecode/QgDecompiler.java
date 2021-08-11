@@ -20,6 +20,7 @@ public class QgDecompiler {
     private Program program;
     private final BitReader reader;
     private final HashMap<Integer, Type> variableTypeMap = new HashMap<>();
+    private final ArrayList<Type> stackVariableTypes = new ArrayList<>();
     private final HashMap<Integer, QgClass<?>> classIdMap = new HashMap<>();
     private final HashMap<Integer, UserFunctionData> userFunctionData = new HashMap<>();
 
@@ -48,6 +49,8 @@ public class QgDecompiler {
     }
 
     private InputCode decompileInputCode() {
+        stackVariableTypes.add(NumberType.NUMBER_TYPE); // button id
+        stackVariableTypes.add(BoolType.BOOL_TYPE); // pressed else released
         return new InputCode(reader.readPositiveByte(), reader.readPositiveByte(), decompileStatement());
     }
 
@@ -66,8 +69,12 @@ public class QgDecompiler {
         }
         ArrayList<UserFunction> functions = new ArrayList<>();
         for (int i = 0; i < count; i++) {
+            ArrayList<UserFunction.UserFunctionParameter> funcParameters = parameters.get(i);
+            for (UserFunction.UserFunctionParameter param: funcParameters) {
+                stackVariableTypes.add(param.getType());
+            }
             Statement body = decompileStatement();
-            functions.add(new UserFunction(i, parameters.get(i), userFunctionData.get(i).getReturnType(), body));
+            functions.add(new UserFunction(i, funcParameters, userFunctionData.get(i).getReturnType(), body));
         }
         return functions;
     }
@@ -179,7 +186,7 @@ public class QgDecompiler {
             case BOOL:
                 return reader.readBool();
             default:
-                throw new RuntimeException("Can only deserialize when clauses with number or bool.");
+                throw new RuntimeException("Can only deserialize when clauses with number or bool, was " + type + ".");
         }
     }
 
@@ -195,7 +202,7 @@ public class QgDecompiler {
                 return new VariableExpression(new Variable(varId, type, false));
             case STACK_VAR:
                 int stackVarId = reader.readPositiveByte();
-                Type stackType = variableTypeMap.get(stackVarId);
+                Type stackType = stackVariableTypes.get(stackVariableTypes.size() - 1 - stackVarId);
                 return new StackVariableExpression(new Variable(stackVarId, stackType, true));
             case LITERAL_NUMBER:
                 return new NumberExpression(reader.readBool() ? reader.readLong() : reader.readDouble());

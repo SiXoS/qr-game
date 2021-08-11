@@ -7,6 +7,7 @@ run {
     out = addTwoNumbers(1,2)
     out += addThreeNumbers(4, 8, 16)
     out += getSomeNumber()
+    out += funcWithWhen(true)
 }
 
 input(a, b) true
@@ -23,4 +24,12 @@ fun addThreeNumbers(n1: number, n2: number, n3: number): number {
 fun getSomeNumber(): number {
     return 32
     return 3000
+}
+
+fun funcWithWhen(aBool: bool): number {
+    assert(1, aBool == true)
+    return when(aBool) {
+        true -> 64
+        default -> 4000
+    }
 }

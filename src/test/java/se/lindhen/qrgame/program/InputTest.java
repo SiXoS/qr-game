@@ -2,6 +2,8 @@ package se.lindhen.qrgame.program;
 
 import org.junit.Test;
 import se.lindhen.qrgame.Util;
+import se.lindhen.qrgame.bytecode.QgCompiler;
+import se.lindhen.qrgame.bytecode.QgDecompiler;
 import se.lindhen.qrgame.program.expressions.AssignExpression;
 import se.lindhen.qrgame.program.statements.BlockStatement;
 import se.lindhen.qrgame.program.statements.ExpressionStatement;
@@ -80,6 +82,21 @@ public class InputTest {
         inputManager.triggerButton(InputManager.Input.LEFT_RIGHT, false);
         iteration.accept(100);
         assertEquals(6692.0, (double) program.getVariable(outVarId), 0.01);
+    }
+
+    @Test
+    public void testInputWhen() throws IOException {
+        Program program = Util.readProgramFromStream(getClass().getResourceAsStream("/tests/inputWhen.qg"));
+        Program decompiled = new QgDecompiler(new QgCompiler(program).compile()).decompile();
+        int outVarId = getOutVarId(program);
+        Consumer<Integer> iteration = decompiled.initializeAndPrepareRun();
+        InputManager inputManager = decompiled.getInputManager();
+        inputManager.triggerButton(InputManager.Input.LEFT_TOP, true);
+        iteration.accept(100);
+        assertEquals(10, (double) decompiled.getVariable(outVarId), 0.01);
+        inputManager.triggerButton(InputManager.Input.LEFT_BOTTOM, true);
+        iteration.accept(100);
+        assertEquals(12, (double) decompiled.getVariable(outVarId), 0.01);
     }
 
     private int getOutVarId(Program program) {

@@ -1,0 +1,16 @@
+
+init {
+    out = 0
+}
+
+run true
+
+input(button,pressed) {
+	if (pressed) {
+		out = when (button) {
+			0 -> 10
+			2 -> 12
+			default -> -1
+		}
+	}
+}
