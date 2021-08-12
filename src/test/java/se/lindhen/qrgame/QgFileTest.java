@@ -6,21 +6,17 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import se.lindhen.qrgame.bytecode.QgCompiler;
 import se.lindhen.qrgame.bytecode.QgDecompiler;
+import se.lindhen.qrgame.program.GameLoop;
 import se.lindhen.qrgame.program.Program;
 import se.lindhen.qrgame.program.expressions.AssignExpression;
 import se.lindhen.qrgame.program.statements.BlockStatement;
 import se.lindhen.qrgame.program.statements.ExpressionStatement;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Scanner;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 
 import static se.lindhen.qrgame.Util.readProgramFromStream;
 
@@ -38,8 +34,8 @@ public class QgFileTest {
     @Test
     public void parseAndRun() throws IOException {
         Program program = readProgramFromStream(new ByteArrayInputStream(testCase.program.getBytes()));
-        Consumer<Integer> iteration = program.initializeAndPrepareRun();
-        iteration.accept(100);
+        GameLoop iteration = program.initializeAndPrepareRun();
+        iteration.run(100);
         Assert.assertEquals(testCase.result, (double) program.getVariable(getOutVarId(program)), 0.001);
     }
 
@@ -50,8 +46,8 @@ public class QgFileTest {
         byte[] compiled = compiler.compile();
         QgDecompiler qgDecompiler = new QgDecompiler(compiled);
         Program decompiledProgram = qgDecompiler.decompile();
-        Consumer<Integer> iteration = decompiledProgram.initializeAndPrepareRun();
-        iteration.accept(100);
+        GameLoop iteration = decompiledProgram.initializeAndPrepareRun();
+        iteration.run(100);
         Assert.assertEquals(testCase.result, (double) decompiledProgram.getVariable(getOutVarId(program)), 0.001);
     }
 

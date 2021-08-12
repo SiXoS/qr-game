@@ -2,13 +2,13 @@ package se.lindhen.qrgame;
 
 import org.junit.Assert;
 import org.junit.Test;
+import se.lindhen.qrgame.program.GameLoop;
 import se.lindhen.qrgame.program.Program;
 import se.lindhen.qrgame.program.expressions.AssignExpression;
 import se.lindhen.qrgame.program.statements.BlockStatement;
 import se.lindhen.qrgame.program.statements.ExpressionStatement;
 
 import java.io.IOException;
-import java.util.function.Consumer;
 
 public class ProgramCancelTest {
 
@@ -26,8 +26,8 @@ public class ProgramCancelTest {
 
     private Object testInfiniteProgramCanBeCanceled(String testFile) throws IOException, InterruptedException {
         Program program = Util.readProgramFromStream(getClass().getResourceAsStream(testFile));
-        Consumer<Integer> iterationRunner = program.initializeAndPrepareRun();
-        Thread programThread = new Thread(() -> iterationRunner.accept(100));
+        GameLoop iterationRunner = program.initializeAndPrepareRun();
+        Thread programThread = new Thread(() -> iterationRunner.run(100));
         programThread.start();
         Thread.sleep(1000);
         Assert.assertTrue(programThread.isAlive());

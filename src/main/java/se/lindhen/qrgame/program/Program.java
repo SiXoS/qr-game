@@ -44,7 +44,7 @@ public class Program {
         PredefinedFunctions.getFunctions().forEach(func -> functions.put(func.id, func.function));
     }
 
-    public Consumer<Integer> initializeAndPrepareRun() {
+    public GameLoop initializeAndPrepareRun() {
         initialisation.run(this);
         return dt -> {
             drawings.clear();

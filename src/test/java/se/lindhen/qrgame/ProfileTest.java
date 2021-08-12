@@ -2,10 +2,10 @@ package se.lindhen.qrgame;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import se.lindhen.qrgame.program.GameLoop;
 import se.lindhen.qrgame.program.Program;
 
 import java.io.IOException;
-import java.util.function.Consumer;
 
 public class ProfileTest {
 
@@ -42,10 +42,10 @@ public class ProfileTest {
         System.out.println("Java version took " + took + "ms");
 
         Program program = Util.readProgramFromStream(getClass().getResourceAsStream("/sieveOfEratosthenes.qg"));
-        Consumer<Integer> iteration = program.initializeAndPrepareRun();
+        GameLoop iteration = program.initializeAndPrepareRun();
         program.setVariable(0, (double) max);
         before = System.currentTimeMillis();
-        iteration.accept(100);
+        iteration.run(100);
         took = System.currentTimeMillis() - before;
         System.out.println("QG took " + took + "ms");
         /*List<Value> backingList = program.getVariable(1).getList().getBackingList();

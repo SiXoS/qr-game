@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import se.lindhen.qrgame.bytecode.QgDecompiler;
+import se.lindhen.qrgame.program.GameLoop;
 import se.lindhen.qrgame.program.InputManager;
 import se.lindhen.qrgame.program.Program;
 import se.lindhen.qrgame.program.expressions.AssignExpression;
@@ -17,7 +18,6 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 
 @RunWith(Parameterized.class)
 public class BackwardsCompatibilityTest {
@@ -49,9 +49,9 @@ public class BackwardsCompatibilityTest {
         byte[] compiled = QrCreator.readQrImage(testCase.qrResource);
         QgDecompiler qgDecompiler = new QgDecompiler(compiled);
         Program decompiledProgram = qgDecompiler.decompile();
-        Consumer<Integer> iteration = decompiledProgram.initializeAndPrepareRun();
+        GameLoop iteration = decompiledProgram.initializeAndPrepareRun();
         decompiledProgram.getInputManager().triggerButton(InputManager.Input.LEFT_BOTTOM, true);
-        iteration.accept(100);
+        iteration.run(100);
         Assert.assertEquals(testCase.result, (double) decompiledProgram.getVariable(getOutVarId(decompiledProgram)), 0.001);
     }
 
