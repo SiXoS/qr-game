@@ -7,14 +7,37 @@ The language focuses on small byte code footprint, ease of use and basic type sa
 
 ## Requirements
 
-Requires Java 8 and maven.
+Requires Java 8 to run. Also requires maven to compile.
 
-## Usage
+## Installation
 
-Compile a program using:
+### Linux Bash
+
+Download the latest release and add it to the PATH.
 ```
-mvn install
-bin/qgc_source.sh compile code.qg output_qr.png
+mkdir /etc/qrgame
+cd /etc/qrgame
+latest=$(curl --silent "https://api.github.com/repos/SiXoS/qr-game/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+wget -q https://github.com/SiXoS/qr-game/releases/download/$latest/qgc.sh
+wget -q https://github.com/SiXoS/qr-game/releases/download/$latest/qr-game-core-jar-with-dependencies.jar
+chmod +x qgc.sh
+ln -s /etc/qrgame/qgc.sh /usr/bin/qgc
+```
+
+You can then use it with:
+```
+qgc --help
+qgc compile code.qg output.png
+```
+
+### Other systems
+
+Download the latest jar from [Releases](https://github.com/SiXoS/qr-game/releases/).
+
+Run it with java:
+```
+java -jar <path_to_jar> --help
+java -jar <path_to_jar> compile code.qg output.png
 ```
 
 ## Performance
