@@ -5,6 +5,10 @@
 Compiler and runtime for the QG language. QG is designed for creating games that can be compiled to a QR code.
 The language focuses on small byte code footprint, ease of use and basic type safety.
 
+## Android App
+
+Link to the Android app [QR Game](https://play.google.com/store/apps/details?id=se.lindhen.qrgame)
+
 ## Requirements
 
 Requires Java 8 to run. Also requires maven to compile.
