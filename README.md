@@ -67,6 +67,9 @@ add some logic to detect this. i.e. if an iteration takes too long to run or if 
 too much memory.
 
 ## Small example
+
+There are more complex samples in [qr-game-samples](https://github.com/SiXoS/qr-game-samples).
+
 Example UI and code for a small "game". It with a square in the center. 
 When you hit a d-pad button the square will move.
 
