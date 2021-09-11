@@ -3,6 +3,7 @@
 ![Build status](https://github.com/SiXoS/qr-game/actions/workflows/build.yml/badge.svg) [![Test coverage](https://codecov.io/gh/SiXoS/qr-game/branch/main/graph/badge.svg?token=R6BSPKGPXV)](https://codecov.io/gh/SiXoS/qr-game)
 
 Compiler and runtime for the QG language. QG is designed for creating games that can be compiled to a QR code.
+These QR codes can be executed using the Android app [QR Game](https://play.google.com/store/apps/details?id=se.lindhen.qrgame).
 The language focuses on small byte code footprint, ease of use and basic type safety.
 
 ## Android App
