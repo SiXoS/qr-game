@@ -1,7 +1,5 @@
 package se.lindhen.qrgame.program.functions;
 
-import org.antlr.v4.runtime.ParserRuleContext;
-import se.lindhen.qrgame.parser.ValidationResult;
 import se.lindhen.qrgame.program.Program;
 import se.lindhen.qrgame.program.Variable;
 import se.lindhen.qrgame.program.expressions.Expression;
@@ -9,25 +7,29 @@ import se.lindhen.qrgame.program.statements.Statement;
 import se.lindhen.qrgame.program.types.Type;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class UserFunction extends Function {
 
     private final int id;
-    private final ArrayList<UserFunctionParameter> parameters;
-    private final Type[] argumentTypes;
-    private final Type returnType;
+    private final int numberOfTrueArguments;
+    private final Optional<Integer> constantArgumentCount;
     private final Statement body;
 
-    public UserFunction(int id, ArrayList<UserFunctionParameter> parameters, Type returnType, Statement body) {
-        super("_user_function_" + id);
+    public UserFunction(int id, FunctionDeclaration functionDeclaration, Statement body) {
+        super("_user_function_" + id, functionDeclaration);
         this.id = id;
-        this.parameters = parameters;
-        this.argumentTypes = new Type[parameters.size()];
-        for (int i = 0; i < argumentTypes.length; i++) {
-            argumentTypes[i] = parameters.get(i).getType();
-        }
-        this.returnType = returnType;
+        numberOfTrueArguments = functionDeclaration.numberOfTrueArguments();
+        constantArgumentCount = functionDeclaration.getConstantParameterCount();
+        this.body = body;
+    }
+
+    public UserFunction(int id, int numberOfTrueArguments, Optional<Integer> constantArgumentCount, Statement body) {
+        super("_user_function_" + id, null);
+        this.id = id;
+        this.numberOfTrueArguments = numberOfTrueArguments;
+        this.constantArgumentCount = constantArgumentCount;
         this.body = body;
     }
 
@@ -35,32 +37,19 @@ public class UserFunction extends Function {
         return id;
     }
 
-    public ArrayList<UserFunctionParameter> getParameters() {
-        return parameters;
-    }
-
-    public Type getReturnType() {
-        return returnType;
-    }
-
     public Statement getBody() {
         return body;
     }
 
     @Override
-    public Type getReturnType(ArrayList<Expression> arguments) {
-        return returnType;
-    }
-
-    @Override
-    public Object execute(ArrayList<Expression> arguments, Program program) {
+    public Object execute(List<Expression> arguments, Program program) {
         ArrayList<Object> values = new ArrayList<>();
         for (Expression argument : arguments) {
             values.add(argument.calculate(program));
         }
         program.pushAllToStack(values);
         body.run(program);
-        for (UserFunctionParameter ignored : parameters) {
+        for (int i = 0; i < numberOfTrueArguments; i++) {
             program.popFromStack();
         }
         return program.getReturnValueAndResume();
@@ -72,13 +61,12 @@ public class UserFunction extends Function {
     }
 
     @Override
-    public ValidationResult validate(ArrayList<Expression> arguments, ParserRuleContext ctx) {
-        return validateArguments(arguments, ctx, argumentTypes);
+    public Optional<Integer> getConstantParameterCount() {
+        return constantArgumentCount;
     }
 
-    @Override
-    public Optional<Integer> getConstantParameterCount() {
-        return Optional.of(argumentTypes.length);
+    public int getNumberOfTrueArguments() {
+        return numberOfTrueArguments;
     }
 
     public static class UserFunctionParameter {

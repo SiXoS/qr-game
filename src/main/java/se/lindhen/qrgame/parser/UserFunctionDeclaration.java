@@ -1,33 +1,25 @@
 package se.lindhen.qrgame.parser;
 
-import se.lindhen.qrgame.program.types.Type;
-
-import java.util.ArrayList;
+import se.lindhen.qrgame.program.functions.FunctionDeclaration;
 
 public class UserFunctionDeclaration {
 
     private final String name;
     private final int functionId;
-    private final ArrayList<FunctionParameterDeclaration> parameters;
-    private final Type returnType;
+    private final FunctionDeclaration functionDeclaration;
 
-    public UserFunctionDeclaration(String name, int functionId, ArrayList<FunctionParameterDeclaration> parameters, Type returnType) {
+    public UserFunctionDeclaration(String name, int functionId, FunctionDeclaration functionDeclaration) {
         this.name = name;
         this.functionId = functionId;
-        this.returnType = returnType;
-        this.parameters = parameters;
+        this.functionDeclaration = functionDeclaration;
     }
 
     public String getName() {
         return name;
     }
 
-    public Type getReturnType() {
-        return returnType;
-    }
-
-    public ArrayList<FunctionParameterDeclaration> getParameters() {
-        return parameters;
+    public FunctionDeclaration getFunctionDeclaration() {
+        return functionDeclaration;
     }
 
     public int getFunctionId() {

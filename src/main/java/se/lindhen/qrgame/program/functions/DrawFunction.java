@@ -10,6 +10,7 @@ import se.lindhen.qrgame.program.objects.ShapeClass;
 import se.lindhen.qrgame.program.types.VoidType;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class DrawFunction extends Function {
@@ -17,23 +18,13 @@ public class DrawFunction extends Function {
     public static final String NAME = "draw";
 
     public DrawFunction() {
-        super(NAME);
+        super(NAME, new FunctionDeclaration(0, VoidType.VOID_TYPE, new ObjectType(ShapeClass.getQgClass())));
     }
 
     @Override
-    public Type getReturnType(ArrayList<Expression> arguments) {
-        return VoidType.VOID_TYPE;
-    }
-
-    @Override
-    public Object execute(ArrayList<Expression> arguments, Program program) {
+    public Object execute(List<Expression> arguments, Program program) {
         program.addDrawing(((ShapeClass.ShapeObject) arguments.get(0).calculate(program)).getShape());
         return null;
-    }
-
-    @Override
-    public ValidationResult validate(ArrayList<Expression> arguments, ParserRuleContext ctx) {
-        return validateArguments(arguments, ctx, new ObjectType(ShapeClass.getQgClass()));
     }
 
     @Override

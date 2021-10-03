@@ -22,9 +22,8 @@ public class Program {
     private ShapeFactory shapeFactory = new DefaultShapeFactory();
     private InputManager inputManager = new InputManager();
 
-    private ArrayList<StructDefinition> structs = new ArrayList<>();
     private final ArrayMap<Object> variables = new ArrayMap<>();
-    private final ArrayMap<Function> functions = new ArrayMap<>();
+    private final PredefinedFunctions functions = new PredefinedFunctions();
     private ArrayList<UserFunction> userFunctions = new ArrayList<>();
     private ArrayList<Object> stack = new ArrayList<>();
     private Object returnValue = null;
@@ -40,10 +39,6 @@ public class Program {
     private Interrupt interrupt = null;
     private boolean trackScore;
 
-    public Program() {
-        PredefinedFunctions.getFunctions().forEach(func -> functions.put(func.id, func.function));
-    }
-
     public GameLoop initializeAndPrepareRun() {
         initialisation.run(this);
         return dt -> {
@@ -57,7 +52,7 @@ public class Program {
     }
 
     public Function getFunction(int id) {
-        return functions.get(id);
+        return functions.getFunction(id).function;
     }
 
     public void setInitStatement(Statement initStatement) {
@@ -130,24 +125,6 @@ public class Program {
 
     public void setShapeFactory(ShapeFactory shapeFactory) {
         this.shapeFactory = shapeFactory;
-    }
-
-    public StructDefinition addStructDefinition() {
-        StructDefinition structDef = new StructDefinition(structs.size());
-        structs.add(structDef);
-        return structDef;
-    }
-
-    public StructDefinition getStructDefinition(int structId) {
-        return structs.get(structId);
-    }
-
-    public ArrayList<StructDefinition> getStructDefinitions() {
-        return structs;
-    }
-
-    public void setStructDefinitions(ArrayList<StructDefinition> structs) {
-        this.structs = structs;
     }
 
     public void addUserFunction(UserFunction userFunction) {

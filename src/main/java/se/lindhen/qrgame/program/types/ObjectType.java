@@ -14,6 +14,7 @@ public class ObjectType extends Type {
 
     public ObjectType(QgClass<?> qgClass, Type... innerTypes) {
         super(BaseType.OBJECT);
+        assert Arrays.stream(innerTypes).noneMatch(Type::isVararg): "Objects cannot have vararg type parameters"; // acceptsType() does not handle vararg
         this.qgClass = qgClass;
         this.innerTypes = Arrays.asList(innerTypes);
     }
@@ -21,6 +22,43 @@ public class ObjectType extends Type {
     @Override
     public boolean isComparable() {
         return false;
+    }
+
+    @Override
+    public boolean acceptsType(Type sourceType) {
+        if (!sourceType.isObject()) return false;
+
+        ObjectType objectType = (ObjectType) sourceType;
+
+        if (!qgClass.equals(objectType.qgClass)) return false;
+        if (innerTypes.size() != objectType.innerTypes.size()) return false;
+
+        for (int i = 0; i < innerTypes.size(); i++) {
+            if (!innerTypes.get(i).acceptsType(objectType.innerTypes.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public Type coerce(Type type, GenericTypeTracker genericTypeTracker) {
+        if (!type.isObject()) return this;
+        ObjectType objectType = (ObjectType) type;
+        Type[] resultingInnerTypes = new Type[Math.min(innerTypes.size(), objectType.innerTypes.size())];
+        for (int i = 0; i < resultingInnerTypes.length; i++) {
+            resultingInnerTypes[i] = innerTypes.get(i).coerce(objectType.innerTypes.get(i), genericTypeTracker);
+        }
+        return new ObjectType(qgClass, resultingInnerTypes);
+    }
+
+    @Override
+    public Type inferFromGenerics(GenericTypeTracker genericTypeTracker) {
+        Type[] newInnerTypes = new Type[innerTypes.size()];
+        for (int i = 0; i < innerTypes.size(); i++) {
+            newInnerTypes[i] = innerTypes.get(i).inferFromGenerics(genericTypeTracker);
+        }
+        return new ObjectType(qgClass, newInnerTypes);
     }
 
     public List<Type> getInnerTypes() {

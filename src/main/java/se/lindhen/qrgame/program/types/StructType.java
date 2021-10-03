@@ -16,6 +16,21 @@ public class StructType extends Type {
         return false;
     }
 
+    @Override
+    public boolean acceptsType(Type sourceType) {
+        return sourceType.isStruct() && structId == ((StructType) sourceType).structId;
+    }
+
+    @Override
+    public Type coerce(Type type, GenericTypeTracker genericTypeTracker) {
+        return this;
+    }
+
+    @Override
+    public Type inferFromGenerics(GenericTypeTracker genericTypeTracker) {
+        return this;
+    }
+
     public int getStructId() {
         return structId;
     }

@@ -16,9 +16,8 @@ public abstract class QgClass<O extends ObjectValue> {
     private final String name;
     protected final List<? extends Method<O>> methods;
     protected final Map<String, Integer> methodNameToIndex = new HashMap<>();
-    private final int numTypeArguments;
 
-    protected QgClass(String name, int numTypeArguments) {
+    protected QgClass(String name) {
         this.name = name;
         this.methods = getMethods();
         for (int i = 0; i < methods.size(); i++) {
@@ -27,7 +26,6 @@ public abstract class QgClass<O extends ObjectValue> {
                 throw new IllegalArgumentException("Class " + name + " has two methods with name " + methods.get(i).name);
             }
         }
-        this.numTypeArguments = numTypeArguments;
     }
 
     protected abstract List<? extends Method<O>> getMethods();
@@ -63,9 +61,7 @@ public abstract class QgClass<O extends ObjectValue> {
         return name;
     }
 
-    public int getNumTypeArguments() {
-        return numTypeArguments;
-    }
+    public abstract ArgumentCountValidation validateArgumentCount(int arguments);
 
     public Integer lookupMethodId(String methodName) {
         return methodNameToIndex.get(methodName);
@@ -84,4 +80,34 @@ public abstract class QgClass<O extends ObjectValue> {
     public abstract Type getObjectTypeFromTypeArgs(List<Type> typeArguments);
 
     public abstract boolean isComparable();
+
+    public static class ArgumentCountValidation {
+        private final int expectedArgs;
+        private final boolean valid;
+
+        private ArgumentCountValidation(int expectedArgs, boolean valid) {
+            this.expectedArgs = expectedArgs;
+            this.valid = valid;
+        }
+
+        public static ArgumentCountValidation valid() {
+            return new ArgumentCountValidation(-1, true);
+        }
+
+        public static ArgumentCountValidation invalid(int expectedArgs) {
+            return new ArgumentCountValidation(expectedArgs, false);
+        }
+
+        public static ArgumentCountValidation validate(int expectedArgs, int actualArgs) {
+            return new ArgumentCountValidation(expectedArgs, expectedArgs == actualArgs);
+        }
+
+        public int getExpectedArgs() {
+            return expectedArgs;
+        }
+
+        public boolean isValid() {
+            return valid;
+        }
+    }
 }

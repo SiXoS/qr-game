@@ -37,25 +37,25 @@ public class ForEachMapEntryMethod<O extends ObjectValue> extends Method<O> {
     }
 
     @Override
-    public ValidationResult validate(ObjectType objectType, List<Expression> arguments, ParserRuleContext ctx) {
+    public ValidationResult validate(ObjectType toBeModifiedObjectType, List<Expression> arguments, ParserRuleContext ctx) {
         if (arguments.size() != 1) {
             return ValidationResult.invalid(ctx, "Expected 1 argument, got '" + arguments.size() + "'");
         }
         if (!arguments.get(0).getType().isObject()) {
             return ValidationResult.invalid(ctx, "expected map, got '" + arguments.get(0).getType() + "'");
         }
-        ObjectType sourceType = (ObjectType) arguments.get(0).getType();
-        Type iteratorType = sourceType.getQgClass().iteratorType(sourceType);
+        ObjectType toIterateType = (ObjectType) arguments.get(0).getType();
+        Type iteratorType = toIterateType.getQgClass().iteratorType(toIterateType);
         if (iteratorType != null && iteratorType.isObject() && ((ObjectType) iteratorType).getQgClass().equals(MapEntryClass.getQgClass())) { // source iterates over map entries
-            if (!getKeyType(iteratorType).equals(getKeyType(objectType))) {
-                return ValidationResult.invalid(ctx, "Key type does not match. Source type: '" + getKeyType(iteratorType) + "', target type: '" + getKeyType(objectType) + "'");
-            } else if (!getValueType(iteratorType).equals(getValueType(objectType))) {
-                return ValidationResult.invalid(ctx, "Value type does not match. Source type: '" + getValueType(iteratorType) + "', target type: '" + getValueType(objectType) + "'");
+            if (!getKeyType(iteratorType).canBeAssignedTo(getKeyType(toBeModifiedObjectType))) {
+                return ValidationResult.invalid(ctx, "Key type does not match. Source type: '" + getKeyType(iteratorType) + "', target type: '" + getKeyType(toBeModifiedObjectType) + "'");
+            } else if (!getValueType(iteratorType).canBeAssignedTo(getValueType(toBeModifiedObjectType))) {
+                return ValidationResult.invalid(ctx, "Value type does not match. Source type: '" + getValueType(iteratorType) + "', target type: '" + getValueType(toBeModifiedObjectType) + "'");
             } else {
                 return ValidationResult.valid();
             }
         } else {
-            return ValidationResult.invalid(ctx, "argument to " + name + "  must be iterable over map entries. Type '" + sourceType + "' is not.");
+            return ValidationResult.invalid(ctx, "argument to " + name + "  must be iterable over map entries. Type '" + toIterateType + "' is not.");
         }
     }
 

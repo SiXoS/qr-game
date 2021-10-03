@@ -16,7 +16,7 @@ public class HashSetClass extends QgClass<HashSetClass.HashSetObject> {
     private static final HashSetClass qgClass = new HashSetClass();
 
     private HashSetClass() {
-        super(NAME, 1);
+        super(NAME);
     }
 
     public static HashSetClass getQgClass() {
@@ -35,11 +35,16 @@ public class HashSetClass extends QgClass<HashSetClass.HashSetObject> {
         return methods;
     }
 
-    public HashSetObject createInstance(Type innerType, HashSet<Object> value) {
-        return new HashSetObject(new ObjectType(this, innerType), value);
+    @Override
+    public ArgumentCountValidation validateArgumentCount(int arguments) {
+        return ArgumentCountValidation.validate(1, arguments);
     }
 
-    public Type getObjectType(List<Expression> constructorArguments) {
+    public HashSetObject createInstance(HashSet<Object> value) {
+        return new HashSetObject(value);
+    }
+
+    public Type getObjectType(List<Type> constructorArguments) {
         return new ObjectType(this, CollectionConstructionUtils.innerTypeFromArguments(constructorArguments));
     }
 
@@ -67,8 +72,8 @@ public class HashSetClass extends QgClass<HashSetClass.HashSetObject> {
 
         private final HashSet<Object> set;
 
-        private HashSetObject(ObjectType type, HashSet<Object> value) {
-            super(HashSetClass.NAME, type);
+        private HashSetObject(HashSet<Object> value) {
+            super(HashSetClass.NAME);
             this.set = value;
         }
 

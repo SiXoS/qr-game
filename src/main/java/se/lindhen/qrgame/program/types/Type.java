@@ -33,8 +33,17 @@ public abstract class Type {
     public boolean isObject() { return baseType == BaseType.OBJECT; }
     public boolean isStruct() { return baseType == BaseType.STRUCT; }
     public boolean isVoid() { return baseType == BaseType.VOID; }
+    public boolean isVararg() { return baseType == BaseType.VARARG; }
+    public boolean isGeneric() {  return baseType == BaseType.GENERIC; }
 
     public abstract boolean isComparable();
+    public abstract boolean acceptsType(Type sourceType);
+    public abstract Type coerce(Type type, GenericTypeTracker genericTypeTracker);
+    public abstract Type inferFromGenerics(GenericTypeTracker genericTypeTracker);
+
+    public boolean canBeAssignedTo(Type targetType) {
+        return targetType.acceptsType(this);
+    }
 
     public BaseType getBaseType() {
         return baseType;
@@ -46,6 +55,8 @@ public abstract class Type {
         STRUCT,
         VOID,
         TYPE,
-        OBJECT
+        OBJECT,
+        VARARG,
+        GENERIC
     }
 }

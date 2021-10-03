@@ -35,7 +35,7 @@ public class ForEachMethod<O extends ObjectValue> extends Method<O> {
     }
 
     @Override
-    public ValidationResult validate(ObjectType objectType, List<Expression> arguments, ParserRuleContext ctx) {
+    public ValidationResult validate(ObjectType toModifyObjectType, List<Expression> arguments, ParserRuleContext ctx) {
         if (arguments.size() != 1) {
             return ValidationResult.invalid(ctx, "Expected 1 argument, got '" + arguments.size() + "'");
         }
@@ -44,8 +44,8 @@ public class ForEachMethod<O extends ObjectValue> extends Method<O> {
         }
         ObjectType sourceType = (ObjectType) arguments.get(0).getType();
         Type iteratorType = sourceType.getQgClass().iteratorType(sourceType);
-        if (!iteratorType.equals(objectType.getInnerTypes().get(0))) {
-            return ValidationResult.invalid(ctx, "Iterator type does not match. Source type: '" + iteratorType + "', target type: '" + objectType.getInnerTypes().get(0) + "'");
+        if (!iteratorType.canBeAssignedTo(toModifyObjectType.getInnerTypes().get(0))) {
+            return ValidationResult.invalid(ctx, "Iterator type does not match. Source type: '" + iteratorType + "', target type: '" + toModifyObjectType.getInnerTypes().get(0) + "'");
         } else {
             return ValidationResult.valid();
         }

@@ -16,10 +16,10 @@ import java.util.function.Supplier;
 
 public class MapConstructionUtils {
 
-    public static ObjectType typeFromArguments(QgClass<?> parent, List<Expression> arguments) {
-        return arguments.get(0).getType().isType() ?
-                new ObjectType(parent, ((TypeType) arguments.get(0).getType()).getActualType(), ((TypeType) arguments.get(1).getType()).getActualType()) :
-                new ObjectType(parent, ((ObjectType) arguments.get(0).getType()).getInnerTypes().get(0), ((ObjectType) arguments.get(0).getType()).getInnerTypes().get(1));
+    public static ObjectType typeFromArguments(QgClass<?> parent, List<Type> arguments) {
+        return arguments.get(0).isType() ?
+                new ObjectType(parent, ((TypeType) arguments.get(0)).getActualType(), ((TypeType) arguments.get(1)).getActualType()) :
+                new ObjectType(parent, ((ObjectType) arguments.get(0)).getInnerTypes().get(0), ((ObjectType) arguments.get(0)).getInnerTypes().get(1));
     }
 
     public static <T extends Map<Object, Object>> T createMap(List<Expression> arguments, Program program, Supplier<T> mapCreator) {
