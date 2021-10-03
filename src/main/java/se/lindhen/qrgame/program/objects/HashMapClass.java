@@ -13,7 +13,7 @@ public class HashMapClass extends QgClass<HashMapClass.HashMapValue> {
     private static final HashMapClass instance = new HashMapClass();
 
     private HashMapClass() {
-        super(NAME, 2);
+        super(NAME);
     }
 
     public static HashMapClass getQgClass() {
@@ -38,8 +38,13 @@ public class HashMapClass extends QgClass<HashMapClass.HashMapValue> {
         return methods;
     }
 
-    public HashMapValue createInstance(ObjectType objectType, HashMap<Object, Object> map) {
-        return new HashMapValue(objectType, map);
+    @Override
+    public ArgumentCountValidation validateArgumentCount(int arguments) {
+        return ArgumentCountValidation.validate(2, arguments);
+    }
+
+    public HashMapValue createInstance(HashMap<Object, Object> map) {
+        return new HashMapValue(map);
     }
 
     @Override
@@ -68,8 +73,8 @@ public class HashMapClass extends QgClass<HashMapClass.HashMapValue> {
 
         HashMap<Object, Object> map;
 
-        public HashMapValue(ObjectType objectType, HashMap<Object, Object> map) {
-            super(NAME, objectType);
+        public HashMapValue(HashMap<Object, Object> map) {
+            super(NAME);
             this.map = map;
         }
 
@@ -80,7 +85,7 @@ public class HashMapClass extends QgClass<HashMapClass.HashMapValue> {
 
         @Override
         public Iterator<Object> iterator() {
-            return new QgMapIterator(map.entrySet().iterator(), getType().getInnerTypes().get(0), getType().getInnerTypes().get(1));
+            return new QgMapIterator(map.entrySet().iterator());
         }
 
         public double size() {
@@ -112,11 +117,11 @@ public class HashMapClass extends QgClass<HashMapClass.HashMapValue> {
         }
 
         public ListClass.ListObject values() {
-            return ListClass.getQgClass().createInstance(getType().getInnerTypes().get(0), new ArrayList<>(map.values()));
+            return ListClass.getQgClass().createInstance(new ArrayList<>(map.values()));
         }
 
         public HashSetClass.HashSetObject keys() {
-            return HashSetClass.getQgClass().createInstance(getType().getInnerTypes().get(0), new HashSet<>(map.keySet()));
+            return HashSetClass.getQgClass().createInstance(new HashSet<>(map.keySet()));
         }
 
         @Override

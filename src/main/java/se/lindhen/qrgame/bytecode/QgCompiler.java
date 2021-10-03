@@ -18,7 +18,7 @@ import static se.lindhen.qrgame.bytecode.CommandCode.*;
 
 public class QgCompiler {
 
-    private static final int VERSION = 1;
+    private static final int VERSION = 2;
     private final BitWriter writer = new BitWriter();
     private final Program program;
     private final HashMap<String, Integer> classNameToIdMap = new HashMap<>();
@@ -35,9 +35,6 @@ public class QgCompiler {
 
     public byte[] compile() {
         writer.write(4, VERSION);
-        writer.setContext("struct");
-        compileStructs(program.getStructDefinitions());
-        writer.exitContext();
         compileFunctions(program.getUserFunctions());
         compileStatement(program.getInitialisation());
         compileStatement(program.getCode());
@@ -53,34 +50,23 @@ public class QgCompiler {
         compileStatement(inputCode.getCode());
     }
 
-    private void compileStructs(ArrayList<StructDefinition> structDefinitions) {
-        writer.writePositiveByte(structDefinitions.size());
-        for (StructDefinition structDefinition : structDefinitions) {
-            writer.writePositiveByte(structDefinition.getFields().size());
-            for (Type fieldType : structDefinition.getFields()) {
-                compileType(fieldType);
-            }
-        }
-    }
-
     private void compileFunctions(ArrayList<UserFunction> userFunctions) {
         writer.setContext("userFunction");
         writer.writePositiveByte(userFunctions.size());
+        for (UserFunction function : userFunctions) {
+            Optional<Integer> constantParameterCount = function.getConstantParameterCount();
+            writer.writeBool(constantParameterCount.isPresent());
+            constantParameterCount.ifPresent(writer::writePositiveByte);
+        }
         for (int i = 0; i < userFunctions.size(); i++) {
             assert i == userFunctions.get(i).getId();
-
             UserFunction userFunction = userFunctions.get(i);
-            compileType(userFunction.getReturnType());
-            writer.writePositiveByte(userFunction.getParameters().size());
-            for (UserFunction.UserFunctionParameter parameter : userFunction.getParameters()) {
-                writer.writePositiveByte(parameter.getVarId());
-                compileType(parameter.getType());
-            }
+            writer.writePositiveByte(userFunction.getNumberOfTrueArguments());
+            writer.exitContext();
+            compileStatement(userFunction.getBody());
+            writer.setContext("userFunction");
         }
         writer.exitContext();
-        for (UserFunction userFunction: userFunctions) {
-            compileStatement(userFunction.getBody());
-        }
     }
 
     private void compileType(Type fieldType) {
@@ -157,6 +143,8 @@ public class QgCompiler {
             writer.setContext("when");
             writer.writeCommand(WHEN);
             writer.writeBool(whenStatement.getDefaultCase() != null);
+            Type toCompareType = whenStatement.getToCompare().getType();
+            compileType(toCompareType);
             writer.exitContext();
             if (whenStatement.getDefaultCase() != null) {
                 compileStatement(whenStatement.getDefaultCase());
@@ -164,7 +152,7 @@ public class QgCompiler {
             compileExpression(whenStatement.getToCompare());
             writer.writePositiveByte(whenStatement.getCases().size());
             whenStatement.getCases().forEach((aCase, caseBody) -> {
-                compileWhenCase(whenStatement.getToCompare().getType(), aCase);
+                compileWhenCase(toCompareType, aCase);
                 compileStatement(caseBody);
             });
         } else if (statement instanceof ReturnStatement) {
@@ -265,13 +253,7 @@ public class QgCompiler {
             compileExpression(methodCallExpression.getObjectExpression());
             writer.setContext("method");
             writer.writePositiveByte(methodCallExpression.getMethodId());
-            Optional<Integer> constantParameterCount = ((ObjectType) methodCallExpression.getObjectExpression().getType())
-                    .getQgClass()
-                    .getMethod(methodCallExpression.getMethodId())
-                    .getConstantParameterCount();
-            if (!constantParameterCount.isPresent()) {
-                writer.writePositiveByte(methodCallExpression.getArgumentExpressions().size());
-            }
+            writer.writePositiveByte(methodCallExpression.getArgumentExpressions().size());
             writer.exitContext();
             compileExpressions(methodCallExpression.getArgumentExpressions());
         } else if (expression instanceof MultiplicativeExpression) {
@@ -379,6 +361,8 @@ public class QgCompiler {
             writer.setContext("when");
             writer.writeCommand(WHEN);
             writer.writeBool(whenStatement.getDefaultCase() != null);
+            Type toCompareType = whenStatement.getToCompare().getType();
+            compileType(toCompareType);
             writer.exitContext();
             if (whenStatement.getDefaultCase() != null) {
                 compileExpression(whenStatement.getDefaultCase());
@@ -386,7 +370,7 @@ public class QgCompiler {
             compileExpression(whenStatement.getToCompare());
             writer.writePositiveByte(whenStatement.getCases().size());
             whenStatement.getCases().forEach((aCase, caseBody) -> {
-                compileWhenCase(whenStatement.getToCompare().getType(), aCase);
+                compileWhenCase(toCompareType, aCase);
                 compileExpression(caseBody);
             });
         } else {

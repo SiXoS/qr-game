@@ -14,6 +14,21 @@ public class NumberType extends Type {
     }
 
     @Override
+    public boolean acceptsType(Type sourceType) {
+        return sourceType.isNumber();
+    }
+
+    @Override
+    public Type coerce(Type type, GenericTypeTracker genericTypeTracker) {
+        return this;
+    }
+
+    @Override
+    public Type inferFromGenerics(GenericTypeTracker genericTypeTracker) {
+        return this;
+    }
+
+    @Override
     public String toString() {
         return "number";
     }

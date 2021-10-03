@@ -20,7 +20,12 @@ public class ShapeClass extends QgClass<ShapeClass.ShapeObject> {
     private final ObjectType objectType = new ObjectType(this);
 
     private ShapeClass() {
-        super(NAME, 0);
+        super(NAME);
+    }
+
+    @Override
+    public ArgumentCountValidation validateArgumentCount(int arguments) {
+        return ArgumentCountValidation.validate(0, arguments);
     }
 
     public static ShapeClass getQgClass() {
@@ -115,7 +120,7 @@ public class ShapeClass extends QgClass<ShapeClass.ShapeObject> {
         private final Shape shape;
 
         private ShapeObject(Shape shape) {
-            super(ShapeClass.NAME, objectType);
+            super(ShapeClass.NAME);
             this.shape = shape;
         }
 

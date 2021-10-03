@@ -21,16 +21,14 @@ public class CompositeShapeFunction extends Function {
     public static final String NAME = "createCompositeShape";
 
     public CompositeShapeFunction() {
-        super(NAME);
+        super(NAME, new FunctionDeclaration(0, new ObjectType(ShapeClass.getQgClass()),
+                NumberType.NUMBER_TYPE,
+                NumberType.NUMBER_TYPE,
+                ListClass.getQgClass().getObjectTypeFromTypeArgs(Collections.singletonList(ShapeClass.getQgClass().getObjectType()))));
     }
 
     @Override
-    public Type getReturnType(ArrayList<Expression> arguments) {
-        return new ObjectType(ShapeClass.getQgClass());
-    }
-
-    @Override
-    public Object execute(ArrayList<Expression> arguments, Program program) {
+    public Object execute(List<Expression> arguments, Program program) {
         double x = (double) arguments.get(0).calculate(program);
         double y = (double) arguments.get(1).calculate(program);
         ListClass.ListObject shapes = (ListClass.ListObject) arguments.get(2).calculate(program);
@@ -43,14 +41,6 @@ public class CompositeShapeFunction extends Function {
             shapes.add(((ShapeClass.ShapeObject) object).getShape());
         }
         return shapes;
-    }
-
-    @Override
-    public ValidationResult validate(ArrayList<Expression> arguments, ParserRuleContext ctx) {
-        return validateArguments(arguments, ctx,
-                NumberType.NUMBER_TYPE,
-                NumberType.NUMBER_TYPE,
-                ListClass.getQgClass().getObjectTypeFromTypeArgs(Collections.singletonList(ShapeClass.getQgClass().getObjectType())));
     }
 
     @Override

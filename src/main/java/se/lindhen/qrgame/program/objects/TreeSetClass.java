@@ -16,11 +16,16 @@ public class TreeSetClass extends QgClass<TreeSetClass.TreeSetObject> {
     private static final TreeSetClass qgClass = new TreeSetClass();
 
     private TreeSetClass() {
-        super(NAME, 1);
+        super(NAME);
     }
 
     public static TreeSetClass getQgClass() {
         return qgClass;
+    }
+
+    @Override
+    public ArgumentCountValidation validateArgumentCount(int arguments) {
+        return ArgumentCountValidation.validate(1, arguments);
     }
 
     @Override
@@ -39,17 +44,17 @@ public class TreeSetClass extends QgClass<TreeSetClass.TreeSetObject> {
         return methods;
     }
 
-    public TreeSetObject createInstance(Type innerType, TreeSet<Object> value) {
-        return new TreeSetObject(innerType, value);
-    }
-
-    public Type getObjectType(List<Expression> constructorArguments) {
-        return new ObjectType(this, CollectionConstructionUtils.innerTypeFromArguments(constructorArguments));
+    public TreeSetObject createInstance(TreeSet<Object> value) {
+        return new TreeSetObject(value);
     }
 
     @Override
     public Type getObjectTypeFromTypeArgs(List<Type> constructorArguments) {
         return new ObjectType(this, constructorArguments.get(0));
+    }
+
+    public Type getObjectType(List<Type> constructorArguments) {
+        return new ObjectType(this, CollectionConstructionUtils.innerTypeFromArguments(constructorArguments));
     }
 
     @Override
@@ -71,8 +76,8 @@ public class TreeSetClass extends QgClass<TreeSetClass.TreeSetObject> {
 
         private final TreeSet<Object> set;
 
-        private TreeSetObject(Type innerType, TreeSet<Object> value) {
-            super(TreeSetClass.NAME, new ObjectType(TreeSetClass.this, innerType));
+        private TreeSetObject(TreeSet<Object> value) {
+            super(TreeSetClass.NAME);
             this.set = value;
         }
 

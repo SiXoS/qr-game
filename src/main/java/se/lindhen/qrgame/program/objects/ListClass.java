@@ -15,7 +15,7 @@ public class ListClass extends QgClass<ListClass.ListObject> {
     private static final ListClass qgClass = new ListClass();
 
     private ListClass() {
-        super(NAME, 1);
+        super(NAME);
     }
 
     public static ListClass getQgClass() {
@@ -42,11 +42,16 @@ public class ListClass extends QgClass<ListClass.ListObject> {
         return methods;
     }
 
-    public ListObject createInstance(Type innerType, List<Object> backingList) {
-        return new ListObject(new ObjectType(this, innerType), backingList);
+    @Override
+    public ArgumentCountValidation validateArgumentCount(int arguments) {
+        return ArgumentCountValidation.validate(1, arguments);
     }
 
-    public Type getObjectType(List<Expression> constructorArguments) {
+    public ListObject createInstance( List<Object> backingList) {
+        return new ListObject(backingList);
+    }
+
+    public Type getObjectType(List<Type> constructorArguments) {
         return new ObjectType(this, CollectionConstructionUtils.innerTypeFromArguments(constructorArguments));
     }
 
@@ -74,8 +79,8 @@ public class ListClass extends QgClass<ListClass.ListObject> {
 
         private final List<Object> list;
 
-        private ListObject(ObjectType type, List<Object> backingList) {
-            super(ListClass.NAME, type);
+        private ListObject(List<Object> backingList) {
+            super(ListClass.NAME);
             this.list = backingList;
         }
 

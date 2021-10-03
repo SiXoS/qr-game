@@ -16,6 +16,22 @@ public class TypeType extends Type {
         return false;
     }
 
+    @Override
+    public boolean acceptsType(Type sourceType) {
+        return sourceType.isType() && actualType.acceptsType(((TypeType) sourceType).actualType);
+    }
+
+    @Override
+    public Type coerce(Type type, GenericTypeTracker genericTypeTracker) {
+        if (!type.isType()) return this;
+        return new TypeType(actualType.coerce(((TypeType)type).actualType, genericTypeTracker));
+    }
+
+    @Override
+    public Type inferFromGenerics(GenericTypeTracker genericTypeTracker) {
+        return new TypeType(actualType.inferFromGenerics(genericTypeTracker));
+    }
+
     public Type getActualType() {
         return actualType;
     }

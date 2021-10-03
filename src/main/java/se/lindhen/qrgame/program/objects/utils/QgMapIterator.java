@@ -9,13 +9,9 @@ import java.util.Map;
 public class QgMapIterator implements Iterator<Object> {
 
     private final Iterator<Map.Entry<Object, Object>> mapIterator;
-    private final Type keyType;
-    private final Type valueType;
 
-    public QgMapIterator(Iterator<Map.Entry<Object, Object>> mapIterator, Type keyType, Type valueType) {
+    public QgMapIterator(Iterator<Map.Entry<Object, Object>> mapIterator) {
         this.mapIterator = mapIterator;
-        this.keyType = keyType;
-        this.valueType = valueType;
     }
 
     @Override
@@ -26,6 +22,6 @@ public class QgMapIterator implements Iterator<Object> {
     @Override
     public Object next() {
         Map.Entry<Object, Object> entry = mapIterator.next();
-        return MapEntryClass.getQgClass().createInstance(entry.getKey(), keyType, entry.getValue(), valueType);
+        return MapEntryClass.getQgClass().createInstance(entry.getKey(), entry.getValue());
     }
 }

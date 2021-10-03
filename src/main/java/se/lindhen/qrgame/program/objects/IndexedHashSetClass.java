@@ -19,7 +19,7 @@ public class IndexedHashSetClass extends QgClass<IndexedHashSetClass.IndexedHash
     private static final IndexedHashSetClass qgClass = new IndexedHashSetClass();
 
     private IndexedHashSetClass() {
-        super(NAME, 1);
+        super(NAME);
     }
 
     public static IndexedHashSetClass getQgClass() {
@@ -40,11 +40,16 @@ public class IndexedHashSetClass extends QgClass<IndexedHashSetClass.IndexedHash
         return methods;
     }
 
-    public IndexedHashSetObject createInstance(Type innerType, IndexedHashSet<Object> value) {
-        return new IndexedHashSetObject(new ObjectType(this, innerType), value);
+    @Override
+    public ArgumentCountValidation validateArgumentCount(int arguments) {
+        return ArgumentCountValidation.validate(1, arguments);
     }
 
-    public Type getObjectType(List<Expression> constructorArguments) {
+    public IndexedHashSetObject createInstance(IndexedHashSet<Object> value) {
+        return new IndexedHashSetObject(value);
+    }
+
+    public Type getObjectType(List<Type> constructorArguments) {
         return new ObjectType(this, CollectionConstructionUtils.innerTypeFromArguments(constructorArguments));
     }
 
@@ -72,8 +77,8 @@ public class IndexedHashSetClass extends QgClass<IndexedHashSetClass.IndexedHash
 
         private final IndexedHashSet<Object> set;
 
-        private IndexedHashSetObject(ObjectType type, IndexedHashSet<Object> value) {
-            super(IndexedHashSetClass.NAME, type);
+        private IndexedHashSetObject(IndexedHashSet<Object> value) {
+            super(IndexedHashSetClass.NAME);
             this.set = value;
         }
 

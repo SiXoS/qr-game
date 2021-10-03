@@ -34,7 +34,7 @@ public abstract class Method<O extends ObjectValue> {
         } else {
             ArrayList<ValidationResult> argumentResults = new ArrayList<>();
             for (int i = 0; i < types.size(); i++) {
-                if (!arguments.get(i).getType().equals(types.get(i))) {
+                if (!arguments.get(i).getType().acceptsType(types.get(i))) {
                     argumentResults.add(ValidationResult.invalid(ctx, "Argument " + i + " to function " + name + " was " + arguments.get(i).getType() + " but expected " + types.get(i)));
                 } else {
                     argumentResults.add(ValidationResult.valid());

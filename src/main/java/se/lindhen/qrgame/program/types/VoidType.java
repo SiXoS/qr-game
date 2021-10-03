@@ -14,6 +14,21 @@ public class VoidType extends Type {
     }
 
     @Override
+    public boolean acceptsType(Type sourceType) {
+        return sourceType.isVoid();
+    }
+
+    @Override
+    public Type coerce(Type type, GenericTypeTracker genericTypeTracker) {
+        return this;
+    }
+
+    @Override
+    public Type inferFromGenerics(GenericTypeTracker genericTypeTracker) {
+        return this;
+    }
+
+    @Override
     public String toString() {
         return "void";
     }

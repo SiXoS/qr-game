@@ -14,8 +14,8 @@ public class MethodCallExpression extends Expression {
     private final int methodId;
     private final List<Expression> arguments;
 
-    public MethodCallExpression(Expression object, int method, List<Expression> arguments) {
-        super(getTypeOfMethodCall(object, method), joinExpressions(object, arguments));
+    public MethodCallExpression(Expression object, int method, List<Expression> arguments, Type returnType) {
+        super(returnType, joinExpressions(object, arguments));
         this.object = object;
         this.methodId = method;
         this.arguments = arguments;
@@ -39,10 +39,6 @@ public class MethodCallExpression extends Expression {
 
     public List<Expression> getArgumentExpressions() {
         return arguments;
-    }
-
-    private static Type getTypeOfMethodCall(Expression object, int methodName) {
-        return ((ObjectType) object.getType()).getQgClass().getReturnType(methodName, (ObjectType) object.getType());
     }
 
     public int getMethodId() {

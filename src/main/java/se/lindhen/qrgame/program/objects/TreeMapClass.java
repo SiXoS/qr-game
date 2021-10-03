@@ -13,11 +13,16 @@ public class TreeMapClass extends QgClass<TreeMapClass.TreeMapValue> {
     private static final TreeMapClass instance = new TreeMapClass();
 
     private TreeMapClass() {
-        super(NAME, 2);
+        super(NAME);
     }
 
     public static TreeMapClass getQgClass() {
         return instance;
+    }
+
+    @Override
+    public ArgumentCountValidation validateArgumentCount(int arguments) {
+        return ArgumentCountValidation.validate(2, arguments);
     }
 
     @Override
@@ -46,8 +51,8 @@ public class TreeMapClass extends QgClass<TreeMapClass.TreeMapValue> {
         return methods;
     }
 
-    public TreeMapValue createInstance(ObjectType objectType, TreeMap<Object, Object> map) {
-        return new TreeMapValue(objectType, map);
+    public TreeMapValue createInstance(TreeMap<Object, Object> map) {
+        return new TreeMapValue(map);
     }
 
     @Override
@@ -85,8 +90,8 @@ public class TreeMapClass extends QgClass<TreeMapClass.TreeMapValue> {
 
         TreeMap<Object, Object> map;
 
-        private TreeMapValue(ObjectType objectType, TreeMap<Object, Object> map) {
-            super(NAME, objectType);
+        private TreeMapValue(TreeMap<Object, Object> map) {
+            super(NAME);
             this.map = map;
         }
 
@@ -97,15 +102,7 @@ public class TreeMapClass extends QgClass<TreeMapClass.TreeMapValue> {
 
         @Override
         public Iterator<Object> iterator() {
-            return new QgMapIterator(map.entrySet().iterator(), getKeyType(), getValueType());
-        }
-
-        private Type getKeyType() {
-            return getType().getInnerTypes().get(0);
-        }
-
-        private Type getValueType() {
-            return getType().getInnerTypes().get(1);
+            return new QgMapIterator(map.entrySet().iterator());
         }
 
         public double size() {
@@ -169,7 +166,7 @@ public class TreeMapClass extends QgClass<TreeMapClass.TreeMapValue> {
         }
 
         private MapEntryClass.MapEntryObject createQgMapEntry(Map.Entry<Object, Object> entry) {
-            return MapEntryClass.getQgClass().createInstance(entry.getKey(), getKeyType(), entry.getValue(), getValueType());
+            return MapEntryClass.getQgClass().createInstance(entry.getKey(), entry.getValue());
         }
 
         public boolean remove(Object key, Object value) {
@@ -177,11 +174,11 @@ public class TreeMapClass extends QgClass<TreeMapClass.TreeMapValue> {
         }
 
         public ListClass.ListObject values() {
-            return ListClass.getQgClass().createInstance(getValueType(), new ArrayList<>(map.values()));
+            return ListClass.getQgClass().createInstance(new ArrayList<>(map.values()));
         }
 
         public TreeSetClass.TreeSetObject keys() {
-            return TreeSetClass.getQgClass().createInstance(getKeyType(), new TreeSet<>(map.keySet()));
+            return TreeSetClass.getQgClass().createInstance(new TreeSet<>(map.keySet()));
         }
 
         @Override

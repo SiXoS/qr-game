@@ -17,7 +17,7 @@ public class MapEntryClass extends QgClass<MapEntryClass.MapEntryObject> {
     private static final MapEntryClass instance = new MapEntryClass();
 
     protected MapEntryClass() {
-        super(NAME, 2);
+        super(NAME);
     }
 
     @Override
@@ -26,6 +26,11 @@ public class MapEntryClass extends QgClass<MapEntryClass.MapEntryObject> {
         methods.add(new LambdaMethod<>(new GenericInnerType(0), "getKey", (obj, args, prog) -> obj.getKey()));
         methods.add(new LambdaMethod<>(new GenericInnerType(1), "getValue", (obj, args, prog) -> obj.getValue()));
         return methods;
+    }
+
+    @Override
+    public ArgumentCountValidation validateArgumentCount(int arguments) {
+        return ArgumentCountValidation.validate(2, arguments);
     }
 
     public static MapEntryClass getQgClass() {
@@ -51,8 +56,8 @@ public class MapEntryClass extends QgClass<MapEntryClass.MapEntryObject> {
         return false;
     }
 
-    public MapEntryObject createInstance(Object key, Type keyType, Object value, Type valueType) {
-        return new MapEntryObject(key, keyType, value, valueType);
+    public MapEntryObject createInstance(Object key, Object value) {
+        return new MapEntryObject(key, value);
     }
 
     public class MapEntryObject extends ObjectValue {
@@ -60,8 +65,8 @@ public class MapEntryClass extends QgClass<MapEntryClass.MapEntryObject> {
         private final Object key;
         private final Object value;
 
-        public MapEntryObject(Object key, Type keyType, Object value, Type valueType) {
-            super(NAME, new ObjectType(MapEntryClass.this, keyType, valueType));
+        public MapEntryObject(Object key, Object value) {
+            super(NAME);
             this.key = key;
             this.value = value;
         }
