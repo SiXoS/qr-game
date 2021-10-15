@@ -1,47 +1,57 @@
 package se.lindhen.qrgame.program.objects;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import se.lindhen.qrgame.parser.ValidationResult;
-import se.lindhen.qrgame.parser.Validator;
 import se.lindhen.qrgame.program.Program;
+import se.lindhen.qrgame.program.ResultOrInvalidation;
+import se.lindhen.qrgame.program.functions.FunctionDeclaration;
+import se.lindhen.qrgame.program.types.CoercionException;
+import se.lindhen.qrgame.program.types.GenericTypeTracker;
 import se.lindhen.qrgame.program.types.ObjectType;
 import se.lindhen.qrgame.program.types.Type;
 import se.lindhen.qrgame.program.expressions.Expression;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 public abstract class Method<O extends ObjectValue> {
 
     protected final String name;
+    protected final FunctionDeclaration functionDeclaration;
 
-    protected Method(String name) {
+    protected Method(String name, FunctionDeclaration functionDeclaration) {
         this.name = name;
+        this.functionDeclaration = functionDeclaration;
     }
 
     public abstract Object execute(O object, List<Expression> arguments, Program program);
 
-    public abstract ValidationResult validate(ObjectType objectType, List<Expression> arguments, ParserRuleContext ctx);
-
-    public abstract Type getReturnType(ObjectType objectType);
-
-    public abstract Optional<Integer> getConstantParameterCount();
-
-    protected ValidationResult validateArguments(List<Expression> arguments, ParserRuleContext ctx, List<Type> types) {
-        if (arguments.size() != types.size()) {
-            return ValidationResult.invalid(ctx, "Method " + name + " expected " + types.size() + " arguments but got " + arguments.size());
-        } else {
-            ArrayList<ValidationResult> argumentResults = new ArrayList<>();
-            for (int i = 0; i < types.size(); i++) {
-                if (!arguments.get(i).getType().acceptsType(types.get(i))) {
-                    argumentResults.add(ValidationResult.invalid(ctx, "Argument " + i + " to function " + name + " was " + arguments.get(i).getType() + " but expected " + types.get(i)));
-                } else {
-                    argumentResults.add(ValidationResult.valid());
-                }
-            }
-            return ValidationResult.multiple(argumentResults);
-        }
+    public final ResultOrInvalidation<Type> validate(ObjectType objectType, List<Type> arguments, ParserRuleContext ctx) {
+        ArrayList<Type> allArguments = new ArrayList<>();
+        allArguments.add(objectType);
+        allArguments.addAll(arguments);
+        return functionDeclaration.validate(allArguments, ctx);
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public FunctionDeclaration getFunctionDeclaration() {
+        return functionDeclaration;
+    }
+
+    /**
+     * @deprecated Only used for backwards compatibility with the v1 bytecode
+     */
+    @Deprecated()
+    public Type getReturnType(ObjectType objType) {
+        GenericTypeTracker genericTypeTracker = new GenericTypeTracker(objType.getInnerTypes().size(), Collections.singletonList(functionDeclaration.getFunctionParameters().get(0)));
+        try {
+            genericTypeTracker.coerce(Collections.singletonList(objType));
+            return functionDeclaration.getReturnType().inferFromGenerics(genericTypeTracker);
+        } catch (CoercionException e) {
+            throw new RuntimeException("Could not determine return type of method " + objType.getQgClass().getName() + "." + name, e);
+        }
+    }
 }

@@ -8,8 +8,6 @@ import se.lindhen.qrgame.program.statements.IfStatement;
 import se.lindhen.qrgame.program.statements.WhileStatement;
 import se.lindhen.qrgame.program.expressions.*;
 import se.lindhen.qrgame.program.statements.*;
-import se.lindhen.qrgame.program.types.ObjectType;
-import se.lindhen.qrgame.program.types.StructType;
 import se.lindhen.qrgame.program.types.Type;
 
 import java.util.*;
@@ -62,28 +60,12 @@ public class QgCompiler {
             assert i == userFunctions.get(i).getId();
             UserFunction userFunction = userFunctions.get(i);
             writer.writePositiveByte(userFunction.getNumberOfTrueArguments());
+            writer.writePositiveByte(userFunction.getNumVariables());
             writer.exitContext();
             compileStatement(userFunction.getBody());
             writer.setContext("userFunction");
         }
         writer.exitContext();
-    }
-
-    private void compileType(Type fieldType) {
-        writer.write(4, TypeCode.fromType(fieldType).getCode());
-        if (fieldType instanceof StructType) {
-            writer.writePositiveByte(((StructType) fieldType).getStructId());
-        } else if (fieldType instanceof ObjectType) {
-            ObjectType objectType = (ObjectType) fieldType;
-            writer.writePositiveByte(classNameToIdMap.get(objectType.getQgClass().getName()));
-            writer.writePositiveByte(objectType.getInnerTypes().size());
-            List<Type> innerTypes = objectType.getInnerTypes();
-            if (innerTypes != null) {
-                for (Type innerType : innerTypes) {
-                    compileType(innerType);
-                }
-            }
-        }
     }
 
     private void compileStatement(Statement statement) {
@@ -144,7 +126,7 @@ public class QgCompiler {
             writer.writeCommand(WHEN);
             writer.writeBool(whenStatement.getDefaultCase() != null);
             Type toCompareType = whenStatement.getToCompare().getType();
-            compileType(toCompareType);
+            compileBaseType(toCompareType);
             writer.exitContext();
             if (whenStatement.getDefaultCase() != null) {
                 compileStatement(whenStatement.getDefaultCase());
@@ -177,6 +159,10 @@ public class QgCompiler {
         } else {
             throw new UnsupportedOperationException("Compilation of statement " + statement.getClass().getSimpleName() + " not implemented.");
         }
+    }
+
+    private void compileBaseType(Type type) {
+        writer.write(4, TypeCode.fromType(type).getCode());
     }
 
     private void compileWhenCase(Type type, Object aCase) {
@@ -274,7 +260,6 @@ public class QgCompiler {
         } else if (expression instanceof TypeExpression) {
             writer.setContext("typeExpression");
             writer.writeCommand(TYPE_EXPRESSION);
-            compileType(((TypeExpression) expression).getTypeValue());
             writer.exitContext();
         } else if (expression instanceof VariableExpression) {
             writer.setContext("getVariable");
@@ -327,6 +312,7 @@ public class QgCompiler {
             writer.setContext("assign");
             writer.writeCommand(ASSIGN);
             writer.writePositiveByte(((AssignExpression) expression).getAssignTo());
+            writer.writeBool(((AssignExpression) expression).isOnStack());
             writer.exitContext();
             compileExpressions(expression.getSubExpressions());
         } else if (expression instanceof GetAndModifyExpression) {
@@ -346,7 +332,6 @@ public class QgCompiler {
         } else if (expression instanceof NullExpression) {
             writer.setContext("literalNull");
             writer.writeCommand(LITERAL_NULL);
-            compileType(expression.getType());
             writer.exitContext();
         } else if (expression instanceof ConditionalExpression) {
             writer.setContext("conditional");
@@ -362,7 +347,7 @@ public class QgCompiler {
             writer.writeCommand(WHEN);
             writer.writeBool(whenStatement.getDefaultCase() != null);
             Type toCompareType = whenStatement.getToCompare().getType();
-            compileType(toCompareType);
+            compileBaseType(toCompareType);
             writer.exitContext();
             if (whenStatement.getDefaultCase() != null) {
                 compileExpression(whenStatement.getDefaultCase());

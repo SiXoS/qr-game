@@ -35,6 +35,7 @@ public abstract class Type {
     public boolean isVoid() { return baseType == BaseType.VOID; }
     public boolean isVararg() { return baseType == BaseType.VARARG; }
     public boolean isGeneric() {  return baseType == BaseType.GENERIC; }
+    public boolean isIterable() {  return baseType == BaseType.ITERABLE; }
 
     public abstract boolean isComparable();
     public abstract boolean acceptsType(Type sourceType);
@@ -57,6 +58,7 @@ public abstract class Type {
         TYPE,
         OBJECT,
         VARARG,
-        GENERIC
+        GENERIC,
+        ITERABLE
     }
 }

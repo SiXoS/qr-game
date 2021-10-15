@@ -1,0 +1,8 @@
+
+ init {
+    var = pow(2, true)
+ }
+
+ run true
+
+ input(a,b) true

@@ -16,21 +16,24 @@ public class UserFunction extends Function {
     private final int numberOfTrueArguments;
     private final Optional<Integer> constantArgumentCount;
     private final Statement body;
+    private final int numVariables;
 
-    public UserFunction(int id, FunctionDeclaration functionDeclaration, Statement body) {
+    public UserFunction(int id, FunctionDeclaration functionDeclaration, int numVariables, Statement body) {
         super("_user_function_" + id, functionDeclaration);
         this.id = id;
         numberOfTrueArguments = functionDeclaration.numberOfTrueArguments();
         constantArgumentCount = functionDeclaration.getConstantParameterCount();
         this.body = body;
+        this.numVariables = numVariables;
     }
 
-    public UserFunction(int id, int numberOfTrueArguments, Optional<Integer> constantArgumentCount, Statement body) {
+    public UserFunction(int id, int numberOfTrueArguments, Optional<Integer> constantArgumentCount, int numVariables, Statement body) {
         super("_user_function_" + id, null);
         this.id = id;
         this.numberOfTrueArguments = numberOfTrueArguments;
         this.constantArgumentCount = constantArgumentCount;
         this.body = body;
+        this.numVariables = numVariables;
     }
 
     public int getId() {
@@ -43,16 +46,18 @@ public class UserFunction extends Function {
 
     @Override
     public Object execute(List<Expression> arguments, Program program) {
-        ArrayList<Object> values = new ArrayList<>();
-        for (Expression argument : arguments) {
-            values.add(argument.calculate(program));
-        }
-        program.pushAllToStack(values);
-        body.run(program);
+        Object[] parameters = new Object[numberOfTrueArguments];
         for (int i = 0; i < numberOfTrueArguments; i++) {
-            program.popFromStack();
+            parameters[i] = arguments.get(i).calculate(program);
         }
-        return program.getReturnValueAndResume();
+        int stackResetOffset = program.enterStackContext(numVariables);
+        for (int i = 0; i < parameters.length; i++) {
+            program.setStackVariable(i, parameters[i]);
+        }
+        body.run(program);
+        Object returnValue = program.getReturnValueAndResume();
+        program.leaveStackContext(stackResetOffset);
+        return returnValue;
     }
 
     @Override
@@ -67,6 +72,10 @@ public class UserFunction extends Function {
 
     public int getNumberOfTrueArguments() {
         return numberOfTrueArguments;
+    }
+
+    public int getNumVariables() {
+        return numVariables;
     }
 
     public static class UserFunctionParameter {

@@ -1,6 +1,7 @@
 package se.lindhen.qrgame.program.objects;
 
 import se.lindhen.qrgame.program.Program;
+import se.lindhen.qrgame.program.functions.FunctionDeclaration;
 import se.lindhen.qrgame.program.objects.utils.*;
 import se.lindhen.qrgame.program.types.*;
 import se.lindhen.qrgame.program.expressions.Expression;
@@ -28,26 +29,27 @@ public class TreeMapClass extends QgClass<TreeMapClass.TreeMapValue> {
     @Override
     protected List<Method<TreeMapValue>> getMethods() {
         ArrayList<Method<TreeMapValue>> methods = new ArrayList<>();
-        methods.add(new LambdaMethod<>(new ConstantGenericType(NumberType.NUMBER_TYPE), "size", (obj, args, prog) -> obj.size()));
-        methods.add(new LambdaMethod<>(new GenericInnerType(1), "get", (obj, args, prog) -> obj.get(args.get(0).calculate(prog)), new GenericInnerType(0)));
-        methods.add(new LambdaMethod<>(new GenericInnerType(1), "getOrDefault", (obj, args, prog) -> obj.getOrDefault(args.get(0).calculate(prog), args.get(1).calculate(prog)), new GenericInnerType(0), new GenericInnerType(1)));
-        methods.add(new LambdaMethod<>(new GenericInnerType(1), "put", (obj, args, prog) -> obj.put(args.get(0).calculate(prog), args.get(1).calculate(prog)), new GenericInnerType(0), new GenericInnerType(1)));
-        methods.add(new LambdaMethod<>(new ConstantGenericType(BoolType.BOOL_TYPE), "containsKey", (obj, args, prog) -> obj.containsKey(args.get(0).calculate(prog)), new GenericInnerType(0)));
-        methods.add(new LambdaMethod<>(new GenericInnerType(1), "removeKey", (obj, args, prog) -> obj.removeKey(args.get(0).calculate(prog)), new GenericInnerType(0)));
-        methods.add(new LambdaMethod<>(new ConstantGenericType(BoolType.BOOL_TYPE), "remove", (obj, args, prog) -> obj.remove(args.get(0).calculate(prog), args.get(1).calculate(prog)), new GenericInnerType(0), new GenericInnerType(1)));
-        methods.add(new LambdaMethod<>(new GenericInnerType(0), "nextKey", (obj, args, prog) -> obj.nextKey(args.get(0).calculate(prog)), new GenericInnerType(0)));
-        methods.add(new LambdaMethod<>(new GenericInnerType(0), "previousKey", (obj, args, prog) -> obj.previousKey(args.get(0).calculate(prog)), new GenericInnerType(0)));
-        methods.add(new LambdaMethod<>(new GenericEntryType(), "nextEntry", (obj, args, prog) -> obj.nextEntry(args.get(0).calculate(prog)), new GenericInnerType(0)));
-        methods.add(new LambdaMethod<>(new GenericEntryType(), "previousEntry", (obj, args, prog) -> obj.previousEntry(args.get(0).calculate(prog)), new GenericInnerType(0)));
-        methods.add(new LambdaMethod<>(new GenericInnerType(0), "firstKey", (obj, args, prog) -> obj.firstKey()));
-        methods.add(new LambdaMethod<>(new GenericInnerType(0), "lastKey", (obj, args, prog) -> obj.lastKey()));
-        methods.add(new LambdaMethod<>(new GenericEntryType(), "firstEntry", (obj, args, prog) -> obj.firstEntry()));
-        methods.add(new LambdaMethod<>(new GenericEntryType(), "lastEntry", (obj, args, prog) -> obj.lastEntry()));
-        methods.add(new LambdaMethod<>(new ListWithValueTypeAsInnerType(), "values", (obj, args, prog) -> obj.values()));
-        methods.add(new LambdaMethod<>(new SetWithKeyTypeAsInnerType(TreeSetClass.getQgClass()), "keys", (obj, args, prog) -> obj.keys()));
-        methods.add(new ForEachMapEntryMethod<>("putAll", TreeMapValue::put));
-        methods.add(new ForEachMapEntryMethod<>("removeAll", TreeMapValue::remove));
-        methods.add(new ForEachMethod<>("removeAllKeys", TreeMapValue::removeKey));
+        ObjectType objectType = new ObjectType(this, new GenericType(0), new GenericType(1));
+        methods.add(new LambdaMethod<>( "size", (obj, args, prog) -> obj.size(), new FunctionDeclaration(2, NumberType.NUMBER_TYPE, objectType)));
+        methods.add(new LambdaMethod<>( "get", (obj, args, prog) -> obj.get(args.get(0).calculate(prog)), new FunctionDeclaration(2, new GenericType(1), objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>( "getOrDefault", (obj, args, prog) -> obj.getOrDefault(args.get(0).calculate(prog), args.get(1).calculate(prog)), new FunctionDeclaration(2, new GenericType(1), objectType, new GenericType(0),new GenericType(1))));
+        methods.add(new LambdaMethod<>( "put", (obj, args, prog) -> obj.put(args.get(0).calculate(prog), args.get(1).calculate(prog)), new FunctionDeclaration(2, new GenericType(1), objectType, new GenericType(0),new GenericType(1))));
+        methods.add(new LambdaMethod<>( "containsKey", (obj, args, prog) -> obj.containsKey(args.get(0).calculate(prog)), new FunctionDeclaration(2, BoolType.BOOL_TYPE, objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>( "removeKey", (obj, args, prog) -> obj.removeKey(args.get(0).calculate(prog)), new FunctionDeclaration(2, new GenericType(1), objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>( "remove", (obj, args, prog) -> obj.remove(args.get(0).calculate(prog), args.get(1).calculate(prog)), new FunctionDeclaration(2, BoolType.BOOL_TYPE, objectType, new GenericType(0),new GenericType(1))));
+        methods.add(new LambdaMethod<>( "nextKey", (obj, args, prog) -> obj.nextKey(args.get(0).calculate(prog)), new FunctionDeclaration(2, new GenericType(0), objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>( "previousKey", (obj, args, prog) -> obj.previousKey(args.get(0).calculate(prog)), new FunctionDeclaration(2, new GenericType(0), objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>( "nextEntry", (obj, args, prog) -> obj.nextEntry(args.get(0).calculate(prog)), new FunctionDeclaration(2, entryType(), objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>( "previousEntry", (obj, args, prog) -> obj.previousEntry(args.get(0).calculate(prog)), new FunctionDeclaration(2, entryType(), objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>( "firstKey", (obj, args, prog) -> obj.firstKey(), new FunctionDeclaration(2, new GenericType(0), objectType)));
+        methods.add(new LambdaMethod<>( "lastKey", (obj, args, prog) -> obj.lastKey(), new FunctionDeclaration(2, new GenericType(0), objectType)));
+        methods.add(new LambdaMethod<>( "firstEntry", (obj, args, prog) -> obj.firstEntry(), new FunctionDeclaration(2, entryType(), objectType)));
+        methods.add(new LambdaMethod<>( "lastEntry", (obj, args, prog) -> obj.lastEntry(), new FunctionDeclaration(2, entryType(), objectType)));
+        methods.add(new LambdaMethod<>( "values", (obj, args, prog) -> obj.values(), new FunctionDeclaration(2, TypeUtils.listWithGenericType(1), objectType)));
+        methods.add(new LambdaMethod<>( "keys", (obj, args, prog) -> obj.keys(), new FunctionDeclaration(2, TypeUtils.setWithGenericType(TreeSetClass.getQgClass(), 0), objectType)));
+        methods.add(new ForEachMapEntryMethod<>("putAll", TreeMapValue::put, objectType));
+        methods.add(new ForEachMapEntryMethod<>("removeAll", TreeMapValue::remove, objectType));
+        methods.add(new ForEachMethod<>("removeAllKeys", TreeMapValue::removeKey, objectType, 2, 0));
         return methods;
     }
 
@@ -77,13 +79,8 @@ public class TreeMapClass extends QgClass<TreeMapClass.TreeMapValue> {
         return new ObjectType(this, typeArguments.get(0), typeArguments.get(1));
     }
 
-    private static class GenericEntryType implements GenericType {
-
-        @Override
-        public Type getType(ObjectType objectType) {
-            return MapEntryClass.getQgClass().getObjectTypeFromTypeArgs(Arrays.asList(objectType.getInnerTypes().get(0), objectType.getInnerTypes().get(1)));
-        }
-
+    private static Type entryType() {
+        return MapEntryClass.getQgClass().getObjectTypeFromTypeArgs(Arrays.asList(new GenericType(0), new GenericType(1)));
     }
 
     public class TreeMapValue extends ObjectValue {

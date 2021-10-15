@@ -9,11 +9,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class VariableCountListener extends QrGameBaseListener {
 
     private final HashMap<String, Integer> varCounts = new HashMap<>();
-    private HashSet<String> stackVariables = new HashSet<>();
+    private final HashSet<String> stackVariables = new HashSet<>();
+    private int functionDepth = 0;
+
+    @Override
+    public void enterFunctionDefinition(QrGameParser.FunctionDefinitionContext ctx) {
+        functionDepth++;
+    }
 
     @Override
     public void exitFunctionDefinition(QrGameParser.FunctionDefinitionContext ctx) {
-        stackVariables.clear();
+        functionDepth--;
     }
 
     @Override
@@ -22,8 +28,14 @@ public class VariableCountListener extends QrGameBaseListener {
     }
 
     @Override
+    public void enterInput(QrGameParser.InputContext ctx) {
+        trackVariable(ctx.NAME(0).getText());
+        trackVariable(ctx.NAME(1).getText());
+    }
+
+    @Override
     public void enterAtom(QrGameParser.AtomContext ctx) {
-        if (ctx.NAME() != null) {
+        if (functionDepth == 0 && ctx.NAME() != null) {
             trackVariable(ctx.NAME().getText());
         }
     }

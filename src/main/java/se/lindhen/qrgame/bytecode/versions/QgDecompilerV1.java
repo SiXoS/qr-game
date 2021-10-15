@@ -15,10 +15,7 @@ import se.lindhen.qrgame.program.objects.QgClass;
 import se.lindhen.qrgame.program.statements.*;
 import se.lindhen.qrgame.program.types.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class QgDecompilerV1 {
@@ -53,7 +50,7 @@ public class QgDecompilerV1 {
     private InputCode decompileInputCode() {
         stackVariableTypes.add(NumberType.NUMBER_TYPE); // button id
         stackVariableTypes.add(BoolType.BOOL_TYPE); // pressed else released
-        return new InputCode(reader.readPositiveByte(), reader.readPositiveByte(), decompileStatement());
+        return new LegacyInputCode(reader.readPositiveByte(), reader.readPositiveByte(), decompileStatement());
     }
 
     private ArrayList<UserFunction> decompileFunctions() {
@@ -78,7 +75,7 @@ public class QgDecompilerV1 {
                 parameterTypes.add(param.getType());
             }
             Statement body = decompileStatement();
-            functions.add(new UserFunction(i, new FunctionDeclaration(0, userFunctionData.get(i).getReturnType(), parameterTypes), body));
+            functions.add(new UserFunction(i, new FunctionDeclaration(0, userFunctionData.get(i).getReturnType(), parameterTypes), parameters.size(), body));
         }
         return functions;
     }
@@ -230,6 +227,7 @@ public class QgDecompilerV1 {
                 Type returnType;
                 if (userFunction) {
                     returnType = userFunctionData.get(funcId).getReturnType();
+                    Collections.reverse(args); // V2 changed argument reference order
                 } else {
                     Function function = program.getFunction(funcId);
                     if (function instanceof LegacyFunction) {
@@ -258,8 +256,8 @@ public class QgDecompilerV1 {
                 int methodId = reader.readPositiveByte();
                 ObjectType objType = (ObjectType) objectExpression.getType();
                 Method<?> method = objType.getQgClass().getMethod(methodId);
-                Optional<Integer> constantParameterCount = method.getConstantParameterCount();
-                int argCount2 = constantParameterCount.orElseGet(reader::readPositiveByte);
+                Optional<Integer> constantParameterCount = method.getFunctionDeclaration().getConstantParameterCount();
+                int argCount2 = constantParameterCount.map(count -> count - 1).orElseGet(reader::readPositiveByte);
                 ArrayList<Expression> args2 = new ArrayList<>();
                 for (int i = 0; i < argCount2; i++) {
                     args2.add(decompileExpression());
@@ -289,7 +287,7 @@ public class QgDecompilerV1 {
                 int varIdd = reader.readPositiveByte();
                 Expression expression = decompileExpression();
                 variableTypeMap.put(varIdd, expression.getType());
-                return new AssignExpression(varIdd, expression);
+                return new AssignExpression(varIdd, false, expression);
             case GET_AND_MODIFY:
                 int varIddd = reader.readPositiveByte();
                 boolean incElseDec = reader.readBool();

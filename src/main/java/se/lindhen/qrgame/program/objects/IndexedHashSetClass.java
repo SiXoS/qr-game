@@ -1,11 +1,9 @@
 package se.lindhen.qrgame.program.objects;
 
 import se.lindhen.qrgame.program.Program;
+import se.lindhen.qrgame.program.functions.FunctionDeclaration;
 import se.lindhen.qrgame.program.objects.utils.*;
-import se.lindhen.qrgame.program.types.BoolType;
-import se.lindhen.qrgame.program.types.NumberType;
-import se.lindhen.qrgame.program.types.ObjectType;
-import se.lindhen.qrgame.program.types.Type;
+import se.lindhen.qrgame.program.types.*;
 import se.lindhen.qrgame.program.expressions.Expression;
 import se.lindhen.qrgame.util.IndexedHashSet;
 
@@ -29,14 +27,15 @@ public class IndexedHashSetClass extends QgClass<IndexedHashSetClass.IndexedHash
     @Override
     protected List<Method<IndexedHashSetObject>> getMethods() {
         ArrayList<Method<IndexedHashSetObject>> methods = new ArrayList<>();
-        methods.add(new LambdaMethod<>(new ConstantGenericType(BoolType.BOOL_TYPE), "add", (obj, args, vars) -> obj.add(args.get(0).calculate(vars)), new GenericInnerType()));
-        methods.add(new LambdaMethod<>(new ConstantGenericType(NumberType.NUMBER_TYPE), "size", (set, args, vars) -> set.size()));
-        methods.add(new LambdaMethod<>(new ConstantGenericType(BoolType.BOOL_TYPE), "remove", (set, args, vars) -> set.remove(args.get(0).calculate(vars)), new GenericInnerType()));
-        methods.add(new LambdaMethod<>(new ConstantGenericType(BoolType.BOOL_TYPE), "contains", (set, args, vars) -> set.contains(args.get(0).calculate(vars)), new GenericInnerType()));
-        methods.add(new LambdaMethod<>(new GenericInnerType(), "get", (set, args, vars) -> set.get((int)(double)args.get(0).calculate(vars)), new ConstantGenericType(NumberType.NUMBER_TYPE)));
-        methods.add(new LambdaMethod<>(new GenericInnerType(), "removeAt", (set, args, vars) -> set.removeAt((int)(double)args.get(0).calculate(vars)), new ConstantGenericType(NumberType.NUMBER_TYPE)));
-        methods.add(new ForEachMethod<>("addAll", IndexedHashSetObject::add));
-        methods.add(new ForEachMethod<>("removeAll", IndexedHashSetObject::remove));
+        ObjectType objectType = new ObjectType(this, new GenericType(0));
+        methods.add(new LambdaMethod<>("add", (obj, args, vars) -> obj.add(args.get(0).calculate(vars)), new FunctionDeclaration(1, BoolType.BOOL_TYPE, objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>("size", (set, args, vars) -> set.size(), new FunctionDeclaration(1, NumberType.NUMBER_TYPE, objectType)));
+        methods.add(new LambdaMethod<>("remove", (set, args, vars) -> set.remove(args.get(0).calculate(vars)), new FunctionDeclaration(1, BoolType.BOOL_TYPE, objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>("contains", (set, args, vars) -> set.contains(args.get(0).calculate(vars)), new FunctionDeclaration(1, BoolType.BOOL_TYPE, objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>("get", (set, args, vars) -> set.get((int)(double)args.get(0).calculate(vars)), new FunctionDeclaration(1, new GenericType(0), objectType, NumberType.NUMBER_TYPE)));
+        methods.add(new LambdaMethod<>("removeAt", (set, args, vars) -> set.removeAt((int)(double)args.get(0).calculate(vars)), new FunctionDeclaration(1, new GenericType(0), objectType, NumberType.NUMBER_TYPE)));
+        methods.add(new ForEachMethod<>("addAll", IndexedHashSetObject::add, objectType));
+        methods.add(new ForEachMethod<>("removeAll", IndexedHashSetObject::remove, objectType));
         return methods;
     }
 

@@ -57,29 +57,15 @@ public class QgDecompilerV2 {
         ArrayList<UserFunction> functions = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             int numberOfTrueArguments = reader.readPositiveByte();
+            int numVariables = reader.readPositiveByte();
             Statement body = decompileStatement();
-            functions.add(new UserFunction(i, numberOfTrueArguments, userFunctionArgCount.get(i), body));
+            functions.add(new UserFunction(i, numberOfTrueArguments, userFunctionArgCount.get(i), numVariables, body));
         }
         return functions;
     }
 
-    private Type decompileType() {
-        TypeCode typeCode = TypeCode.fromCode((int) reader.read(4));
-        switch (typeCode) {
-            case NUMBER: return NumberType.NUMBER_TYPE;
-            case BOOL: return BoolType.BOOL_TYPE;
-            case STRUCT: return new StructType(reader.readPositiveByte());
-            case OBJECT:
-                int classId = reader.readPositiveByte();
-                int numTypeArgs = reader.readPositiveByte();
-                Type[] typeArgs = new Type[numTypeArgs];
-                for (int i = 0; i < numTypeArgs; i++) {
-                    typeArgs[i] = decompileType();
-                }
-                return new ObjectType(classIdMap.get(classId), typeArgs);
-            default:
-                throw new IllegalStateException("Could not decompile type with code " + typeCode);
-        }
+    private Type.BaseType decompileBaseType() {
+        return TypeCode.fromCode((int) reader.read(4)).toBaseType();
     }
 
     private Statement decompileStatement() {
@@ -115,7 +101,7 @@ public class QgDecompilerV2 {
                 return new ForEachStatement(toIterate, var, decompileStatement(), hasForEachLabel ? reader.readPositiveByte() : null);
             case WHEN:
                 boolean hasDefault = reader.readBool();
-                Type toCompare = decompileType();
+                Type.BaseType toCompare = decompileBaseType();
                 WhenBuilder builder = WhenBuilder.whenStatementBuilder();
                 if (hasDefault) {
                     builder.setDefaultCase(decompileStatement());
@@ -148,8 +134,8 @@ public class QgDecompilerV2 {
         }
     }
 
-    private Object readWhenClause(Type type) {
-        switch (type.getBaseType()) {
+    private Object readWhenClause(Type.BaseType type) {
+        switch (type) {
             case NUMBER:
                 return (double) reader.readInt();
             case BOOL:
@@ -178,7 +164,7 @@ public class QgDecompilerV2 {
             case LITERAL_BOOL:
                 return new BoolExpression(reader.readBool());
             case LITERAL_NULL:
-                return new NullExpression(decompileType());
+                return new NullExpression(null);
             case ADD:
                 return new AddExpression(decompileExpression(), decompileExpression());
             case FUNCTION:
@@ -217,7 +203,7 @@ public class QgDecompilerV2 {
                 }
                 return new MethodCallExpression(objectExpression, methodId, args2, null);
             case TYPE_EXPRESSION:
-                return new TypeExpression(decompileType());
+                return new TypeExpression(null); // types are only used compile-time
             case NEGATE:
                 return new NegateExpression(decompileExpression());
             case NEW_STRUCT:
@@ -235,9 +221,7 @@ public class QgDecompilerV2 {
             case MODULO:
                 return new ModulusExpression(decompileExpression(), decompileExpression());
             case ASSIGN:
-                int varIdd = reader.readPositiveByte();
-                Expression expression = decompileExpression();
-                return new AssignExpression(varIdd, expression);
+                return new AssignExpression(reader.readPositiveByte(), reader.readBool(), decompileExpression());
             case GET_AND_MODIFY:
                 int varIddd = reader.readPositiveByte();
                 boolean incElseDec = reader.readBool();
@@ -249,7 +233,7 @@ public class QgDecompilerV2 {
                 return new ConditionalExpression(decompileExpression(), decompileExpression(), decompileExpression());
             case WHEN:
                 boolean hasDefault = reader.readBool();
-                Type toCompareType = decompileType();
+                Type.BaseType toCompareType = decompileBaseType();
                 WhenBuilder builder = WhenBuilder.whenExpressionBuilder();
                 if (hasDefault) {
                     builder.setDefaultCase(decompileExpression());

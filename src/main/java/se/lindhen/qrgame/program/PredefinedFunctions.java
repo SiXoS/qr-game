@@ -8,6 +8,7 @@ import se.lindhen.qrgame.program.types.Type;
 import se.lindhen.qrgame.util.ArrayMap;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class PredefinedFunctions {
 
@@ -126,41 +127,50 @@ public class PredefinedFunctions {
         return functionsById.get(id);
     }
 
-    public PredefinedFunction lookupFunction(String name, List<Type> parameterTypes) {
-        FunctionVariants functionVariants = functionsByName.get(name);
-        if (functionVariants == null) return null;
-        PredefinedFunction funcVariant = functionVariants.getByTypeParameters(parameterTypes);
-        if (funcVariant == null) return null;
-        if (funcVariant.legacy) return null;
-        return funcVariant;
+    public FunctionVariants lookupFunction(String name) {
+        return functionsByName.get(name);
     }
 
     public boolean functionWithNameExists(String name) {
         return functionsByName.containsKey(name);
     }
 
-    private static class FunctionVariants {
-        private final ArrayList<ParameterizedFunction> variants = new ArrayList<>();
+    public static class FunctionVariants {
+        private final ArrayList<PredefinedFunction> variants = new ArrayList<>();
 
-        private boolean hasVariants() {
+        private FunctionVariants(){}
+
+        public boolean hasSeveralVariants() {
             return variants.size() > 1;
         }
 
-        private void addVariant(PredefinedFunction predefinedFunction) {
-            List<Type> functionParameters = predefinedFunction.function.getFunctionDeclaration().getFunctionParameters();
-            variants.add(new ParameterizedFunction(functionParameters, predefinedFunction));
+        public PredefinedFunction getSingleVariant() {
+            assert !hasSeveralVariants();
+            return variants.get(0);
         }
 
-        private PredefinedFunction getByTypeParameters(List<Type> typeParameters) {
-            for (ParameterizedFunction parameterizedFunction : variants) {
-                if (parameterizedFunction.accepts(typeParameters)) {
-                    return parameterizedFunction.getPredefinedFunction();
+        private void addVariant(PredefinedFunction predefinedFunction) {
+            variants.add(predefinedFunction);
+        }
+
+        public PredefinedFunction getByTypeParameters(List<Type> typeParameters) {
+            for (PredefinedFunction predefinedFunction : variants) {
+                if (predefinedFunction.accepts(typeParameters)) {
+                    return predefinedFunction;
                 }
             }
             return null;
         }
 
+        @Override
+        public String toString() {
+            return variants.stream()
+                    .map(Object::toString)
+                    .map(func -> "\t" + func)
+                    .collect(Collectors.joining(System.lineSeparator()));
+        }
     }
+
     public static class PredefinedFunction {
         public final int id;
         public final boolean legacy;
@@ -183,46 +193,34 @@ public class PredefinedFunctions {
             this.legacy = legacy;
         }
 
-    }
-
-    private static class ParameterizedFunction {
-
-        private final ArrayList<Type> parameters;
-        private final PredefinedFunction predefinedFunction;
-
-        public ParameterizedFunction(List<Type> parameters, PredefinedFunction predefinedFunction) {
-            this.parameters = new ArrayList<>(parameters);
-            this.predefinedFunction = predefinedFunction;
-            assert parameters.stream().limit(Math.max(parameters.size() - 1, 0)).noneMatch(Type::isVararg): "Only the last type parameter can be vararg";
-        }
-
-        public PredefinedFunction getPredefinedFunction() {
-            return predefinedFunction;
-        }
-
-        public boolean accepts(List<Type> params) {
-            if (parameters.isEmpty()) {
-                return params.isEmpty();
+        private boolean accepts(List<Type> callParameters) {
+            List<Type> functionParameters = function.getFunctionDeclaration().getFunctionParameters();
+            if (functionParameters.isEmpty()) {
+                return callParameters.isEmpty();
             }
-            if (params.size() < parameters.size()) return false;
-            for (int i = 0; i < parameters.size() - 1; i++) {
-                if(!parameters.get(i).acceptsType(params.get(i))) {
+            if (callParameters.size() < functionParameters.size()) return false;
+            for (int i = 0; i < functionParameters.size() - 1; i++) {
+                if(!functionParameters.get(i).acceptsType(callParameters.get(i))) {
                     return false;
                 }
             }
-            int lastParameterIndex = parameters.size() - 1;
-            Type lastParameter = parameters.get(lastParameterIndex);
+            int lastParameterIndex = functionParameters.size() - 1;
+            Type lastParameter = functionParameters.get(lastParameterIndex);
             if (lastParameter.isVararg()) {
-                for (int i = lastParameterIndex; i < params.size(); i++) {
-                    if (!lastParameter.acceptsType(params.get(i))) return false;
+                for (int i = lastParameterIndex; i < callParameters.size(); i++) {
+                    if (!lastParameter.acceptsType(callParameters.get(i))) return false;
                 }
             } else {
-                if (params.size() != parameters.size()) return false;
-                if (!lastParameter.acceptsType(params.get(lastParameterIndex))) return false;
+                if (callParameters.size() != functionParameters.size()) return false;
+                if (!lastParameter.acceptsType(callParameters.get(lastParameterIndex))) return false;
             }
             return true;
         }
 
+        @Override
+        public String toString() {
+            return function.getName() + function.getFunctionDeclaration();
+        }
     }
 
 }

@@ -25,8 +25,10 @@ public class Program {
     private final ArrayMap<Object> variables = new ArrayMap<>();
     private final PredefinedFunctions functions = new PredefinedFunctions();
     private ArrayList<UserFunction> userFunctions = new ArrayList<>();
-    private ArrayList<Object> stack = new ArrayList<>();
+    private ArrayMap<Object> stack = new ArrayMap<>();
     private Object returnValue = null;
+    private int stackContextSize = 0;
+    private int stackOffset = 0;
 
     private GameStatus status = GameStatus.RUNNING;
     private final HashMap<Integer, Shape> drawings = new HashMap<>();
@@ -71,20 +73,33 @@ public class Program {
         return variables.get(id);
     }
 
-    public void pushToStack(Object value) {
-        stack.add(value);
+    /**
+     * @param stackContextSize The size of the context we are entering, i.e. how many variables the context uses
+     * @return An offset used to reset the stack context. Should be passed to {@link Program#leaveStackContext(int)}
+     */
+    public int enterStackContext(int stackContextSize) {
+        int prevStackContextSize = this.stackContextSize;
+        this.stackContextSize = stackContextSize;
+        stackOffset += prevStackContextSize;
+        return prevStackContextSize;
     }
 
-    public void pushAllToStack(Collection<Object> values) {
-        stack.addAll(values);
+    /**
+     *
+     * @param prevStackContextResetOffset The return value from {@link Program#enterStackContext(int)}
+     */
+    public void leaveStackContext(int prevStackContextResetOffset) {
+        stack.reset(stackOffset, stack.size());
+        stackOffset -= prevStackContextResetOffset;
+        stackContextSize = prevStackContextResetOffset;
+    }
+
+    public void setStackVariable(int id, Object value) {
+        stack.put(stackOffset + id, value);
     }
 
     public Object getFromStack(int index) {
-        return stack.get(stack.size() - 1 - index);
-    }
-
-    public Object popFromStack() {
-        return stack.remove(stack.size() - 1);
+        return stack.get(stackOffset + index);
     }
 
     public void setInputManager(InputManager inputManager) {

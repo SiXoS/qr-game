@@ -5,11 +5,13 @@ import se.lindhen.qrgame.program.Program;
 public class AssignExpression extends Expression {
 
     private final int assignTo;
+    private final boolean onStack;
     private final Expression expression;
 
-    public AssignExpression(int assignTo, Expression expression) {
+    public AssignExpression(int assignTo, boolean onStack, Expression expression) {
         super(expression.getType(), expression);
         this.assignTo = assignTo;
+        this.onStack = onStack;
         this.expression = expression;
     }
 
@@ -17,10 +19,18 @@ public class AssignExpression extends Expression {
         return assignTo;
     }
 
+    public boolean isOnStack() {
+        return onStack;
+    }
+
     @Override
     public Object calculate(Program program) {
         Object value = expression.calculate(program);
-        program.setVariable(assignTo, value);
+        if (onStack) {
+            program.setStackVariable(assignTo, value);
+        } else {
+            program.setVariable(assignTo, value);
+        }
         return value;
     }
 }

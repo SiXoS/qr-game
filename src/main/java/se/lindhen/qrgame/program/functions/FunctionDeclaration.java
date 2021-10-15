@@ -10,6 +10,7 @@ import se.lindhen.qrgame.program.types.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class FunctionDeclaration {
 
@@ -21,6 +22,7 @@ public class FunctionDeclaration {
         this.typeParameters = typeParameters;
         this.returnType = returnType;
         this.functionParameters = functionParameters;
+        assert functionParameters.stream().limit(Math.max(functionParameters.size() - 1, 0)).noneMatch(Type::isVararg): "Only the last type parameter can be vararg";
     }
 
     public FunctionDeclaration(int typeParameters, Type returnType, Type... functionParameters) {
@@ -41,8 +43,10 @@ public class FunctionDeclaration {
             }
             return ResultOrInvalidation.valid(returnType.inferFromGenerics(genericTypeTracker));
         } catch (CoercionException e) {
-            return ResultOrInvalidation.invalid(ValidationResult.invalid(ctx, "Could not resolve type parameters for generic type with id " + e.genericTypeId + ". " +
-                    "Tried to assign both " + e.preExistingType + " and " + e.newType + " which are not compatible."));
+            return ResultOrInvalidation.invalid(ValidationResult.invalid(ctx,
+                    "Could not resolve type parameters for generic type with id " + e.genericTypeId + ". " +
+                    "Tried to assign both " + e.preExistingType + " and " + e.newType + " which are not compatible. " +
+                    "For function declaration: " + this));
         }
     }
 
@@ -70,5 +74,10 @@ public class FunctionDeclaration {
 
     public List<Type> getFunctionParameters() {
         return functionParameters;
+    }
+
+    @Override
+    public String toString() {
+        return "(" + functionParameters.stream().map(Object::toString).collect(Collectors.joining(", ")) + "): " + returnType;
     }
 }
