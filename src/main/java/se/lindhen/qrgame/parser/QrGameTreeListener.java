@@ -21,11 +21,10 @@ import java.util.stream.Stream;
 
 public class QrGameTreeListener extends QrGameBaseListener {
 
-    private int currentVariableIndex = 0;
     private int currentFunctionIndex = 0;
     private int currentLabelIndex = 0;
     private int currentStructId = 0;
-    private final LinkedList<HashMap<String, Variable>> variableStack = new LinkedList<>();
+    private final LinkedList<VariableContext> variableStack = new LinkedList<>();
     private final LinkedList<ArrayList<Statement>> blockStack = new LinkedList<>();
     private final LinkedList<WhenBuilder> whenStack = new LinkedList<>();
     private final HashMap<String, Struct> structsByName = new HashMap<>();
@@ -51,30 +50,23 @@ public class QrGameTreeListener extends QrGameBaseListener {
     }
 
     protected Variable putVar(String name, Type type, ParserRuleContext ctx) {
-        Variable var = variableStack.getFirst().get(name);
+        VariableContext variableContext = variableStack.getFirst();
+        Variable var = variableContext.variables.get(name);
         if (var != null) {
             if (!type.canBeAssignedTo(var.getType())) {
                 throw new ValidationException(ValidationResult.invalid(ctx, "Variable '" + name + "' cannot switch from '" + var.getType() + "' to '" + type + "'"));
             }
             return var;
         } else {
-            Variable variable = new Variable(optimizedVariableIds.get(name), type, false);
-            variableStack.getFirst().put(name, variable);
+            int id = variableContext.onStack ? variableContext.currentVariableIndex++ : optimizedVariableIds.get(name);
+            Variable variable = new Variable(id, type, variableContext.onStack);
+            variableContext.variables.put(name, variable);
             return variable;
         }
     }
 
-    protected void putStackVar(String name, Type type, int stackOrdinal, ParserRuleContext ctx) {
-        Variable varIndex = variableStack.getFirst().get(name);
-        if (varIndex != null) {
-            throw new ValidationException(ValidationResult.invalid(ctx, "Cannot modify a variable on the stack (function parameters)"));
-        }
-        Variable value = new Variable(stackOrdinal, type, true);
-        variableStack.getFirst().put(name, value);
-    }
-
     protected Variable getVar(String name, ParserRuleContext ctx) {
-        Variable variable = variableStack.getFirst().get(name);
+        Variable variable = variableStack.getFirst().variables.get(name);
         if (variable == null) {
             throw new ValidationException(ValidationResult.invalid(ctx, "Variable " + name + " does not exist"));
         }
@@ -121,7 +113,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
 
     @Override
     public void enterProgram(QrGameParser.ProgramContext ctx) {
-        variableStack.push(new HashMap<>());
+        variableStack.push(new VariableContext(false));
         defineStructsAndFunctions(ctx.definition());
     }
 
@@ -184,8 +176,8 @@ public class QrGameTreeListener extends QrGameBaseListener {
         blockStack.push(new ArrayList<>());
         String buttonIdVarName = ctx.NAME(0).getText();
         String pushedElseReleasedVarName = ctx.NAME(1).getText();
-        putStackVar(buttonIdVarName, NumberType.NUMBER_TYPE, 1, ctx);
-        putStackVar(pushedElseReleasedVarName, BoolType.BOOL_TYPE, 0, ctx);
+        putVar(buttonIdVarName, NumberType.NUMBER_TYPE, ctx);
+        putVar(pushedElseReleasedVarName, BoolType.BOOL_TYPE, ctx);
     }
 
     @Override
@@ -221,9 +213,10 @@ public class QrGameTreeListener extends QrGameBaseListener {
     @Override
     public void exitAssignExpression(QrGameParser.AssignExpressionContext ctx) {
         validateNotDefiningConst(ctx);
-        String variable = ctx.NAME().getSymbol().getText();
+        String variableName = ctx.NAME().getSymbol().getText();
         Expression popped = expressionStack.pop();
-        expressionStack.push(new AssignExpression(putVar(variable, popped.getType(), ctx).getId(), popped));
+        Variable variable = putVar(variableName, popped.getType(), ctx);
+        expressionStack.push(new AssignExpression(variable.getId(), variable.isOnStack(), popped));
     }
 
     @Override
@@ -283,7 +276,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
     private void addAndGet(ParserRuleContext ctx, String variableName, Expression toAdd) {
         validateNotDefiningConst(ctx);
         Variable var = getVar(variableName, ctx);
-        expressionStack.push(new AssignExpression(var.getId(), new AddExpression(new VariableExpression(var), toAdd)));
+        expressionStack.push(new AssignExpression(var.getId(), var.isOnStack(), new AddExpression(new VariableExpression(var), toAdd)));
         validateNotOnStack(var, ctx);
         if (!var.getType().isNumber()) {
             validators.add(() -> ValidationResult.invalid(ctx, "Variable " + variableName + " is not a number, it's " + var.getType()));
@@ -717,27 +710,37 @@ public class QrGameTreeListener extends QrGameBaseListener {
         Expression[] args = collectArgumentExpressions(fctx.argument());
         ArrayList<Expression> arguments = new ArrayList<>(Arrays.asList(args));
 
-        PredefinedFunctions.PredefinedFunction predefinedFunction = functionMap.lookupFunction(functionName, expressionsToTypes(arguments));
-        Integer builtInFunctionId = predefinedFunction == null ? null : predefinedFunction.id;
+        PredefinedFunctions.FunctionVariants functionVariants = functionMap.lookupFunction(functionName);
         UserFunctionDeclaration userFunction = userDeclaredFunctions.get(functionName);
         if (userFunction != null) {
             addUserFunction(userFunction, arguments, ctx);
-        } else if (builtInFunctionId != null) {
-            addBuiltInFunction(ctx, arguments, builtInFunctionId);
+        } else if (functionVariants != null) {
+            addBuiltInFunction(ctx, arguments, functionVariants);
         } else {
             throw new ValidationException(ValidationResult.invalid(ctx, "Function '" + functionName + "' not found"));
         }
     }
 
-    private void addBuiltInFunction(QrGameParser.FunctionCallContext ctx, ArrayList<Expression> arguments, Integer builtInFunctionId) {
-        Function function = program.getFunction(builtInFunctionId);
+    private void addBuiltInFunction(QrGameParser.FunctionCallContext ctx, ArrayList<Expression> arguments, PredefinedFunctions.FunctionVariants functionVariants) {
+
+        ArrayList<Type> argTypes = expressionsToTypes(arguments);
+        PredefinedFunctions.PredefinedFunction predefinedFunction = functionVariants.getByTypeParameters(argTypes);
+
+        if (predefinedFunction == null) {
+            throw new ValidationException(ValidationResult.invalid(ctx,
+                    "No variant matches the specified arguments." + System.lineSeparator() +
+                            "\tArguments specified are: (" + argTypes.stream().map(Object::toString).collect(Collectors.joining(", ")) + ")" + System.lineSeparator() +
+                            "\tFunction variants are: " + System.lineSeparator() + functionVariants.toString() + System.lineSeparator()));
+        }
+
+        Function function = program.getFunction(predefinedFunction.id);
 
         if (definingConstant && !function.isConstant()) {
             throw new ValidationException(ValidationResult.invalid(ctx, "Function '" + function.getName() + "' is not constant and cannot be used in constants."));
         }
 
         // Validation can't be delayed as wrong arg count can lead to runtime exceptions
-        ResultOrInvalidation<Type> returnTypeOrInvalid = function.getFunctionDeclaration().validate(expressionsToTypes(arguments), ctx);
+        ResultOrInvalidation<Type> returnTypeOrInvalid = function.getFunctionDeclaration().validate(argTypes, ctx);
         if (!returnTypeOrInvalid.hasResult()) {
             throw new ValidationException(returnTypeOrInvalid.invalidation);
         }
@@ -747,7 +750,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
             throw new ValidationException(ValidationResult.invalid(ctx,
                     "Function '" + function.getName() + "' expected '" + expectedCount + "' arguments but got '" + arguments.size() + "'."));
         }
-        expressionStack.push(new FunctionExpression(builtInFunctionId, returnTypeOrInvalid.result, arguments, false));
+        expressionStack.push(new FunctionExpression(predefinedFunction.id, returnTypeOrInvalid.result, arguments, false));
     }
 
     private ArrayList<Type> expressionsToTypes(ArrayList<Expression> arguments) {
@@ -778,34 +781,33 @@ public class QrGameTreeListener extends QrGameBaseListener {
         ObjectType objectType = (ObjectType) object.getType();
 
         // Validation can't be delayed as wrong arg count can lead to runtime exceptions
-        ValidationResult validationResult = objectType.getQgClass().validate(ctx, objectType, methodName, Arrays.asList(args));
-        if (!validationResult.isValid()) {
-            throw new ValidationException(validationResult);
+        ResultOrInvalidation<Type> validationResult = objectType.getQgClass().validate(ctx, objectType, methodName, expressionsToTypes(new ArrayList<>(Arrays.asList(args))));
+        if (!validationResult.hasResult()) {
+            throw new ValidationException(validationResult.invalidation);
         }
 
         Integer methodId = objectType.getQgClass().lookupMethodId(methodName);
-        Type returnType = objectType.getQgClass().getMethod(methodId).getReturnType(objectType);
-        expressionStack.push(new MethodCallExpression(object, methodId, Arrays.asList(args), returnType));
+        expressionStack.push(new MethodCallExpression(object, methodId, Arrays.asList(args), validationResult.result));
     }
 
     @Override
     public void enterFunctionDefinition(QrGameParser.FunctionDefinitionContext ctx) {
         blockStack.push(new ArrayList<>());
-        variableStack.push(new HashMap<>());
+        variableStack.push(new VariableContext(true));
         String name = ctx.NAME().getText();
         FunctionDeclaration functionDeclaration = userDeclaredFunctions.get(name).getFunctionDeclaration();
         activeReturnType = Optional.of(functionDeclaration.getReturnType());
         // First parameter will be deepest in the stack which is why we set it to the highest index.
-        putVariablesForParameters(ctx.parameters(), functionDeclaration.numberOfTrueArguments() - 1);
+        putVariablesForParameters(ctx.parameters());
     }
 
-    public void putVariablesForParameters(QrGameParser.ParametersContext parametersContext, int parameterIndex) {
+    public void putVariablesForParameters(QrGameParser.ParametersContext parametersContext) {
         if (parametersContext == null) return;
 
         String name = parametersContext.parameter().NAME().getText();
         Type type = getType(parametersContext.parameter().type());
-        putStackVar(name, type, parameterIndex, parametersContext.parameter());
-        putVariablesForParameters(parametersContext.parameters(), parameterIndex - 1);
+        putVar(name, type, parametersContext.parameter());
+        putVariablesForParameters(parametersContext.parameters());
     }
 
     @Override
@@ -818,8 +820,8 @@ public class QrGameTreeListener extends QrGameBaseListener {
             validators.add(() -> ValidationResult.invalid(ctx, "Function '" + name + "' does not deterministically return. Make sure all code branches results in a return."));
         }
 
-        program.addUserFunction(new UserFunction(functionDeclaration.getFunctionId(), functionDeclaration.getFunctionDeclaration(), body));
-        variableStack.pop();
+        int stackContextSize = variableStack.pop().variables.size();
+        program.addUserFunction(new UserFunction(functionDeclaration.getFunctionId(), functionDeclaration.getFunctionDeclaration(), stackContextSize, body));
     }
 
     private Expression[] collectArgumentExpressions(QrGameParser.ArgumentContext argument) {

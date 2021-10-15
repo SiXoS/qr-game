@@ -1,8 +1,0 @@
-
-init {
-    val = arrayList(:number, :number)
-}
-
-run true
-
-input(a,b) true

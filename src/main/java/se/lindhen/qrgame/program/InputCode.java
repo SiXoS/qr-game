@@ -16,13 +16,15 @@ public class InputCode {
 
     public void run(Program program) {
         for (InputManager.ButtonEvent buttonEvent : program.getInputManager().getButtonEvents()) {
-            program.pushToStack((double) buttonEvent.button.getId());
-            program.pushToStack(buttonEvent.pressedElseReleased);
+            storeInputParameter(program, buttonIdVar, (double) buttonEvent.button.getId());
+            storeInputParameter(program, pressedElseReleasedVarId, buttonEvent.pressedElseReleased);
             code.run(program);
-            program.popFromStack();
-            program.popFromStack();
         }
         program.getInputManager().clear();
+    }
+
+    protected void storeInputParameter(Program program, int buttonIdVar, Object value) {
+        program.setVariable(buttonIdVar, value);
     }
 
     public int getButtonIdVar() {

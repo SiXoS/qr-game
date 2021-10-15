@@ -1,7 +1,6 @@
 package se.lindhen.qrgame.program.expressions;
 
 import se.lindhen.qrgame.program.Program;
-import se.lindhen.qrgame.program.types.ObjectType;
 import se.lindhen.qrgame.program.types.Type;
 import se.lindhen.qrgame.program.objects.ObjectValue;
 

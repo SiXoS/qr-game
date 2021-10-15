@@ -1,8 +1,9 @@
 package se.lindhen.qrgame.program.objects;
 
 import se.lindhen.qrgame.program.Program;
-import se.lindhen.qrgame.program.objects.utils.GenericInnerType;
+import se.lindhen.qrgame.program.functions.FunctionDeclaration;
 import se.lindhen.qrgame.program.objects.utils.LambdaMethod;
+import se.lindhen.qrgame.program.types.GenericType;
 import se.lindhen.qrgame.program.types.ObjectType;
 import se.lindhen.qrgame.program.types.Type;
 import se.lindhen.qrgame.program.expressions.Expression;
@@ -21,10 +22,11 @@ public class MapEntryClass extends QgClass<MapEntryClass.MapEntryObject> {
     }
 
     @Override
-    protected List<LambdaMethod<MapEntryObject, GenericType>> getMethods() {
-        ArrayList<LambdaMethod<MapEntryObject, GenericType>> methods = new ArrayList<>();
-        methods.add(new LambdaMethod<>(new GenericInnerType(0), "getKey", (obj, args, prog) -> obj.getKey()));
-        methods.add(new LambdaMethod<>(new GenericInnerType(1), "getValue", (obj, args, prog) -> obj.getValue()));
+    protected List<LambdaMethod<MapEntryObject>> getMethods() {
+        ArrayList<LambdaMethod<MapEntryObject>> methods = new ArrayList<>();
+        ObjectType objectType = new ObjectType(this, new GenericType(0), new GenericType(1));
+        methods.add(new LambdaMethod<>("getKey", (obj, args, prog) -> obj.getKey(), new FunctionDeclaration(2, new GenericType(0), objectType)));
+        methods.add(new LambdaMethod<>("getValue", (obj, args, prog) -> obj.getValue(), new FunctionDeclaration(2, new GenericType(1), objectType)));
         return methods;
     }
 
@@ -45,10 +47,6 @@ public class MapEntryClass extends QgClass<MapEntryClass.MapEntryObject> {
     @Override
     public Type getObjectTypeFromTypeArgs(List<Type> typeArguments) {
         return new ObjectType(this, typeArguments.get(0), typeArguments.get(1));
-    }
-
-    public Type getObjectType(ArrayList<Expression> arguments) {
-        return new ObjectType(this, arguments.get(0).getType(), arguments.get(1).getType());
     }
 
     @Override

@@ -3,6 +3,7 @@ package se.lindhen.qrgame.program.objects;
 import org.antlr.v4.runtime.ParserRuleContext;
 import se.lindhen.qrgame.parser.ValidationResult;
 import se.lindhen.qrgame.program.Program;
+import se.lindhen.qrgame.program.ResultOrInvalidation;
 import se.lindhen.qrgame.program.types.ObjectType;
 import se.lindhen.qrgame.program.types.Type;
 import se.lindhen.qrgame.program.expressions.Expression;
@@ -45,13 +46,13 @@ public abstract class QgClass<O extends ObjectValue> {
     }
 
     public Type getReturnType(int methodId, ObjectType objectType) {
-        return methods.get(methodId).getReturnType(objectType);
+        return methods.get(methodId).functionDeclaration.getReturnType();
     }
 
-    public ValidationResult validate(ParserRuleContext ctx, ObjectType objectType, String methodName, List<Expression> arguments) {
+    public ResultOrInvalidation<Type> validate(ParserRuleContext ctx, ObjectType objectType, String methodName, List<Type> arguments) {
         Integer methodId = methodNameToIndex.get(methodName);
         if (methodId == null) {
-            return ValidationResult.invalid(ctx, "Method " + methodName + " does not exist on class " + getName());
+            return ResultOrInvalidation.invalid(ValidationResult.invalid(ctx, "Method " + methodName + " does not exist on class " + getName()));
         } else {
             return methods.get(methodId).validate(objectType, arguments, ctx);
         }

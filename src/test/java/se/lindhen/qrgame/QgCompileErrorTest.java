@@ -32,7 +32,9 @@ public class QgCompileErrorTest {
     public void test() throws IOException, ParseException {
         try {
             ProgramParser.parseProgram(new ByteArrayInputStream(testCase.program.getBytes()), StandardCharsets.UTF_8);
+            Assert.fail("Expected exception");
         } catch (ValidationException e) {
+            e.printStackTrace();
             List<String> originalErrors = e.getValidationResult().getMessages();
             List<String> errorMessages = new LinkedList<>(originalErrors);
             for (Integer errorLine : testCase.errorLines) {

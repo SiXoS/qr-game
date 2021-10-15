@@ -1,7 +1,7 @@
 package se.lindhen.qrgame.program.objects;
 
 import se.lindhen.qrgame.program.Program;
-import se.lindhen.qrgame.program.objects.utils.ConstantGenericType;
+import se.lindhen.qrgame.program.functions.FunctionDeclaration;
 import se.lindhen.qrgame.program.objects.utils.LambdaMethod;
 import se.lindhen.qrgame.program.types.NumberType;
 import se.lindhen.qrgame.program.types.ObjectType;
@@ -63,10 +63,11 @@ public class ShapeClass extends QgClass<ShapeClass.ShapeObject> {
         methods.add(new GetShapeParamFunction("getAccelerationPerSecondX", Shape::getAccelerationPerSecondX));
         methods.add(new GetShapeParamFunction("getAccelerationPerSecondY", Shape::getAccelerationPerSecondY));
         methods.add(new GetShapeParamFunction("getRotationDegSpeedPerSecond", Shape::getRotationDegSpeedPerSecond));
-        methods.add(new LambdaMethod<ShapeObject, GenericType>(new ConstantGenericType(new ObjectType(ShapeClass.this)), "setColorBackground", (shape, args, prog) -> shape.setColorBackground()));
-        methods.add(new LambdaMethod<ShapeObject, GenericType>(new ConstantGenericType(new ObjectType(ShapeClass.this)), "setColorForeground", (shape, args, prog) -> shape.setColorForeground()));
-        methods.add(new LambdaMethod<ShapeObject, GenericType>(new ConstantGenericType(new ObjectType(ShapeClass.this)), "addChild", (shape, args, prog) -> shape.addChild((ShapeObject) args.get(0).calculate(prog)), new ConstantGenericType(objectType)));
-        methods.add(new LambdaMethod<ShapeObject, GenericType>(new ConstantGenericType(VoidType.VOID_TYPE), "update", (shape, args, prog) -> shape.update(prog.getSecondsDeltaTime())));
+        ObjectType shapeType = new ObjectType(ShapeClass.this);
+        methods.add(new LambdaMethod<>("setColorBackground", (shape, args, prog) -> shape.setColorBackground(), new FunctionDeclaration(0, shapeType, shapeType)));
+        methods.add(new LambdaMethod<>("setColorForeground", (shape, args, prog) -> shape.setColorForeground(), new FunctionDeclaration(0, shapeType, shapeType)));
+        methods.add(new LambdaMethod<>("addChild", (shape, args, prog) -> shape.addChild((ShapeObject) args.get(0).calculate(prog)), new FunctionDeclaration(0, shapeType, shapeType, shapeType)));
+        methods.add(new LambdaMethod<>("update", (shape, args, prog) -> shape.update(prog.getSecondsDeltaTime()), new FunctionDeclaration(0, VoidType.VOID_TYPE, shapeType)));
         return methods;
     }
 
@@ -85,17 +86,16 @@ public class ShapeClass extends QgClass<ShapeClass.ShapeObject> {
         return false;
     }
 
-    private class SetShapeParamFunction extends LambdaMethod<ShapeObject, ConstantGenericType> {
+    private class SetShapeParamFunction extends LambdaMethod<ShapeObject> {
         public SetShapeParamFunction(String name, ShapeParamConsumer function) {
             super(
-                    new ConstantGenericType(new ObjectType(ShapeClass.this)),
                     name,
                     (shape, args, vars) -> {
                         Object value = args.get(0).calculate(vars);
                         function.apply(shape.getShape(), (double) value);
                         return shape;
                     },
-                    new ConstantGenericType(NumberType.NUMBER_TYPE));
+                    new FunctionDeclaration(0, new ObjectType(ShapeClass.this), new ObjectType(ShapeClass.this), NumberType.NUMBER_TYPE));
         }
     }
 
@@ -103,12 +103,12 @@ public class ShapeClass extends QgClass<ShapeClass.ShapeObject> {
         void apply(Shape shape, double value);
     }
 
-    private class GetShapeParamFunction extends LambdaMethod<ShapeObject, ConstantGenericType> {
+    private class GetShapeParamFunction extends LambdaMethod<ShapeObject> {
         public GetShapeParamFunction(String name, ShapeParamProducer function) {
             super(
-                    new ConstantGenericType(NumberType.NUMBER_TYPE),
                     name,
-                    (shape, args, vars) -> function.apply(shape.getShape()));
+                    (shape, args, vars) -> function.apply(shape.getShape()),
+                    new FunctionDeclaration(0, NumberType.NUMBER_TYPE, new ObjectType(ShapeClass.this)));
         }
     }
 

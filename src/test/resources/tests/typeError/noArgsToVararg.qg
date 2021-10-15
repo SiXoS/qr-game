@@ -1,0 +1,8 @@
+
+init {
+    map = treeMap()
+}
+
+run true
+
+input(a,b) true

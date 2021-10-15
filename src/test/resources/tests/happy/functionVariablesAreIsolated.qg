@@ -1,0 +1,16 @@
+
+init {
+    out = 0
+}
+
+run {
+    out = usesRecursiveCallsAndModifiesAFunctionScopeVariable(1)
+}
+
+input(a, b) true
+
+fun usesRecursiveCallsAndModifiesAFunctionScopeVariable(n1: number): number {
+    temp = n1
+    if (n1 == 100) return 100
+    return usesRecursiveCallsAndModifiesAFunctionScopeVariable(100) + temp
+}

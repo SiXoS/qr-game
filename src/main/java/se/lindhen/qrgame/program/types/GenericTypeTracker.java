@@ -35,6 +35,9 @@ public class GenericTypeTracker {
                 coerceBasis = functionCallParameterTypes.get(functionParameterTypes.size());
             }
             VarargType actualVarargType = (VarargType) vararg.coerce(coerceBasis, this);
+            for (int i = functionParameterTypes.size() + 1; i < functionCallParameterTypes.size(); i++) {
+                vararg.coerce(functionCallParameterTypes.get(i), this);
+            }
             actualTypes.add(actualVarargType);
         }
         return actualTypes;

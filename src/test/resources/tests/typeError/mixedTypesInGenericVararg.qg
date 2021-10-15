@@ -1,0 +1,9 @@
+
+init {
+    var = arrayList(true, true, 1)
+}
+
+run true
+
+input(a,b) true
+

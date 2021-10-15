@@ -22,6 +22,9 @@ public class ArrayMap<V> {
     }
 
     public V put(int key, V value) {
+        if (key >= size) {
+            size++;
+        }
         ensureSizeIncludesKey(key);
         return list.set(key, value);
     }
@@ -38,6 +41,7 @@ public class ArrayMap<V> {
         V toReturn = get(key);
         if (toReturn != null) {
             list.set(key, null);
+            size--;
         }
         return toReturn;
     }
@@ -60,4 +64,10 @@ public class ArrayMap<V> {
         }
     }
 
+    public void reset(int from, int to) {
+        for (int i = from; i < to; i++) {
+            V prev = list.set(i, null);
+            if (prev != null) size--;
+        }
+    }
 }
