@@ -198,14 +198,15 @@ public class PredefinedFunctions {
             if (functionParameters.isEmpty()) {
                 return callParameters.isEmpty();
             }
-            if (callParameters.size() < functionParameters.size()) return false;
+            int lastParameterIndex = functionParameters.size() - 1;
+            Type lastParameter = functionParameters.get(lastParameterIndex);
+            int minimumFuncParameters = lastParameter.isVararg() ? functionParameters.size() - 1 : functionParameters.size();
+            if (callParameters.size() < minimumFuncParameters) return false;
             for (int i = 0; i < functionParameters.size() - 1; i++) {
                 if(!functionParameters.get(i).acceptsType(callParameters.get(i))) {
                     return false;
                 }
             }
-            int lastParameterIndex = functionParameters.size() - 1;
-            Type lastParameter = functionParameters.get(lastParameterIndex);
             if (lastParameter.isVararg()) {
                 for (int i = lastParameterIndex; i < callParameters.size(); i++) {
                     if (!lastParameter.acceptsType(callParameters.get(i))) return false;

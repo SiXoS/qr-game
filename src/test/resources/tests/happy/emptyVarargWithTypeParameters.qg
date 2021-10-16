@@ -1,0 +1,12 @@
+
+init {
+    out = 0
+}
+
+run {
+    tree = treeMap<bool,number>()
+    tree.put(true, 10)
+    out = tree.get(true)
+}
+
+input(a,b) true

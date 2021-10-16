@@ -17,7 +17,7 @@ import java.util.Optional;
 public class MinFunction extends Function {
 
     public MinFunction() {
-        super("min", new FunctionDeclaration(0, NumberType.NUMBER_TYPE, new VarargType(NumberType.NUMBER_TYPE)));
+        super("min", new FunctionDeclaration(0, NumberType.NUMBER_TYPE, NumberType.NUMBER_TYPE, new VarargType(NumberType.NUMBER_TYPE)));
     }
 
     @Override

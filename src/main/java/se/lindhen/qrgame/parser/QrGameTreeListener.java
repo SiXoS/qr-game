@@ -710,18 +710,26 @@ public class QrGameTreeListener extends QrGameBaseListener {
         Expression[] args = collectArgumentExpressions(fctx.argument());
         ArrayList<Expression> arguments = new ArrayList<>(Arrays.asList(args));
 
+        List<Type> genericTip = Collections.emptyList();
+        QrGameParser.GenericTipContext genericTipContext = fctx.genericTip();
+        if (genericTipContext != null) {
+            genericTip = genericTipContext.type().stream()
+                    .map(this::getType)
+                    .collect(Collectors.toList());
+        }
+
         PredefinedFunctions.FunctionVariants functionVariants = functionMap.lookupFunction(functionName);
         UserFunctionDeclaration userFunction = userDeclaredFunctions.get(functionName);
         if (userFunction != null) {
             addUserFunction(userFunction, arguments, ctx);
         } else if (functionVariants != null) {
-            addBuiltInFunction(ctx, arguments, functionVariants);
+            addBuiltInFunction(ctx, arguments, functionVariants, genericTip);
         } else {
             throw new ValidationException(ValidationResult.invalid(ctx, "Function '" + functionName + "' not found"));
         }
     }
 
-    private void addBuiltInFunction(QrGameParser.FunctionCallContext ctx, ArrayList<Expression> arguments, PredefinedFunctions.FunctionVariants functionVariants) {
+    private void addBuiltInFunction(QrGameParser.FunctionCallContext ctx, ArrayList<Expression> arguments, PredefinedFunctions.FunctionVariants functionVariants, List<Type> genericTip) {
 
         ArrayList<Type> argTypes = expressionsToTypes(arguments);
         PredefinedFunctions.PredefinedFunction predefinedFunction = functionVariants.getByTypeParameters(argTypes);
@@ -740,7 +748,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
         }
 
         // Validation can't be delayed as wrong arg count can lead to runtime exceptions
-        ResultOrInvalidation<Type> returnTypeOrInvalid = function.getFunctionDeclaration().validate(argTypes, ctx);
+        ResultOrInvalidation<Type> returnTypeOrInvalid = function.getFunctionDeclaration().validate(argTypes, genericTip, ctx);
         if (!returnTypeOrInvalid.hasResult()) {
             throw new ValidationException(returnTypeOrInvalid.invalidation);
         }
@@ -926,6 +934,12 @@ public class QrGameTreeListener extends QrGameBaseListener {
                     throw new ValidationException(ValidationResult.invalid(typeCtx, "Can not construct vararg type of " + innerVarargType));
                 }
                 return new VarargType(innerVarargType);
+            case "iterable":
+                List<Type> typeArgss = getTypeArguments(typeCtx.genericType());
+                if (typeArgss.size() != 1) {
+                    throw new ValidationException(ValidationResult.invalid(typeCtx, "iterable expects exactly one type parameter"));
+                }
+                return new IterableType(typeArgss.get(0));
             default:
                 QgClass<?> clazz = classByName.get(baseType);
                 if (clazz != null) {

@@ -86,8 +86,9 @@ expression
    |  atom # atomicOperation
    ;
 
-function: NAME LPAREN argument? RPAREN;
+function: NAME genericTip? LPAREN argument? RPAREN;
 argument: expression (',' argument)?;
+genericTip: LESS type? (',' type)* GREATER;
 
 structInstantiation: NEW NAME LPAREN argument? RPAREN;
 
