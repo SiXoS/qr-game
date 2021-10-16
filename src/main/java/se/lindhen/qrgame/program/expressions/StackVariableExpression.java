@@ -15,7 +15,7 @@ public class StackVariableExpression extends Expression {
 
     @Override
     public Object calculate(Program program) {
-        return program.getFromStack(varId);
+        return program.getVariable(varId, true);
     }
 
     public int getVarId() {

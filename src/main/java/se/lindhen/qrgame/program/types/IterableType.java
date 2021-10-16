@@ -49,6 +49,10 @@ public class IterableType extends Type {
         return new IterableType(elementType.inferFromGenerics(genericTypeTracker));
     }
 
+    public Type getElementType() {
+        return elementType;
+    }
+
     @Override
     public String toString() {
         return "iterable<" + elementType + ">";

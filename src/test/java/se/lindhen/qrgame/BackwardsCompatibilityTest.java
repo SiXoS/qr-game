@@ -52,7 +52,7 @@ public class BackwardsCompatibilityTest {
         GameLoop iteration = decompiledProgram.initializeAndPrepareRun();
         decompiledProgram.getInputManager().triggerButton(InputManager.Input.LEFT_BOTTOM, true);
         iteration.run(100);
-        Assert.assertEquals(testCase.result, (double) decompiledProgram.getVariable(getOutVarId(decompiledProgram)), 0.001);
+        Assert.assertEquals(testCase.result, (double) decompiledProgram.getVariable(getOutVarId(decompiledProgram), false), 0.001);
     }
 
     private int getOutVarId(Program program) {

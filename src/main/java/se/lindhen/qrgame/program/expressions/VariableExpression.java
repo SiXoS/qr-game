@@ -15,7 +15,7 @@ public class VariableExpression extends Expression {
 
     @Override
     public Object calculate(Program program) {
-        return program.getVariable(varId);
+        return program.getVariable(varId, false);
     }
 
     public int getVarId() {

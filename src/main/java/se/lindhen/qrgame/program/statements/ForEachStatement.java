@@ -11,12 +11,14 @@ public class ForEachStatement extends Statement {
 
     private final Expression toIterate;
     private final int targetVarId;
+    private final boolean onStack;
     private final Statement body;
     private final Integer label;
 
-    public ForEachStatement(Expression toIterate, int targetVarId, Statement body, Integer label) {
+    public ForEachStatement(Expression toIterate, int targetVarId, boolean onStack, Statement body, Integer label) {
         this.toIterate = toIterate;
         this.targetVarId = targetVarId;
+        this.onStack = onStack;
         this.body = body;
         this.label = label;
     }
@@ -25,7 +27,11 @@ public class ForEachStatement extends Statement {
     public void runInternal(Program program) {
         Iterator<Object> iterator = ((ObjectValue) toIterate.calculate(program)).iterator();
         while (iterator.hasNext()) {
-            program.setVariable(targetVarId, iterator.next());
+            if (onStack) {
+                program.setStackVariable(targetVarId, iterator.next());
+            } else {
+                program.setVariable(targetVarId, iterator.next());
+            }
             body.run(program);
             Interrupt interrupt = program.catchInterrupt(label);
             if (interrupt != null) {
@@ -60,5 +66,9 @@ public class ForEachStatement extends Statement {
 
     public boolean hasLabel() {
         return label != null;
+    }
+
+    public boolean isOnStack() {
+        return onStack;
     }
 }

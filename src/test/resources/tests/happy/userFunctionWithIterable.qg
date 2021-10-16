@@ -1,0 +1,19 @@
+
+init {
+    out = 0
+}
+
+run {
+    list = arrayList(1,2,3)
+    out = sum(list)
+}
+
+input(a,b) true
+
+fun sum(collection: iterable<number>): number {
+    sum = 0
+    for (elem in collection) {
+        sum += elem
+    }
+    return sum
+}

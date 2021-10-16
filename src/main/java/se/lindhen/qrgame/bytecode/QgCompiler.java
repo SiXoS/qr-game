@@ -114,6 +114,7 @@ public class QgCompiler {
             ForEachStatement forEachStatement = (ForEachStatement) statement;
             writer.writePositiveByte(forEachStatement.getTargetVarId());
             writer.writeBool(forEachStatement.hasLabel());
+            writer.writeBool(forEachStatement.isOnStack());
             writer.exitContext();
             compileExpression(forEachStatement.getToIterate());
             compileStatement(forEachStatement.getBody());
@@ -319,6 +320,7 @@ public class QgCompiler {
             writer.setContext("getAndModify");
             writer.writeCommand(GET_AND_MODIFY);
             writer.writePositiveByte(((GetAndModifyExpression) expression).getVarId());
+            writer.writeBool(((GetAndModifyExpression) expression).isOnStack());
             writer.writeBool(((GetAndModifyExpression) expression).isIncrementElseDecrement());
             writer.exitContext();
         } else if (expression instanceof StructAssignExpression) {

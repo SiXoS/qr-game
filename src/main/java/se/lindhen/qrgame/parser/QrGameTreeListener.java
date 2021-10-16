@@ -224,16 +224,9 @@ public class QrGameTreeListener extends QrGameBaseListener {
         validateNotDefiningConst(ctx);
         String variable = ctx.NAME().getText();
         Variable var = getVar(variable, ctx);
-        expressionStack.push(new GetAndModifyExpression(var.getId(), true));
-        validateNotOnStack(var, ctx);
+        expressionStack.push(new GetAndModifyExpression(var.getId(), var.isOnStack(), true));
         if (!var.getType().isNumber()) {
             validators.add(() -> ValidationResult.invalid(ctx, "Variable " + variable + " is not a number, it's " + var.getType()));
-        }
-    }
-
-    private void validateNotOnStack(Variable var, ParserRuleContext ctx) {
-        if (var.isOnStack()) {
-            validators.add(() -> ValidationResult.invalid(ctx, "Cannot modify variables on stack (function parameters)"));
         }
     }
 
@@ -242,8 +235,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
         validateNotDefiningConst(ctx);
         String variable = ctx.NAME().getText();
         Variable var = getVar(variable, ctx);
-        expressionStack.push(new GetAndModifyExpression(var.getId(), false));
-        validateNotOnStack(var, ctx);
+        expressionStack.push(new GetAndModifyExpression(var.getId(), var.isOnStack(), false));
         if (!var.getType().isNumber()) {
             validators.add(() -> ValidationResult.invalid(ctx, "Variable " + variable + " is not a number, it's " + var.getType()));
         }
@@ -276,8 +268,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
     private void addAndGet(ParserRuleContext ctx, String variableName, Expression toAdd) {
         validateNotDefiningConst(ctx);
         Variable var = getVar(variableName, ctx);
-        expressionStack.push(new AssignExpression(var.getId(), var.isOnStack(), new AddExpression(new VariableExpression(var), toAdd)));
-        validateNotOnStack(var, ctx);
+        expressionStack.push(new AssignExpression(var.getId(), var.isOnStack(), new AddExpression(variableExpression(var), toAdd)));
         if (!var.getType().isNumber()) {
             validators.add(() -> ValidationResult.invalid(ctx, "Variable " + variableName + " is not a number, it's " + var.getType()));
         }
@@ -336,24 +327,27 @@ public class QrGameTreeListener extends QrGameBaseListener {
         String targetVariable = ctx.forEachCondition().NAME().getText();
         Expression toIterate = expressionStack.pop();
         Variable variable = getVar(targetVariable, ctx.forEachCondition());
-        validateNotOnStack(variable, ctx);
         Integer label = exitLoop(ctx.label());
-        blockStack.getFirst().add(new ForEachStatement(toIterate, variable.getId(), body, label));
+        blockStack.getFirst().add(new ForEachStatement(toIterate, variable.getId(), variable.isOnStack(), body, label));
     }
 
     @Override
     public void exitForEachCondition(QrGameParser.ForEachConditionContext ctx) {
         String targetVariable = ctx.NAME().getText();
         Expression toIterate = expressionStack.getFirst();
-        if (!toIterate.getType().isObject()) {
-            throw new ValidationException(ValidationResult.invalid(ctx, "Can only iterate on objects, was '" + toIterate.getType() + "'."));
+        Type toIterateType = toIterate.getType();
+        if (toIterateType.isObject()) {
+            ObjectType toIterateObjectType = (ObjectType) toIterateType;
+            QgClass<?> classToIterate = toIterateObjectType.getQgClass();
+            if (!classToIterate.isIterable()) {
+                throw new ValidationException(ValidationResult.invalid(ctx, "Class '" + classToIterate.getName() + "' is not iterable."));
+            }
+            putVar(targetVariable, classToIterate.iteratorType(toIterateObjectType), ctx);
+        } else if (toIterateType.isIterable()) {
+            putVar(targetVariable, ((IterableType)toIterateType).getElementType(), ctx);
+        } else {
+            throw new ValidationException(ValidationResult.invalid(ctx, "Can only iterate on objects and iterable, was '" + toIterateType + "'."));
         }
-        ObjectType toIterateType = (ObjectType) toIterate.getType();
-        QgClass<?> classToIterate = toIterateType.getQgClass();
-        if (!classToIterate.isIterable()) {
-            throw new ValidationException(ValidationResult.invalid(ctx, "Class '" + classToIterate.getName() + "' is not iterable."));
-        }
-        putVar(targetVariable, classToIterate.iteratorType(toIterateType), ctx);
     }
 
     @Override
@@ -620,11 +614,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
         } else if (atom.NAME() != null) {
             validateNotDefiningConst(ctx);
             Variable var = getVar(atom.NAME().getText(), ctx);
-            if (var.isOnStack()) {
-                expressionStack.push(new StackVariableExpression(var));
-            } else {
-                expressionStack.push(new VariableExpression(var));
-            }
+            expressionStack.push(variableExpression(var));
         } else if (atom.CONSTANT() != null) {
             String constName = atom.CONSTANT().getText();
             Expression constantExpression = constants.get(constName);
@@ -634,6 +624,14 @@ public class QrGameTreeListener extends QrGameBaseListener {
             expressionStack.push(constantExpression);
         } else {
             throw new RuntimeException("Unhandled atomic case: " + atom.getText());
+        }
+    }
+
+    private Expression variableExpression(Variable var) {
+        if (var.isOnStack()) {
+            return new StackVariableExpression(var);
+        } else {
+            return new VariableExpression(var);
         }
     }
 

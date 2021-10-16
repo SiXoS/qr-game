@@ -22,10 +22,10 @@ public class InputTest {
         InputManager inputManager = program.getInputManager();
         inputManager.triggerButton(InputManager.Input.LEFT_LEFT, true);
         iteration.run(100);
-        assertEquals(5.0, (double) program.getVariable(outVarId), 0.01);
+        assertEquals(5.0, (double) program.getVariable(outVarId, false), 0.01);
         inputManager.triggerButton(InputManager.Input.RIGHT_LEFT, true);
         iteration.run(100);
-        assertEquals(41.0, (double) program.getVariable(outVarId), 0.01);
+        assertEquals(41.0, (double) program.getVariable(outVarId, false), 0.01);
     }
 
     @Test
@@ -36,10 +36,10 @@ public class InputTest {
         InputManager inputManager = program.getInputManager();
         inputManager.triggerButton(InputManager.Input.LEFT_LEFT, false);
         iteration.run(100);
-        assertEquals(14.0, (double) program.getVariable(outVarId), 0.01);
+        assertEquals(14.0, (double) program.getVariable(outVarId, false), 0.01);
         inputManager.triggerButton(InputManager.Input.RIGHT_LEFT, false);
         iteration.run(100);
-        assertEquals(122.0, (double) program.getVariable(outVarId), 0.01);
+        assertEquals(122.0, (double) program.getVariable(outVarId, false), 0.01);
     }
 
     @Test
@@ -51,7 +51,7 @@ public class InputTest {
         inputManager.triggerButton(InputManager.Input.LEFT_LEFT, true);
         inputManager.triggerButton(InputManager.Input.LEFT_LEFT, false);
         iteration.run(100);
-        assertEquals(30.0, (double) program.getVariable(outVarId), 0.01);
+        assertEquals(30.0, (double) program.getVariable(outVarId, false), 0.01);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class InputTest {
         inputManager.triggerButton(InputManager.Input.LEFT_LEFT, true);
         inputManager.triggerButton(InputManager.Input.LEFT_LEFT, true);
         iteration.run(100);
-        assertEquals(21.0, (double) program.getVariable(outVarId), 0.01);
+        assertEquals(21.0, (double) program.getVariable(outVarId, false), 0.01);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class InputTest {
         inputManager.triggerButton(InputManager.Input.LEFT_TOP, true);
         inputManager.triggerButton(InputManager.Input.LEFT_RIGHT, false);
         iteration.run(100);
-        assertEquals(6692.0, (double) program.getVariable(outVarId), 0.01);
+        assertEquals(6692.0, (double) program.getVariable(outVarId, false), 0.01);
     }
 
     @Test
@@ -92,10 +92,10 @@ public class InputTest {
         InputManager inputManager = decompiled.getInputManager();
         inputManager.triggerButton(InputManager.Input.LEFT_TOP, true);
         iteration.run(100);
-        assertEquals(10, (double) decompiled.getVariable(outVarId), 0.01);
+        assertEquals(10, (double) decompiled.getVariable(outVarId, false), 0.01);
         inputManager.triggerButton(InputManager.Input.LEFT_BOTTOM, true);
         iteration.run(100);
-        assertEquals(12, (double) decompiled.getVariable(outVarId), 0.01);
+        assertEquals(12, (double) decompiled.getVariable(outVarId, false), 0.01);
     }
 
     private int getOutVarId(Program program) {
