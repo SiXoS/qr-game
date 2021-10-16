@@ -35,7 +35,7 @@ public class ProgramCancelTest {
         Thread.sleep(10);
         Assert.assertFalse(programThread.isAlive());
         int outVarId = getOutVarId(program);
-        return program.getVariable(outVarId);
+        return program.getVariable(outVarId, false);
     }
 
     private int getOutVarId(Program program) {

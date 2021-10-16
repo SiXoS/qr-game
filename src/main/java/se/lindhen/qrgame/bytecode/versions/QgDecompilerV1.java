@@ -144,7 +144,7 @@ public class QgDecompilerV1 {
                 boolean hasForEachLabel = reader.readBool();
                 Expression toIterate = decompileExpression();
                 variableTypeMap.put(var, ((ObjectType) toIterate.getType()).getQgClass().iteratorType((ObjectType) toIterate.getType()));
-                return new ForEachStatement(toIterate, var, decompileStatement(), hasForEachLabel ? reader.readPositiveByte() : null);
+                return new ForEachStatement(toIterate, var, false, decompileStatement(), hasForEachLabel ? reader.readPositiveByte() : null);
             case WHEN:
                 boolean hasDefault = reader.readBool();
                 WhenBuilder builder = WhenBuilder.whenStatementBuilder();
@@ -291,7 +291,7 @@ public class QgDecompilerV1 {
             case GET_AND_MODIFY:
                 int varIddd = reader.readPositiveByte();
                 boolean incElseDec = reader.readBool();
-                return new GetAndModifyExpression(varIddd, incElseDec);
+                return new GetAndModifyExpression(varIddd, false, incElseDec);
             case STRUCT_ASSIGN:
                 int structField = reader.readPositiveByte();
                 return new StructAssignExpression(decompileExpression(), structField, decompileExpression());

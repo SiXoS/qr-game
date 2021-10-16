@@ -69,8 +69,8 @@ public class Program {
         variables.put(id, value);
     }
 
-    public Object getVariable(int id) {
-        return variables.get(id);
+    public Object getVariable(int id, boolean onStack) {
+        return onStack ? getFromStack(id) : variables.get(id);
     }
 
     /**
@@ -98,7 +98,7 @@ public class Program {
         stack.put(stackOffset + id, value);
     }
 
-    public Object getFromStack(int index) {
+    private  Object getFromStack(int index) {
         return stack.get(stackOffset + index);
     }
 

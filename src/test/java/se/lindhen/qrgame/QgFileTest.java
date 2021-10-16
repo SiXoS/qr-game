@@ -36,7 +36,7 @@ public class QgFileTest {
         Program program = readProgramFromStream(new ByteArrayInputStream(testCase.program.getBytes()));
         GameLoop iteration = program.initializeAndPrepareRun();
         iteration.run(100);
-        Assert.assertEquals(testCase.result, (double) program.getVariable(getOutVarId(program)), 0.001);
+        Assert.assertEquals(testCase.result, (double) program.getVariable(getOutVarId(program), false), 0.001);
     }
 
     @Test
@@ -48,7 +48,7 @@ public class QgFileTest {
         Program decompiledProgram = qgDecompiler.decompile();
         GameLoop iteration = decompiledProgram.initializeAndPrepareRun();
         iteration.run(100);
-        Assert.assertEquals(testCase.result, (double) decompiledProgram.getVariable(getOutVarId(program)), 0.001);
+        Assert.assertEquals(testCase.result, (double) decompiledProgram.getVariable(getOutVarId(program), false), 0.001);
     }
 
     private int getOutVarId(Program program) {
