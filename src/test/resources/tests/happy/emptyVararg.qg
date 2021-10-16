@@ -1,0 +1,10 @@
+
+init {
+    out = 0
+}
+
+run {
+    out = max(1)
+}
+
+input(a,b) true

@@ -62,4 +62,13 @@ public class GenericTypeTracker {
         assert genericType.length > genericTypeId;
         return genericType[genericTypeId];
     }
+
+    public boolean allGenericsResolved() {
+        for (Type type : genericType) {
+            if (type == null) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

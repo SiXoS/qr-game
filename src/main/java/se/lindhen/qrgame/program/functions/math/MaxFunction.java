@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public class MaxFunction extends Function {
     public MaxFunction() {
-        super("max", new FunctionDeclaration(0, NumberType.NUMBER_TYPE, new VarargType(NumberType.NUMBER_TYPE)));
+        super("max", new FunctionDeclaration(0, NumberType.NUMBER_TYPE, NumberType.NUMBER_TYPE, new VarargType(NumberType.NUMBER_TYPE)));
     }
 
     @Override

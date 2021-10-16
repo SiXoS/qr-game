@@ -8,6 +8,7 @@ import se.lindhen.qrgame.program.types.GenericTypeTracker;
 import se.lindhen.qrgame.program.types.Type;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,7 +31,14 @@ public class FunctionDeclaration {
     }
 
     public ResultOrInvalidation<Type> validate(List<Type> functionCallParameters, ParserRuleContext ctx) {
+        return validate(functionCallParameters, Collections.emptyList(), ctx);
+    }
+
+    public ResultOrInvalidation<Type> validate(List<Type> functionCallParameters, List<Type> genericTip, ParserRuleContext ctx) {
         GenericTypeTracker genericTypeTracker = new GenericTypeTracker(typeParameters, functionParameters);
+        for (int i = 0; i < genericTip.size(); i++) {
+            genericTypeTracker.coerce(i, genericTip.get(i));
+        }
         try {
             List<Type> actualTypes = genericTypeTracker.coerce(functionCallParameters);
             if (actualTypes.size() != functionParameters.size()) {
@@ -41,7 +49,11 @@ public class FunctionDeclaration {
                     return ResultOrInvalidation.invalid(ValidationResult.invalid(ctx, "Can not assign a value of type " + actualTypes.get(i) + " to parameter with type " + functionParameters.get(i)));
                 }
             }
-            return ResultOrInvalidation.valid(returnType.inferFromGenerics(genericTypeTracker));
+            if (genericTypeTracker.allGenericsResolved()) {
+                return ResultOrInvalidation.valid(returnType.inferFromGenerics(genericTypeTracker));
+            } else {
+                return ResultOrInvalidation.invalid(ValidationResult.invalid(ctx, "Could not infer all generic parameters in declaration: " + this));
+            }
         } catch (CoercionException e) {
             return ResultOrInvalidation.invalid(ValidationResult.invalid(ctx,
                     "Could not resolve type parameters for generic type with id " + e.genericTypeId + ". " +
