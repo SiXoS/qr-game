@@ -92,8 +92,6 @@ public class QgDecompilerV2 {
                     subStatements.add(decompileStatement());
                 }
                 return new BlockStatement(subStatements);
-            case EXPRESSION_STATEMENT:
-                return new ExpressionStatement(decompileExpression());
             case FOREACH:
                 int var = reader.readPositiveByte();
                 boolean hasForEachLabel = reader.readBool();
@@ -174,12 +172,7 @@ public class QgDecompilerV2 {
                 int argCount = userFunction ?
                         userFunctionArgCount.get(funcId).orElseGet(reader::readPositiveByte) :
                         program.getFunction(funcId).getConstantParameterCount().orElseGet(reader::readPositiveByte);
-                ArrayList<Expression> args = new ArrayList<>();
-                for (int i = 0; i < argCount; i++) {
-                    Expression expression = decompileExpression();
-                    args.add(expression);
-                }
-                return new FunctionExpression(funcId, null, args, userFunction);
+                return new FunctionExpression(funcId, null, decompileExpressions(argCount), userFunction);
             case MULTIPLY:
                 return new MultiplicativeExpression(decompileExpression(), decompileExpression());
             case DIVIDE:
@@ -197,11 +190,7 @@ public class QgDecompilerV2 {
             case METHOD_CALL:
                 Expression objectExpression = decompileExpression();
                 int methodId = reader.readPositiveByte();
-                int argCount2 = reader.readPositiveByte();
-                ArrayList<Expression> args2 = new ArrayList<>();
-                for (int i = 0; i < argCount2; i++) {
-                    args2.add(decompileExpression());
-                }
+                ArrayList<Expression> args2 = decompileExpressions(reader.readPositiveByte());
                 return new MethodCallExpression(objectExpression, methodId, args2, null);
             case TYPE_EXPRESSION:
                 return new TypeExpression(null); // types are only used compile-time
@@ -243,8 +232,21 @@ public class QgDecompilerV2 {
                     builder.putClause(readWhenClause(toCompareType), decompileExpression());
                 }
                 return builder.buildExpression();
+            case FUNCTION_REFERENCE:
+                return new FunctionReferenceExpression(reader.readInt(), reader.readBool(), null);
+            case REFERENCE_INVOCATION:
+                int args = reader.readPositiveByte();
+                return new FunctionReferenceInvocationExpression(decompileExpression(), decompileExpressions(args), null);
             default:
                 throw new UnrecognizedCommandException("Received unexpected command " + commandCode + " when decompiling expression.", isFallback);
         }
+    }
+
+    private ArrayList<Expression> decompileExpressions(int argCount) {
+        ArrayList<Expression> args = new ArrayList<>();
+        for (int i = 0; i < argCount; i++) {
+            args.add(decompileExpression());
+        }
+        return args;
     }
 }

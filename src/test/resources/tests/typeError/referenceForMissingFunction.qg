@@ -1,0 +1,8 @@
+
+init {
+    ref = ::blahblah
+}
+
+run true
+
+input(a,b) true

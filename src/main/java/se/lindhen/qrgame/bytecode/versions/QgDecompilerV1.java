@@ -3,7 +3,6 @@ package se.lindhen.qrgame.bytecode.versions;
 import se.lindhen.qrgame.bytecode.*;
 import se.lindhen.qrgame.program.*;
 import se.lindhen.qrgame.program.functions.Function;
-import se.lindhen.qrgame.program.functions.FunctionDeclaration;
 import se.lindhen.qrgame.program.functions.LegacyFunction;
 import se.lindhen.qrgame.program.functions.UserFunction;
 import se.lindhen.qrgame.program.objects.Method;
@@ -75,7 +74,7 @@ public class QgDecompilerV1 {
                 parameterTypes.add(param.getType());
             }
             Statement body = decompileStatement();
-            functions.add(new UserFunction(i, new FunctionDeclaration(0, userFunctionData.get(i).getReturnType(), parameterTypes), parameters.size(), body));
+            functions.add(new UserFunction(i, new FunctionType(userFunctionData.get(i).getReturnType(), parameterTypes), parameters.size(), body));
         }
         return functions;
     }
@@ -137,8 +136,6 @@ public class QgDecompilerV1 {
                     subStatements.add(decompileStatement());
                 }
                 return new BlockStatement(subStatements);
-            case EXPRESSION_STATEMENT:
-                return new ExpressionStatement(decompileExpression());
             case FOREACH:
                 int var = reader.readPositiveByte();
                 boolean hasForEachLabel = reader.readBool();
@@ -233,7 +230,7 @@ public class QgDecompilerV1 {
                     if (function instanceof LegacyFunction) {
                         returnType = ((LegacyFunction) function).getReturnType(expressionsToTypes(args));
                     } else {
-                        returnType = function.getFunctionDeclaration().getReturnType();
+                        returnType = function.getFunctionType().getReturnType();
                     }
                 }
                 return new FunctionExpression(funcId, returnType, args, userFunction);
@@ -256,7 +253,7 @@ public class QgDecompilerV1 {
                 int methodId = reader.readPositiveByte();
                 ObjectType objType = (ObjectType) objectExpression.getType();
                 Method<?> method = objType.getQgClass().getMethod(methodId);
-                Optional<Integer> constantParameterCount = method.getFunctionDeclaration().getConstantParameterCount();
+                Optional<Integer> constantParameterCount = method.getFunctionType().getConstantParameterCount();
                 int argCount2 = constantParameterCount.map(count -> count - 1).orElseGet(reader::readPositiveByte);
                 ArrayList<Expression> args2 = new ArrayList<>();
                 for (int i = 0; i < argCount2; i++) {

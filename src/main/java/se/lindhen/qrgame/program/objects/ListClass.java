@@ -1,7 +1,6 @@
 package se.lindhen.qrgame.program.objects;
 
 import se.lindhen.qrgame.program.Program;
-import se.lindhen.qrgame.program.functions.FunctionDeclaration;
 import se.lindhen.qrgame.program.objects.utils.*;
 import se.lindhen.qrgame.program.types.*;
 import se.lindhen.qrgame.program.expressions.Expression;
@@ -27,18 +26,18 @@ public class ListClass extends QgClass<ListClass.ListObject> {
     protected List<Method<ListObject>> getMethods() {
         ArrayList<Method<ListObject>> methods = new ArrayList<>();
         ObjectType objectType = new ObjectType(this, new GenericType(0));
-        methods.add(new LambdaMethod<>("get", (obj, args, vars) -> obj.get((int)(double) args.get(0).calculate(vars)), new FunctionDeclaration(1, new GenericType(0), objectType, NumberType.NUMBER_TYPE)));
-        methods.add(new LambdaMethod<>("set", (obj, args, vars) -> obj.set((int)(double) args.get(0).calculate(vars), args.get(1).calculate(vars)), new FunctionDeclaration(1, VoidType.VOID_TYPE, objectType, NumberType.NUMBER_TYPE, new GenericType(0))));
-        methods.add(new LambdaMethod<>("append", (obj, args, vars) -> obj.add(args.get(0).calculate(vars)), new FunctionDeclaration(1, VoidType.VOID_TYPE, objectType, new GenericType(0))));
-        methods.add(new LambdaMethod<>("size", (list, args, vars) -> list.size(), new FunctionDeclaration(1, NumberType.NUMBER_TYPE, objectType)));
-        methods.add(new LambdaMethod<>("push", (list, args, vars) -> list.push(args.get(0).calculate(vars)), new FunctionDeclaration(1, VoidType.VOID_TYPE, objectType, new GenericType(0))));
-        methods.add(new LambdaMethod<>("pop", (list, args, vars) -> list.pop(), new FunctionDeclaration(1, new GenericType(0), objectType)));
-        methods.add(new LambdaMethod<>("peek", (list, args, vars) -> list.peek(), new FunctionDeclaration(1, new GenericType(0), objectType)));
-        methods.add(new LambdaMethod<>("pushLast", (list, args, vars) -> list.pushLast(args.get(0).calculate(vars)), new FunctionDeclaration(1, VoidType.VOID_TYPE, objectType, new GenericType(0))));
-        methods.add(new LambdaMethod<>("popLast", (list, args, vars) -> list.popLast(), new FunctionDeclaration(1, new GenericType(0), objectType)));
-        methods.add(new LambdaMethod<>("peekLast", (list, args, vars) -> list.peekLast(), new FunctionDeclaration(1, new GenericType(0), objectType)));
-        methods.add(new LambdaMethod<>("remove", (list, args, prog) -> list.remove(args.get(0).calculate(prog)), new FunctionDeclaration(1, BoolType.BOOL_TYPE, objectType, new GenericType(0))));
-        methods.add(new LambdaMethod<>("removeAt", (list, args, prog) -> list.removeAt((int)(double)args.get(0).calculate(prog)), new FunctionDeclaration(1, new GenericType(0), objectType, NumberType.NUMBER_TYPE)));
+        methods.add(new LambdaMethod<>("get", (obj, args, vars) -> obj.get((int)(double) args.get(0).calculate(vars)), new FunctionType(new GenericType(0), objectType, NumberType.NUMBER_TYPE)));
+        methods.add(new LambdaMethod<>("set", (obj, args, vars) -> obj.set((int)(double) args.get(0).calculate(vars), args.get(1).calculate(vars)), new FunctionType(VoidType.VOID_TYPE, objectType, NumberType.NUMBER_TYPE, new GenericType(0))));
+        methods.add(new LambdaMethod<>("append", (obj, args, vars) -> obj.add(args.get(0).calculate(vars)), new FunctionType(VoidType.VOID_TYPE, objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>("size", (list, args, vars) -> list.size(), new FunctionType(NumberType.NUMBER_TYPE, objectType)));
+        methods.add(new LambdaMethod<>("push", (list, args, vars) -> list.push(args.get(0).calculate(vars)), new FunctionType(VoidType.VOID_TYPE, objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>("pop", (list, args, vars) -> list.pop(), new FunctionType(new GenericType(0), objectType)));
+        methods.add(new LambdaMethod<>("peek", (list, args, vars) -> list.peek(), new FunctionType(new GenericType(0), objectType)));
+        methods.add(new LambdaMethod<>("pushLast", (list, args, vars) -> list.pushLast(args.get(0).calculate(vars)), new FunctionType(VoidType.VOID_TYPE, objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>("popLast", (list, args, vars) -> list.popLast(), new FunctionType(new GenericType(0), objectType)));
+        methods.add(new LambdaMethod<>("peekLast", (list, args, vars) -> list.peekLast(), new FunctionType(new GenericType(0), objectType)));
+        methods.add(new LambdaMethod<>("remove", (list, args, prog) -> list.remove(args.get(0).calculate(prog)), new FunctionType(BoolType.BOOL_TYPE, objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>("removeAt", (list, args, prog) -> list.removeAt((int)(double)args.get(0).calculate(prog)), new FunctionType(new GenericType(0), objectType, NumberType.NUMBER_TYPE)));
         methods.add(new ForEachMethod<>("addAll", ListObject::add, objectType));
         methods.add(new ForEachMethod<>("removeAll", ListObject::remove, objectType));
         return methods;

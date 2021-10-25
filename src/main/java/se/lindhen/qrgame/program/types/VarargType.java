@@ -1,8 +1,8 @@
 package se.lindhen.qrgame.program.types;
 
-import se.lindhen.qrgame.program.objects.ListClass;
-
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class VarargType extends Type {
 
@@ -25,13 +25,32 @@ public class VarargType extends Type {
     }
 
     @Override
-    public Type coerce(Type type, GenericTypeTracker genericTypeTracker) {
-        return new VarargType(inner.coerce(type, genericTypeTracker));
+    public Type coerce(Type type, GenericTypeTracker genericTypeTracker) throws CoercionException {
+        if (type.isVararg()) {
+            return new VarargType(inner.coerce(((VarargType)type).inner, genericTypeTracker));
+        } else {
+            return new VarargType(inner.coerce(type, genericTypeTracker));
+        }
     }
 
     @Override
     public Type inferFromGenerics(GenericTypeTracker genericTypeTracker) {
         return new VarargType(inner.inferFromGenerics(genericTypeTracker));
+    }
+
+    @Override
+    protected void getUnresolvedGenerics(Set<Integer> accumulator) {
+        inner.getUnresolvedGenerics(accumulator);
+    }
+
+    @Override
+    protected void remapGenerics(Map<Integer, Integer> genericRemapping) {
+        inner.remapGenerics(genericRemapping);
+    }
+
+    @Override
+    protected Object clone() {
+        return new VarargType((Type) inner.clone());
     }
 
     @Override

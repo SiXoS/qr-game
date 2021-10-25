@@ -1,6 +1,5 @@
 package se.lindhen.qrgame.program;
 
-import javafx.util.Pair;
 import se.lindhen.qrgame.program.functions.*;
 import se.lindhen.qrgame.program.functions.datastructures.*;
 import se.lindhen.qrgame.program.functions.math.*;
@@ -194,33 +193,12 @@ public class PredefinedFunctions {
         }
 
         private boolean accepts(List<Type> callParameters) {
-            List<Type> functionParameters = function.getFunctionDeclaration().getFunctionParameters();
-            if (functionParameters.isEmpty()) {
-                return callParameters.isEmpty();
-            }
-            int lastParameterIndex = functionParameters.size() - 1;
-            Type lastParameter = functionParameters.get(lastParameterIndex);
-            int minimumFuncParameters = lastParameter.isVararg() ? functionParameters.size() - 1 : functionParameters.size();
-            if (callParameters.size() < minimumFuncParameters) return false;
-            for (int i = 0; i < functionParameters.size() - 1; i++) {
-                if(!functionParameters.get(i).acceptsType(callParameters.get(i))) {
-                    return false;
-                }
-            }
-            if (lastParameter.isVararg()) {
-                for (int i = lastParameterIndex; i < callParameters.size(); i++) {
-                    if (!lastParameter.acceptsType(callParameters.get(i))) return false;
-                }
-            } else {
-                if (callParameters.size() != functionParameters.size()) return false;
-                if (!lastParameter.acceptsType(callParameters.get(lastParameterIndex))) return false;
-            }
-            return true;
+            return function.getFunctionType().acceptsParameters(callParameters);
         }
 
         @Override
         public String toString() {
-            return function.getName() + function.getFunctionDeclaration();
+            return function.getName() + function.getFunctionType();
         }
     }
 

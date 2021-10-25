@@ -1,5 +1,8 @@
 package se.lindhen.qrgame.program.types;
 
+import java.util.Map;
+import java.util.Set;
+
 public class BoolType extends Type {
 
     public final static BoolType BOOL_TYPE = new BoolType();
@@ -20,11 +23,22 @@ public class BoolType extends Type {
 
     @Override
     public Type coerce(Type type, GenericTypeTracker genericTypeTracker) {
-        return this;
+        return (Type) type.clone();
     }
 
     @Override
     public Type inferFromGenerics(GenericTypeTracker genericTypeTracker) {
+        return this;
+    }
+
+    @Override
+    protected void getUnresolvedGenerics(Set<Integer> accumulator) { }
+
+    @Override
+    protected void remapGenerics(Map<Integer, Integer> genericRemapping) { }
+
+    @Override
+    protected Object clone() {
         return this;
     }
 

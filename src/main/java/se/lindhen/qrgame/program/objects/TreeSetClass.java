@@ -1,7 +1,6 @@
 package se.lindhen.qrgame.program.objects;
 
 import se.lindhen.qrgame.program.Program;
-import se.lindhen.qrgame.program.functions.FunctionDeclaration;
 import se.lindhen.qrgame.program.objects.utils.*;
 import se.lindhen.qrgame.program.types.*;
 import se.lindhen.qrgame.program.expressions.Expression;
@@ -30,14 +29,14 @@ public class TreeSetClass extends QgClass<TreeSetClass.TreeSetObject> {
     protected List<Method<TreeSetObject>> getMethods() {
         ArrayList<Method<TreeSetObject>> methods = new ArrayList<>();
         ObjectType objectType = new ObjectType(this, new GenericType(0));
-        methods.add(new LambdaMethod<>( "add", (obj, args, vars) -> obj.add(args.get(0).calculate(vars)), new FunctionDeclaration(1, BoolType.BOOL_TYPE, objectType, new GenericType(0))));
-        methods.add(new LambdaMethod<>( "size", (list, args, vars) -> list.size(), new FunctionDeclaration(1, NumberType.NUMBER_TYPE, objectType)));
-        methods.add(new LambdaMethod<>( "remove", (set, args, vars) -> set.remove(args.get(0).calculate(vars)), new FunctionDeclaration(1, BoolType.BOOL_TYPE, objectType, new GenericType(0))));
-        methods.add(new LambdaMethod<>( "contains", (set, args, vars) -> set.contains(args.get(0).calculate(vars)), new FunctionDeclaration(1, BoolType.BOOL_TYPE, objectType, new GenericType(0))));
-        methods.add(new LambdaMethod<>( "first", (set, obj, prog) -> set.first(), new FunctionDeclaration(1, new GenericType(0), objectType)));
-        methods.add(new LambdaMethod<>( "last", (set, obj, prog) -> set.last(), new FunctionDeclaration(1, new GenericType(0), objectType)));
-        methods.add(new LambdaMethod<>( "next", (set, args, vars) -> set.nextValue(args.get(0).calculate(vars)), new FunctionDeclaration(1, new GenericType(0), objectType, new GenericType(0))));
-        methods.add(new LambdaMethod<>( "previous", (set, args, vars) -> set.previousValue(args.get(0).calculate(vars)), new FunctionDeclaration(1, new GenericType(0), objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>( "add", (obj, args, vars) -> obj.add(args.get(0).calculate(vars)), new FunctionType(BoolType.BOOL_TYPE, objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>( "size", (list, args, vars) -> list.size(), new FunctionType(NumberType.NUMBER_TYPE, objectType)));
+        methods.add(new LambdaMethod<>( "remove", (set, args, vars) -> set.remove(args.get(0).calculate(vars)), new FunctionType(BoolType.BOOL_TYPE, objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>( "contains", (set, args, vars) -> set.contains(args.get(0).calculate(vars)), new FunctionType(BoolType.BOOL_TYPE, objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>( "first", (set, obj, prog) -> set.first(), new FunctionType(new GenericType(0), objectType)));
+        methods.add(new LambdaMethod<>( "last", (set, obj, prog) -> set.last(), new FunctionType(new GenericType(0), objectType)));
+        methods.add(new LambdaMethod<>( "next", (set, args, vars) -> set.nextValue(args.get(0).calculate(vars)), new FunctionType(new GenericType(0), objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>( "previous", (set, args, vars) -> set.previousValue(args.get(0).calculate(vars)), new FunctionType(new GenericType(0), objectType, new GenericType(0))));
         methods.add(new ForEachMethod<>("addAll", TreeSetObject::add, objectType));
         methods.add(new ForEachMethod<>("removeAll", TreeSetObject::remove, objectType));
         return methods;

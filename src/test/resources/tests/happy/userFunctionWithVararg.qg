@@ -1,0 +1,27 @@
+
+init {
+    out = 0
+}
+
+run {
+    out += sum(1,2,3)
+    out += sumWithBase(4,1,2,3)
+}
+
+input(a,b) true
+
+fun sum(toSum: vararg<number>): number {
+    sum = 0
+    for (elem in toSum) {
+        sum += elem
+    }
+    return sum
+}
+
+fun sumWithBase(base: number, toSum: vararg<number>): number {
+    sum = base
+    for (elem in toSum) {
+        sum += elem
+    }
+    return sum
+}

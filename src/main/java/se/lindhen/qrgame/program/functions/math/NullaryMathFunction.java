@@ -1,7 +1,7 @@
 package se.lindhen.qrgame.program.functions.math;
 
 import se.lindhen.qrgame.program.Program;
-import se.lindhen.qrgame.program.functions.FunctionDeclaration;
+import se.lindhen.qrgame.program.types.FunctionType;
 import se.lindhen.qrgame.program.types.NumberType;
 import se.lindhen.qrgame.program.expressions.Expression;
 import se.lindhen.qrgame.program.functions.Function;
@@ -12,7 +12,7 @@ import java.util.Optional;
 public abstract class NullaryMathFunction extends Function {
 
     public NullaryMathFunction(String name) {
-        super(name, new FunctionDeclaration(0, NumberType.NUMBER_TYPE));
+        super(name, new FunctionType(NumberType.NUMBER_TYPE));
     }
 
     @Override

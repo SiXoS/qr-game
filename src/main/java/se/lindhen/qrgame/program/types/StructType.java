@@ -1,6 +1,8 @@
 package se.lindhen.qrgame.program.types;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class StructType extends Type {
 
@@ -23,11 +25,22 @@ public class StructType extends Type {
 
     @Override
     public Type coerce(Type type, GenericTypeTracker genericTypeTracker) {
-        return this;
+        return (Type) type.clone();
     }
 
     @Override
     public Type inferFromGenerics(GenericTypeTracker genericTypeTracker) {
+        return this;
+    }
+
+    @Override
+    protected void getUnresolvedGenerics(Set<Integer> accumulator) { }
+
+    @Override
+    protected void remapGenerics(Map<Integer, Integer> genericRemapping) { }
+
+    @Override
+    protected Object clone() {
         return this;
     }
 

@@ -1,6 +1,7 @@
 package se.lindhen.qrgame.program.functions;
 
 import se.lindhen.qrgame.program.Program;
+import se.lindhen.qrgame.program.types.FunctionType;
 import se.lindhen.qrgame.program.types.NumberType;
 import se.lindhen.qrgame.program.expressions.Expression;
 
@@ -12,7 +13,7 @@ public class GetScoreFunction extends Function {
     private static final String NAME = "getScore";
 
     public GetScoreFunction() {
-        super(NAME, new FunctionDeclaration(0, NumberType.NUMBER_TYPE));
+        super(NAME, new FunctionType(NumberType.NUMBER_TYPE));
     }
 
     @Override

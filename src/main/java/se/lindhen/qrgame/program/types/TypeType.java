@@ -1,6 +1,8 @@
 package se.lindhen.qrgame.program.types;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class TypeType extends Type {
 
@@ -22,14 +24,29 @@ public class TypeType extends Type {
     }
 
     @Override
-    public Type coerce(Type type, GenericTypeTracker genericTypeTracker) {
-        if (!type.isType()) return this;
+    public Type coerce(Type type, GenericTypeTracker genericTypeTracker) throws CoercionException {
+        if (!type.isType()) return (Type) type.clone();
         return new TypeType(actualType.coerce(((TypeType)type).actualType, genericTypeTracker));
     }
 
     @Override
     public Type inferFromGenerics(GenericTypeTracker genericTypeTracker) {
         return new TypeType(actualType.inferFromGenerics(genericTypeTracker));
+    }
+
+    @Override
+    protected void getUnresolvedGenerics(Set<Integer> accumulator) {
+        actualType.getUnresolvedGenerics(accumulator);
+    }
+
+    @Override
+    protected void remapGenerics(Map<Integer, Integer> genericRemapping) {
+        actualType.remapGenerics(genericRemapping);
+    }
+
+    @Override
+    protected Object clone() {
+        return new TypeType((Type) actualType.clone());
     }
 
     public Type getActualType() {

@@ -2,6 +2,7 @@ package se.lindhen.qrgame.program.functions;
 
 import se.lindhen.qrgame.program.Program;
 import se.lindhen.qrgame.program.expressions.Expression;
+import se.lindhen.qrgame.program.types.FunctionType;
 import se.lindhen.qrgame.program.types.NumberType;
 
 import java.util.List;
@@ -12,7 +13,7 @@ public class TimeDiffFunction extends Function {
     public static final String NAME = "timeDiff";
 
     public TimeDiffFunction() {
-        super(NAME, new FunctionDeclaration(0, NumberType.NUMBER_TYPE));
+        super(NAME, new FunctionType(NumberType.NUMBER_TYPE));
     }
 
     @Override

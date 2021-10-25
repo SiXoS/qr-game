@@ -3,7 +3,7 @@ package se.lindhen.qrgame.program.functions.datastructures;
 import se.lindhen.qrgame.program.Program;
 import se.lindhen.qrgame.program.expressions.Expression;
 import se.lindhen.qrgame.program.functions.Function;
-import se.lindhen.qrgame.program.functions.FunctionDeclaration;
+import se.lindhen.qrgame.program.types.FunctionType;
 import se.lindhen.qrgame.program.objects.ListClass;
 import se.lindhen.qrgame.program.types.GenericType;
 import se.lindhen.qrgame.program.types.TypeType;
@@ -16,7 +16,7 @@ import java.util.Optional;
 public class LinkedListFromTypeFunction extends Function {
 
     public LinkedListFromTypeFunction() {
-        super("linkedList", new FunctionDeclaration(1,
+        super("linkedList", new FunctionType(
                 ListClass.getQgClass().getObjectTypeFromTypeArgs(Collections.singletonList(new GenericType(0))),
                 new TypeType(new GenericType(0))));
     }

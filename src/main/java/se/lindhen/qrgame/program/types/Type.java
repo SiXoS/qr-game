@@ -1,8 +1,8 @@
 package se.lindhen.qrgame.program.types;
 
-import java.util.Objects;
+import java.util.*;
 
-public abstract class Type {
+public abstract class Type implements Cloneable {
 
     private final BaseType baseType;
 
@@ -36,11 +36,20 @@ public abstract class Type {
     public boolean isVararg() { return baseType == BaseType.VARARG; }
     public boolean isGeneric() {  return baseType == BaseType.GENERIC; }
     public boolean isIterable() {  return baseType == BaseType.ITERABLE; }
+    public boolean isFunction() {  return baseType == BaseType.FUNCTION; }
 
     public abstract boolean isComparable();
     public abstract boolean acceptsType(Type sourceType);
-    public abstract Type coerce(Type type, GenericTypeTracker genericTypeTracker);
+    public abstract Type coerce(Type type, GenericTypeTracker genericTypeTracker) throws CoercionException;
     public abstract Type inferFromGenerics(GenericTypeTracker genericTypeTracker);
+    protected abstract void getUnresolvedGenerics(Set<Integer> accumulator);
+    protected abstract void remapGenerics(Map<Integer, Integer> genericRemapping);
+
+    public final TreeSet<Integer> getUnresolvedGenerics() {
+        TreeSet<Integer> accumulator = new TreeSet<>();
+        getUnresolvedGenerics(accumulator);
+        return accumulator;
+    }
 
     public boolean canBeAssignedTo(Type targetType) {
         return targetType.acceptsType(this);
@@ -49,6 +58,9 @@ public abstract class Type {
     public BaseType getBaseType() {
         return baseType;
     }
+
+    @Override
+    protected abstract Object clone();
 
     public enum BaseType {
         NUMBER,
@@ -59,6 +71,7 @@ public abstract class Type {
         OBJECT,
         VARARG,
         GENERIC,
-        ITERABLE
+        ITERABLE,
+        FUNCTION
     }
 }

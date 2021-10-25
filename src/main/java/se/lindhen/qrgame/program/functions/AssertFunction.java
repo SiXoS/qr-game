@@ -3,6 +3,7 @@ package se.lindhen.qrgame.program.functions;
 import se.lindhen.qrgame.program.Program;
 import se.lindhen.qrgame.program.expressions.Expression;
 import se.lindhen.qrgame.program.types.BoolType;
+import se.lindhen.qrgame.program.types.FunctionType;
 import se.lindhen.qrgame.program.types.NumberType;
 import se.lindhen.qrgame.program.types.VoidType;
 
@@ -14,7 +15,7 @@ public class AssertFunction extends Function {
     public static final String NAME = "assert";
 
     public AssertFunction() {
-        super(NAME, new FunctionDeclaration(0, VoidType.VOID_TYPE, NumberType.NUMBER_TYPE, BoolType.BOOL_TYPE));
+        super(NAME, new FunctionType(VoidType.VOID_TYPE, NumberType.NUMBER_TYPE, BoolType.BOOL_TYPE));
     }
 
     @Override

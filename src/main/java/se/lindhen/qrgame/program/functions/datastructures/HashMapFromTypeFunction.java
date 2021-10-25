@@ -3,7 +3,7 @@ package se.lindhen.qrgame.program.functions.datastructures;
 import se.lindhen.qrgame.program.Program;
 import se.lindhen.qrgame.program.expressions.Expression;
 import se.lindhen.qrgame.program.functions.Function;
-import se.lindhen.qrgame.program.functions.FunctionDeclaration;
+import se.lindhen.qrgame.program.types.FunctionType;
 import se.lindhen.qrgame.program.objects.HashMapClass;
 import se.lindhen.qrgame.program.types.GenericType;
 import se.lindhen.qrgame.program.types.ObjectType;
@@ -17,7 +17,7 @@ import java.util.Optional;
 public class HashMapFromTypeFunction extends Function {
 
     public HashMapFromTypeFunction() {
-        super("hashMap", new FunctionDeclaration(2,
+        super("hashMap", new FunctionType(
                 HashMapClass.getQgClass().getObjectTypeFromTypeArgs(Arrays.asList(new GenericType(0), new GenericType(1))),
                 new TypeType(new GenericType(0)),
                 new TypeType(new GenericType(1))));

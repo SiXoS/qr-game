@@ -1,15 +1,13 @@
 package se.lindhen.qrgame.program.functions;
 
-import org.antlr.v4.runtime.ParserRuleContext;
-import se.lindhen.qrgame.parser.ValidationResult;
 import se.lindhen.qrgame.program.Program;
 import se.lindhen.qrgame.program.drawings.Shape;
 import se.lindhen.qrgame.program.expressions.Expression;
 import se.lindhen.qrgame.program.objects.ListClass;
 import se.lindhen.qrgame.program.objects.ShapeClass;
+import se.lindhen.qrgame.program.types.FunctionType;
 import se.lindhen.qrgame.program.types.NumberType;
 import se.lindhen.qrgame.program.types.ObjectType;
-import se.lindhen.qrgame.program.types.Type;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,7 +19,7 @@ public class CompositeShapeFunction extends Function {
     public static final String NAME = "createCompositeShape";
 
     public CompositeShapeFunction() {
-        super(NAME, new FunctionDeclaration(0, new ObjectType(ShapeClass.getQgClass()),
+        super(NAME, new FunctionType(new ObjectType(ShapeClass.getQgClass()),
                 NumberType.NUMBER_TYPE,
                 NumberType.NUMBER_TYPE,
                 ListClass.getQgClass().getObjectTypeFromTypeArgs(Collections.singletonList(ShapeClass.getQgClass().getObjectType()))));

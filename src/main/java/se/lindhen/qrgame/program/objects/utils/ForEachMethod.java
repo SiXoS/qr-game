@@ -1,7 +1,6 @@
 package se.lindhen.qrgame.program.objects.utils;
 
 import se.lindhen.qrgame.program.Program;
-import se.lindhen.qrgame.program.functions.FunctionDeclaration;
 import se.lindhen.qrgame.program.objects.Method;
 import se.lindhen.qrgame.program.objects.ObjectValue;
 import se.lindhen.qrgame.program.types.*;
@@ -16,12 +15,11 @@ public class ForEachMethod<O extends ObjectValue> extends Method<O> {
     private final BiConsumer<O, Object> modifier;
 
     public ForEachMethod(String name, BiConsumer<O, Object> modifier, ObjectType typeOfThisObject) {
-        this(name, modifier, typeOfThisObject, 1, 0);
+        this(name, modifier, typeOfThisObject, 0);
     }
 
-    public ForEachMethod(String name, BiConsumer<O, Object> modifier, ObjectType typeOfThisObject, int numTypeParameters, int genericIdInSource) {
-        super(name, new FunctionDeclaration(
-                numTypeParameters,
+    public ForEachMethod(String name, BiConsumer<O, Object> modifier, ObjectType typeOfThisObject, int genericIdInSource) {
+        super(name, new FunctionType(
                 VoidType.VOID_TYPE,
                 typeOfThisObject,
                 new IterableType(new GenericType(genericIdInSource))
