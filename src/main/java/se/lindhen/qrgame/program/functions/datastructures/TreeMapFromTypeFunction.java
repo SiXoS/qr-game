@@ -3,7 +3,7 @@ package se.lindhen.qrgame.program.functions.datastructures;
 import se.lindhen.qrgame.program.Program;
 import se.lindhen.qrgame.program.expressions.Expression;
 import se.lindhen.qrgame.program.functions.Function;
-import se.lindhen.qrgame.program.functions.FunctionDeclaration;
+import se.lindhen.qrgame.program.types.FunctionType;
 import se.lindhen.qrgame.program.objects.TreeMapClass;
 import se.lindhen.qrgame.program.types.GenericType;
 import se.lindhen.qrgame.program.types.TypeType;
@@ -16,7 +16,7 @@ import java.util.TreeMap;
 public class TreeMapFromTypeFunction extends Function {
 
     public TreeMapFromTypeFunction() {
-        super("treeMap", new FunctionDeclaration(2,
+        super("treeMap", new FunctionType(
                 TreeMapClass.getQgClass().getObjectTypeFromTypeArgs(Arrays.asList(new GenericType(0), new GenericType(1))),
                 new TypeType(new GenericType(0)),
                 new TypeType(new GenericType(1))));

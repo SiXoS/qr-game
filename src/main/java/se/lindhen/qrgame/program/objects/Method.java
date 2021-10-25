@@ -3,11 +3,7 @@ package se.lindhen.qrgame.program.objects;
 import org.antlr.v4.runtime.ParserRuleContext;
 import se.lindhen.qrgame.program.Program;
 import se.lindhen.qrgame.program.ResultOrInvalidation;
-import se.lindhen.qrgame.program.functions.FunctionDeclaration;
-import se.lindhen.qrgame.program.types.CoercionException;
-import se.lindhen.qrgame.program.types.GenericTypeTracker;
-import se.lindhen.qrgame.program.types.ObjectType;
-import se.lindhen.qrgame.program.types.Type;
+import se.lindhen.qrgame.program.types.*;
 import se.lindhen.qrgame.program.expressions.Expression;
 
 import java.util.ArrayList;
@@ -17,11 +13,11 @@ import java.util.List;
 public abstract class Method<O extends ObjectValue> {
 
     protected final String name;
-    protected final FunctionDeclaration functionDeclaration;
+    protected final FunctionType functionType;
 
-    protected Method(String name, FunctionDeclaration functionDeclaration) {
+    protected Method(String name, FunctionType functionType) {
         this.name = name;
-        this.functionDeclaration = functionDeclaration;
+        this.functionType = functionType;
     }
 
     public abstract Object execute(O object, List<Expression> arguments, Program program);
@@ -30,15 +26,15 @@ public abstract class Method<O extends ObjectValue> {
         ArrayList<Type> allArguments = new ArrayList<>();
         allArguments.add(objectType);
         allArguments.addAll(arguments);
-        return functionDeclaration.validate(allArguments, ctx);
+        return functionType.validate(allArguments, ctx);
     }
 
     public String getName() {
         return name;
     }
 
-    public FunctionDeclaration getFunctionDeclaration() {
-        return functionDeclaration;
+    public FunctionType getFunctionType() {
+        return functionType;
     }
 
     /**
@@ -46,10 +42,11 @@ public abstract class Method<O extends ObjectValue> {
      */
     @Deprecated()
     public Type getReturnType(ObjectType objType) {
-        GenericTypeTracker genericTypeTracker = new GenericTypeTracker(objType.getInnerTypes().size(), Collections.singletonList(functionDeclaration.getFunctionParameters().get(0)));
+        GenericTypeTracker genericTypeTracker = new GenericTypeTracker();
         try {
-            genericTypeTracker.coerce(Collections.singletonList(objType));
-            return functionDeclaration.getReturnType().inferFromGenerics(genericTypeTracker);
+            FunctionType fakeFuncType = new FunctionType(functionType.getReturnType(), Collections.singletonList(functionType.getFunctionParameters().get(0)));
+            fakeFuncType.coerceParameters(Collections.singletonList(objType), genericTypeTracker);
+            return functionType.getReturnType().inferFromGenerics(genericTypeTracker);
         } catch (CoercionException e) {
             throw new RuntimeException("Could not determine return type of method " + objType.getQgClass().getName() + "." + name, e);
         }

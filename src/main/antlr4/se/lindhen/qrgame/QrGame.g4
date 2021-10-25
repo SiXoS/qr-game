@@ -72,6 +72,7 @@ expression
    |  expression QUESTION expression COLON expression # conditionalExpression
    |  structInstantiation # structInstantiationCall
    |  function # functionCall
+   |  functionRef # functionRefExpression
    |  LPAREN expression RPAREN # parenthesis
    |  COLON type # typeExpression
    |  expression DOT NAME ASSIGN expression # structAssign
@@ -90,6 +91,9 @@ function: NAME genericTip? LPAREN argument? RPAREN;
 argument: expression (',' argument)?;
 genericTip: LESS type? (',' type)* GREATER;
 
+functionRef: DOUBLE_COLON NAME (LPAREN functionRefParam? (',' functionRefParam)* RPAREN)?;
+functionRefParam: COLON type;
+
 structInstantiation: NEW NAME LPAREN argument? RPAREN;
 
 atom: BFALSE | BTRUE | NAME | NUMBER | CONSTANT;
@@ -103,9 +107,11 @@ functionDefinition: 'fun' NAME LPAREN parameters? RPAREN (COLON type)? statement
 parameters: parameter (',' parameters)?;
 parameter: NAME COLON type;
 
-type: NAME genericType?;
+type: plainType | functionType;
+plainType: NAME genericType?;
 genericType: LESS genericTypeArg GREATER;
 genericTypeArg: type (',' genericTypeArg)?;
+functionType: 'fun' LPAREN type? (',' type)* RPAREN ARROW type;
 
 NUMBER : [0-9]+('.'[0-9]+)?;
 BTRUE: 'true';
@@ -143,6 +149,7 @@ NOT: '!';
 AND: '&&';
 OR: '||';
 QUESTION: '?';
+DOUBLE_COLON: '::';
 COLON: ':';
 SEMICOLON: ';';
 DOT: '.';

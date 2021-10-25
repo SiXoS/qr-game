@@ -3,6 +3,7 @@ package se.lindhen.qrgame.program.functions;
 import se.lindhen.qrgame.program.GameStatus;
 import se.lindhen.qrgame.program.Program;
 import se.lindhen.qrgame.program.expressions.Expression;
+import se.lindhen.qrgame.program.types.FunctionType;
 import se.lindhen.qrgame.program.types.VoidType;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public class WonFunction extends Function {
     private static final String NAME = "won";
 
     public WonFunction() {
-        super(NAME, new FunctionDeclaration(0, VoidType.VOID_TYPE));
+        super(NAME, new FunctionType(VoidType.VOID_TYPE));
     }
 
     @Override

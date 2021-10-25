@@ -2,7 +2,9 @@ package se.lindhen.qrgame.program.types;
 
 import se.lindhen.qrgame.program.objects.QgClass;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class IterableType extends Type {
 
@@ -32,7 +34,7 @@ public class IterableType extends Type {
     }
 
     @Override
-    public Type coerce(Type type, GenericTypeTracker genericTypeTracker) {
+    public Type coerce(Type type, GenericTypeTracker genericTypeTracker) throws CoercionException {
         if (type.isIterable()) {
             return new IterableType(elementType.coerce(((IterableType)type).elementType, genericTypeTracker));
         }
@@ -41,12 +43,27 @@ public class IterableType extends Type {
             QgClass<?> qgClass = objectType.getQgClass();
             return new IterableType(elementType.coerce(qgClass.iteratorType(objectType), genericTypeTracker));
         }
-        return this;
+        return (Type) type.clone();
     }
 
     @Override
     public Type inferFromGenerics(GenericTypeTracker genericTypeTracker) {
         return new IterableType(elementType.inferFromGenerics(genericTypeTracker));
+    }
+
+    @Override
+    protected void getUnresolvedGenerics(Set<Integer> accumulator) {
+        elementType.getUnresolvedGenerics();
+    }
+
+    @Override
+    protected void remapGenerics(Map<Integer, Integer> genericRemapping) {
+        elementType.remapGenerics(genericRemapping);
+    }
+
+    @Override
+    protected Object clone() {
+        return new IterableType((Type) elementType.clone());
     }
 
     public Type getElementType() {

@@ -1,7 +1,6 @@
 package se.lindhen.qrgame.program.objects;
 
 import se.lindhen.qrgame.program.Program;
-import se.lindhen.qrgame.program.functions.FunctionDeclaration;
 import se.lindhen.qrgame.program.objects.utils.*;
 import se.lindhen.qrgame.program.types.*;
 import se.lindhen.qrgame.program.expressions.Expression;
@@ -25,10 +24,10 @@ public class HashSetClass extends QgClass<HashSetClass.HashSetObject> {
     protected List<Method<HashSetObject>> getMethods() {
         ArrayList<Method<HashSetObject>> methods = new ArrayList<>();
         ObjectType objectType = new ObjectType(this, new GenericType(0));
-        methods.add(new LambdaMethod<>("add", (obj, args, vars) -> obj.add(args.get(0).calculate(vars)), new FunctionDeclaration(1, BoolType.BOOL_TYPE, objectType, new GenericType(0))));
-        methods.add(new LambdaMethod<>("size", (set, args, vars) -> set.size(), new FunctionDeclaration(1, NumberType.NUMBER_TYPE, objectType)));
-        methods.add(new LambdaMethod<>("remove", (set, args, vars) -> set.remove(args.get(0).calculate(vars)), new FunctionDeclaration(1, BoolType.BOOL_TYPE, objectType, new GenericType(0))));
-        methods.add(new LambdaMethod<>("contains", (set, args, vars) -> set.contains(args.get(0).calculate(vars)), new FunctionDeclaration(1, BoolType.BOOL_TYPE, objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>("add", (obj, args, vars) -> obj.add(args.get(0).calculate(vars)), new FunctionType(BoolType.BOOL_TYPE, objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>("size", (set, args, vars) -> set.size(), new FunctionType(NumberType.NUMBER_TYPE, objectType)));
+        methods.add(new LambdaMethod<>("remove", (set, args, vars) -> set.remove(args.get(0).calculate(vars)), new FunctionType(BoolType.BOOL_TYPE, objectType, new GenericType(0))));
+        methods.add(new LambdaMethod<>("contains", (set, args, vars) -> set.contains(args.get(0).calculate(vars)), new FunctionType(BoolType.BOOL_TYPE, objectType, new GenericType(0))));
         methods.add(new ForEachMethod<>("addAll", HashSetObject::add, objectType));
         methods.add(new ForEachMethod<>("removeAll", HashSetObject::remove, objectType));
         return methods;

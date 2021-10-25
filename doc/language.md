@@ -61,6 +61,8 @@ Objects can only be created using built in functions such as [arrayList()](funct
 
 Null values has to be typed due to technical reasons (might change in the future) like this: `null: number`.
 
+There are also function types which can be declared by: `fun(number,boolean) -> void`
+
 ### Constants
 
 Constants has to be capital letters and can be defined above the init block.
@@ -71,6 +73,12 @@ Example:
 ```
 const PI_OVER_TWO = pi()/2
 ```
+
+### Function references
+
+Functions can be passed to user functions and built in functions. A function reference
+to the `pow(base: number, power: number): number` function is retrieved by `::pow`.
+The type of the reference will be `fun(number, number) -> number`.
 
 ### User defined functions
 

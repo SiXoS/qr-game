@@ -1,0 +1,26 @@
+
+init {
+    out = 0
+}
+
+run {
+    out = reduceNumbers(arrayList(1,2,3), 0, ::sum)
+    out += reduceNumbers(arrayList(1,2,3), 2, ::pow)
+    listLambda = ::arrayList(:vararg<number>)
+    aList = listLambda(4,5,6)
+    out += aList.get(1)
+}
+
+input(a,b) true
+
+fun reduceNumbers(list: List<number>, base:number, reduction: fun(number,number) -> number): number {
+    result = base
+    for (elem in list) {
+        result = reduction(result,elem)
+    }
+    return result
+}
+
+fun sum(a: number, b: number): number {
+    return a + b
+}

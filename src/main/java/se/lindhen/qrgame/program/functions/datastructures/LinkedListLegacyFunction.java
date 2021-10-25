@@ -3,7 +3,7 @@ package se.lindhen.qrgame.program.functions.datastructures;
 import se.lindhen.qrgame.program.Program;
 import se.lindhen.qrgame.program.expressions.Expression;
 import se.lindhen.qrgame.program.functions.Function;
-import se.lindhen.qrgame.program.functions.FunctionDeclaration;
+import se.lindhen.qrgame.program.types.FunctionType;
 import se.lindhen.qrgame.program.functions.LegacyFunction;
 import se.lindhen.qrgame.program.objects.ListClass;
 import se.lindhen.qrgame.program.objects.utils.CollectionConstructionUtils;

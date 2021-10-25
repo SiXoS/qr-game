@@ -4,8 +4,8 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import se.lindhen.qrgame.QrGameBaseListener;
 import se.lindhen.qrgame.QrGameParser;
 import se.lindhen.qrgame.program.*;
-import se.lindhen.qrgame.program.functions.FunctionDeclaration;
 import se.lindhen.qrgame.program.functions.UserFunction;
+import se.lindhen.qrgame.program.objects.ListClass;
 import se.lindhen.qrgame.program.statements.ForEachStatement;
 import se.lindhen.qrgame.program.statements.IfStatement;
 import se.lindhen.qrgame.program.statements.WhileStatement;
@@ -71,6 +71,10 @@ public class QrGameTreeListener extends QrGameBaseListener {
             throw new ValidationException(ValidationResult.invalid(ctx, "Variable " + name + " does not exist"));
         }
         return variable;
+    }
+
+    protected boolean variableExists(String name) {
+        return variableStack.getFirst().variables.containsKey(name);
     }
 
     protected void putLabel(String name, ParserRuleContext ctx) {
@@ -701,6 +705,50 @@ public class QrGameTreeListener extends QrGameBaseListener {
     }
 
     @Override
+    public void exitFunctionRef(QrGameParser.FunctionRefContext ctx) {
+        String functionName = ctx.NAME().getText();
+        List<Type> argumentTypes = ctx.functionRefParam().stream()
+                .map(QrGameParser.FunctionRefParamContext::type)
+                .map(this::getType)
+                .collect(Collectors.toList());
+
+        UserFunctionDeclaration userFunction = userDeclaredFunctions.get(functionName);
+        if (userFunction != null) {
+            expressionStack.push(new FunctionReferenceExpression(userFunction.getFunctionId(), true, userFunction.getFunctionType()));
+            return;
+        }
+
+        PredefinedFunctions.FunctionVariants functionVariants = functionMap.lookupFunction(functionName);
+        if (functionVariants == null) {
+            throw new ValidationException(ValidationResult.invalid(ctx, "Function '" + functionName + "' not found."));
+        }
+
+        PredefinedFunctions.PredefinedFunction theFunction;
+        if (functionVariants.hasSeveralVariants()) {
+            if (argumentTypes.isEmpty()) {
+                throw new ValidationException(ValidationResult.invalid(ctx,
+                        "Function '" + functionName + "' has several variants, specify the argument types. " +
+                                "For example: ::arrayList(:vararg<number>). The specified function have the following variants: " +
+                                System.lineSeparator() + functionVariants
+                ));
+            } else {
+                PredefinedFunctions.PredefinedFunction predefinedFunction = functionVariants.getByTypeParameters(argumentTypes);
+                if (predefinedFunction == null) {
+                    throw new ValidationException(ValidationResult.invalid(ctx,
+                            "No variant matches the specified arguments." + System.lineSeparator() +
+                                    "\tArguments specified are: (" + argumentTypes.stream().map(Object::toString).collect(Collectors.joining(", ")) + ")" + System.lineSeparator() +
+                                    "\tFunction variants are: " + System.lineSeparator() + functionVariants.toString() + System.lineSeparator()));
+                } else {
+                    theFunction = predefinedFunction;
+                }
+            }
+        } else {
+            theFunction = functionVariants.getSingleVariant();
+        }
+        expressionStack.push(new FunctionReferenceExpression(theFunction.id, false, theFunction.function.getFunctionType()));
+    }
+
+    @Override
     public void exitFunctionCall(QrGameParser.FunctionCallContext ctx) {
         QrGameParser.FunctionContext fctx = ctx.function();
         String functionName = fctx.NAME().getText();
@@ -716,15 +764,33 @@ public class QrGameTreeListener extends QrGameBaseListener {
                     .collect(Collectors.toList());
         }
 
+        Variable functionRefVar = variableExists(functionName) ? getVar(functionName, ctx) : null;
         PredefinedFunctions.FunctionVariants functionVariants = functionMap.lookupFunction(functionName);
         UserFunctionDeclaration userFunction = userDeclaredFunctions.get(functionName);
-        if (userFunction != null) {
+        if (functionRefVar != null) {
+            addFunctionRefExpression(fctx, arguments, functionRefVar, functionName, genericTip);
+        } else if (userFunction != null) {
             addUserFunction(userFunction, arguments, ctx);
         } else if (functionVariants != null) {
             addBuiltInFunction(ctx, arguments, functionVariants, genericTip);
         } else {
             throw new ValidationException(ValidationResult.invalid(ctx, "Function '" + functionName + "' not found"));
         }
+    }
+
+    private void addFunctionRefExpression(QrGameParser.FunctionContext ctx, ArrayList<Expression> arguments, Variable functionRefVar, String varName, List<Type> genericTip) {
+        if (!functionRefVar.getType().isFunction()) {
+            throw new ValidationException(ValidationResult.invalid(ctx, "Variable '" + varName + "' is not a function reference."));
+        }
+
+        FunctionType functionType = (FunctionType) functionRefVar.getType();
+        ResultOrInvalidation<Type> returnTypeOrInvalidation = functionType.validate(expressionsToTypes(arguments), genericTip, ctx);
+        if (!returnTypeOrInvalidation.hasResult()) {
+            throw new ValidationException(returnTypeOrInvalidation.invalidation);
+        }
+
+        Expression refExpression = functionRefVar.isOnStack() ? new StackVariableExpression(functionRefVar) : new VariableExpression(functionRefVar);
+        expressionStack.push(new FunctionReferenceInvocationExpression(refExpression, arguments, returnTypeOrInvalidation.result));
     }
 
     private void addBuiltInFunction(QrGameParser.FunctionCallContext ctx, ArrayList<Expression> arguments, PredefinedFunctions.FunctionVariants functionVariants, List<Type> genericTip) {
@@ -746,7 +812,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
         }
 
         // Validation can't be delayed as wrong arg count can lead to runtime exceptions
-        ResultOrInvalidation<Type> returnTypeOrInvalid = function.getFunctionDeclaration().validate(argTypes, genericTip, ctx);
+        ResultOrInvalidation<Type> returnTypeOrInvalid = function.getFunctionType().validate(argTypes, genericTip, ctx);
         if (!returnTypeOrInvalid.hasResult()) {
             throw new ValidationException(returnTypeOrInvalid.invalidation);
         }
@@ -765,7 +831,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
 
     private void addUserFunction(UserFunctionDeclaration userFunction, ArrayList<Expression> arguments, ParserRuleContext ctx) {
         // Validation can't be delayed as wrong arg count can lead to runtime exceptions
-        ResultOrInvalidation<Type> returnTypeOrInvalid = userFunction.getFunctionDeclaration().validate(expressionsToTypes(arguments), ctx);
+        ResultOrInvalidation<Type> returnTypeOrInvalid = userFunction.getFunctionType().validate(expressionsToTypes(arguments), ctx);
         if (!returnTypeOrInvalid.hasResult()) {
             throw new ValidationException(returnTypeOrInvalid.invalidation);
         }
@@ -801,8 +867,8 @@ public class QrGameTreeListener extends QrGameBaseListener {
         blockStack.push(new ArrayList<>());
         variableStack.push(new VariableContext(true));
         String name = ctx.NAME().getText();
-        FunctionDeclaration functionDeclaration = userDeclaredFunctions.get(name).getFunctionDeclaration();
-        activeReturnType = Optional.of(functionDeclaration.getReturnType());
+        FunctionType functionType = userDeclaredFunctions.get(name).getFunctionType();
+        activeReturnType = Optional.of(functionType.getReturnType());
         // First parameter will be deepest in the stack which is why we set it to the highest index.
         putVariablesForParameters(ctx.parameters());
     }
@@ -812,6 +878,9 @@ public class QrGameTreeListener extends QrGameBaseListener {
 
         String name = parametersContext.parameter().NAME().getText();
         Type type = getType(parametersContext.parameter().type());
+        if (type.isVararg()) {
+            type = ListClass.getQgClass().getObjectTypeFromTypeArgs(Collections.singletonList(((VarargType)type).getInner()));
+        }
         putVar(name, type, parametersContext.parameter());
         putVariablesForParameters(parametersContext.parameters());
     }
@@ -822,12 +891,12 @@ public class QrGameTreeListener extends QrGameBaseListener {
         String name = ctx.NAME().getText();
         UserFunctionDeclaration functionDeclaration = userDeclaredFunctions.get(name);
 
-        if (!functionDeclaration.getFunctionDeclaration().returnsVoid() && !body.alwaysReturns()) {
+        if (!functionDeclaration.getFunctionType().returnsVoid() && !body.alwaysReturns()) {
             validators.add(() -> ValidationResult.invalid(ctx, "Function '" + name + "' does not deterministically return. Make sure all code branches results in a return."));
         }
 
         int stackContextSize = variableStack.pop().variables.size();
-        program.addUserFunction(new UserFunction(functionDeclaration.getFunctionId(), functionDeclaration.getFunctionDeclaration(), stackContextSize, body));
+        program.addUserFunction(new UserFunction(functionDeclaration.getFunctionId(), functionDeclaration.getFunctionType(), stackContextSize, body));
     }
 
     private Expression[] collectArgumentExpressions(QrGameParser.ArgumentContext argument) {
@@ -901,7 +970,7 @@ public class QrGameTreeListener extends QrGameBaseListener {
         Type returnType = functionDefinitionContext.type() != null ? getType(functionDefinitionContext.type()) : VoidType.VOID_TYPE;
         ArrayList<Type> parameters = new ArrayList<>();
         getParameters(functionDefinitionContext.parameters(), parameters);
-        userDeclaredFunctions.put(name, new UserFunctionDeclaration(name, currentFunctionIndex++, new FunctionDeclaration(0, returnType, parameters)));
+        userDeclaredFunctions.put(name, new UserFunctionDeclaration(name, currentFunctionIndex++, new FunctionType(returnType, parameters)));
     }
 
     private void getParameters(QrGameParser.ParametersContext parameters, ArrayList<Type> parameterList) {
@@ -914,15 +983,25 @@ public class QrGameTreeListener extends QrGameBaseListener {
     }
 
     private Type getType(QrGameParser.TypeContext typeCtx) {
+        return typeCtx.plainType() != null ? getPlainType(typeCtx.plainType()) : getFunctionType(typeCtx.functionType());
+    }
+
+    private Type getPlainType(QrGameParser.PlainTypeContext typeCtx) {
         String baseType = typeCtx.NAME().getText();
         switch (baseType) {
-            case "number":
+            case "number": {
                 validateNoTypeArgs(typeCtx, baseType);
                 return NumberType.NUMBER_TYPE;
-            case "bool":
+            }
+            case "bool": {
                 validateNoTypeArgs(typeCtx, baseType);
                 return BoolType.BOOL_TYPE;
-            case "vararg":
+            }
+            case "void": {
+                validateNoTypeArgs(typeCtx, baseType);
+                return VoidType.VOID_TYPE;
+            }
+            case "vararg": {
                 List<Type> typeArgs = getTypeArguments(typeCtx.genericType());
                 if (typeArgs.size() != 1) {
                     throw new ValidationException(ValidationResult.invalid(typeCtx, "Vararg type expects one type parameter but got " + typeArgs.size()));
@@ -932,13 +1011,15 @@ public class QrGameTreeListener extends QrGameBaseListener {
                     throw new ValidationException(ValidationResult.invalid(typeCtx, "Can not construct vararg type of " + innerVarargType));
                 }
                 return new VarargType(innerVarargType);
-            case "iterable":
-                List<Type> typeArgss = getTypeArguments(typeCtx.genericType());
-                if (typeArgss.size() != 1) {
+            }
+            case "iterable": {
+                List<Type> typeArgs = getTypeArguments(typeCtx.genericType());
+                if (typeArgs.size() != 1) {
                     throw new ValidationException(ValidationResult.invalid(typeCtx, "iterable expects exactly one type parameter"));
                 }
-                return new IterableType(typeArgss.get(0));
-            default:
+                return new IterableType(typeArgs.get(0));
+            }
+            default: {
                 QgClass<?> clazz = classByName.get(baseType);
                 if (clazz != null) {
                     List<Type> typeArguments = getTypeArguments(typeCtx.genericType());
@@ -957,10 +1038,18 @@ public class QrGameTreeListener extends QrGameBaseListener {
                     return new StructType(struct.getId());
                 }
                 throw new ValidationException(ValidationResult.invalid(typeCtx, "Undefined type '" + baseType + "'."));
+            }
         }
     }
 
-    private void validateNoTypeArgs(QrGameParser.TypeContext typeCtx, final String type) {
+    private Type getFunctionType(QrGameParser.FunctionTypeContext functionType) {
+        List<Type> innerTypes = functionType.type().stream()
+                .map(this::getType)
+                .collect(Collectors.toList());
+        return new FunctionType(innerTypes.get(innerTypes.size() - 1), innerTypes.subList(0, innerTypes.size() - 1));
+    }
+
+    private void validateNoTypeArgs(QrGameParser.PlainTypeContext typeCtx, final String type) {
         if (typeCtx.genericType() != null) {
             validators.add(() -> ValidationResult.invalid(typeCtx, "Type " + type + " does not have type arguments"));
         }

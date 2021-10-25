@@ -45,10 +45,6 @@ public abstract class QgClass<O extends ObjectValue> {
         return methods.get(methodId).execute(object, arguments, program);
     }
 
-    public Type getReturnType(int methodId, ObjectType objectType) {
-        return methods.get(methodId).functionDeclaration.getReturnType();
-    }
-
     public ResultOrInvalidation<Type> validate(ParserRuleContext ctx, ObjectType objectType, String methodName, List<Type> arguments) {
         Integer methodId = methodNameToIndex.get(methodName);
         if (methodId == null) {

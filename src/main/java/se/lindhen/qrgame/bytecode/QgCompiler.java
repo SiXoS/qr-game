@@ -360,6 +360,18 @@ public class QgCompiler {
                 compileWhenCase(toCompareType, aCase);
                 compileExpression(caseBody);
             });
+        } else if (expression instanceof FunctionReferenceExpression) {
+            writer.setContext("functionRef");
+            writer.writeCommand(FUNCTION_REFERENCE);
+            writer.writeInt(((FunctionReferenceExpression) expression).getFunctionId());
+            writer.writeBool(((FunctionReferenceExpression) expression).isUserFunction());
+            writer.exitContext();
+        } else if (expression instanceof FunctionReferenceInvocationExpression) {
+            writer.setContext("functionRefInvocation");
+            writer.writeCommand(REFERENCE_INVOCATION);
+            writer.writePositiveByte(expression.getSubExpressions().size() - 1);
+            writer.exitContext();
+            compileExpressions(expression.getSubExpressions());
         } else {
             throw new UnsupportedOperationException("Expression not implemented: " + expression.getClass().getName());
         }

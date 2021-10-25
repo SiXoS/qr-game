@@ -1,0 +1,12 @@
+
+init true
+
+run {
+    runIt(::pow)
+}
+
+input(a,b) true
+
+fun runIt(toRun: fun(number, number) -> number): number {
+    return toRun(1, false)
+}

@@ -1,6 +1,6 @@
 package se.lindhen.qrgame.program.types;
 
-public class CoercionException extends RuntimeException { // TODO not runtime exception
+public class CoercionException extends Exception {
     public final Type preExistingType;
     public final Type newType;
     public final int genericTypeId;

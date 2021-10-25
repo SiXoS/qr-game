@@ -1,0 +1,19 @@
+
+init {
+    out = 0
+}
+
+run {
+    setDoubleScore(2, ::setScore)
+    out = getScore()
+}
+
+input(a,b) true
+
+fun setDoubleScore(num: number, setScoreFunc: fun(number) -> void) {
+    setScoreFunc(num*2)
+}
+
+fun sum(a: number, b: number): number {
+    return a + b
+}

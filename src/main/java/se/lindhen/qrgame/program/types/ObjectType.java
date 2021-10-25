@@ -2,9 +2,7 @@ package se.lindhen.qrgame.program.types;
 
 import se.lindhen.qrgame.program.objects.QgClass;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ObjectType extends Type {
@@ -42,8 +40,8 @@ public class ObjectType extends Type {
     }
 
     @Override
-    public Type coerce(Type type, GenericTypeTracker genericTypeTracker) {
-        if (!type.isObject()) return this;
+    public Type coerce(Type type, GenericTypeTracker genericTypeTracker) throws CoercionException {
+        if (!type.isObject()) return (Type) type.clone();
         ObjectType objectType = (ObjectType) type;
         Type[] resultingInnerTypes = new Type[Math.min(innerTypes.size(), objectType.innerTypes.size())];
         for (int i = 0; i < resultingInnerTypes.length; i++) {
@@ -59,6 +57,25 @@ public class ObjectType extends Type {
             newInnerTypes[i] = innerTypes.get(i).inferFromGenerics(genericTypeTracker);
         }
         return new ObjectType(qgClass, newInnerTypes);
+    }
+
+    @Override
+    protected void getUnresolvedGenerics(Set<Integer> accumulator) {
+        innerTypes.forEach(type -> type.getUnresolvedGenerics(accumulator));
+    }
+
+    @Override
+    protected void remapGenerics(Map<Integer, Integer> genericRemapping) {
+        innerTypes.forEach(type -> type.remapGenerics(genericRemapping));
+    }
+
+    @Override
+    protected Object clone() {
+        Type[] cloned = new Type[innerTypes.size()];
+        for (int i = 0; i < innerTypes.size(); i++) {
+            cloned[i] = (Type) innerTypes.get(i).clone();
+        }
+        return new ObjectType(qgClass, cloned);
     }
 
     public List<Type> getInnerTypes() {

@@ -26,14 +26,15 @@ public enum CommandCode {
     TYPE_EXPRESSION(18, false),
     BLOCK(19, false),
     NEGATE(20, false),
-    EXPRESSION_STATEMENT(21, false),
+    FUNCTION_REFERENCE(21, false),
     NEW_STRUCT(22, false),
     STRUCT_FETCH(23, false),
     MODULO(24, false),
     FOREACH(25, false),
     RETURN(26, false),
     STACK_VAR(27, false),
-    INTERRUPT(28, false);
+    INTERRUPT(28, false),
+    REFERENCE_INVOCATION(29, false);
 
     private final int code;
     private final boolean common;

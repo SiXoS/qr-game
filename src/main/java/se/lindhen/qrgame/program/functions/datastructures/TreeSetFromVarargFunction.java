@@ -3,7 +3,7 @@ package se.lindhen.qrgame.program.functions.datastructures;
 import se.lindhen.qrgame.program.Program;
 import se.lindhen.qrgame.program.expressions.Expression;
 import se.lindhen.qrgame.program.functions.Function;
-import se.lindhen.qrgame.program.functions.FunctionDeclaration;
+import se.lindhen.qrgame.program.types.FunctionType;
 import se.lindhen.qrgame.program.objects.TreeSetClass;
 import se.lindhen.qrgame.program.types.GenericType;
 import se.lindhen.qrgame.program.types.VarargType;
@@ -16,7 +16,7 @@ import java.util.TreeSet;
 public class TreeSetFromVarargFunction extends Function {
 
     public TreeSetFromVarargFunction() {
-        super("treeSet", new FunctionDeclaration(1,
+        super("treeSet", new FunctionType(
                 TreeSetClass.getQgClass().getObjectTypeFromTypeArgs(Collections.singletonList(new GenericType(0))),
                 new VarargType(new GenericType(0))));
     }

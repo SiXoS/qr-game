@@ -1,7 +1,6 @@
 package se.lindhen.qrgame.program.objects.utils;
 
 import se.lindhen.qrgame.program.Program;
-import se.lindhen.qrgame.program.functions.FunctionDeclaration;
 import se.lindhen.qrgame.program.objects.MapEntryClass;
 import se.lindhen.qrgame.program.objects.Method;
 import se.lindhen.qrgame.program.objects.ObjectValue;
@@ -18,8 +17,7 @@ public class ForEachMapEntryMethod<O extends ObjectValue> extends Method<O> {
     private final TriConsumer<O, Object, Object> modifier;
 
     public ForEachMapEntryMethod(String name, TriConsumer<O, Object, Object> objectModifier, Type typeOfThisObject) {
-        super(name, new FunctionDeclaration(
-                2,
+        super(name, new FunctionType(
                 VoidType.VOID_TYPE,
                 typeOfThisObject,
                 new IterableType(MapEntryClass.getQgClass().getObjectTypeFromTypeArgs(Arrays.asList(new GenericType(0), new GenericType(1))))));

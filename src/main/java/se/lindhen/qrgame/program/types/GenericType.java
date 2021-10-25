@@ -1,10 +1,12 @@
 package se.lindhen.qrgame.program.types;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class GenericType extends Type {
 
-    private final int id;
+    private int id;
 
     public GenericType(int id) {
         super(BaseType.GENERIC);
@@ -26,13 +28,29 @@ public class GenericType extends Type {
     }
 
     @Override
-    public Type coerce(Type type, GenericTypeTracker genericTypeTracker) {
+    public Type coerce(Type type, GenericTypeTracker genericTypeTracker) throws CoercionException {
         return genericTypeTracker.coerce(id, type);
     }
 
     @Override
     public Type inferFromGenerics(GenericTypeTracker genericTypeTracker) {
-        return genericTypeTracker.getInferredType(id);
+        Type inferredType = genericTypeTracker.getInferredType(id);
+        return inferredType != null ? inferredType : new GenericType(id);
+    }
+
+    @Override
+    protected void getUnresolvedGenerics(Set<Integer> accumulator) {
+        accumulator.add(id);
+    }
+
+    @Override
+    protected void remapGenerics(Map<Integer, Integer> genericRemapping) {
+        id = genericRemapping.get(id);
+    }
+
+    @Override
+    protected Object clone() {
+        return new GenericType(id);
     }
 
     @Override

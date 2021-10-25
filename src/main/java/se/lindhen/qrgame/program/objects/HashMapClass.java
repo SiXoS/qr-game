@@ -1,7 +1,6 @@
 package se.lindhen.qrgame.program.objects;
 
 import se.lindhen.qrgame.program.Program;
-import se.lindhen.qrgame.program.functions.FunctionDeclaration;
 import se.lindhen.qrgame.program.objects.utils.*;
 import se.lindhen.qrgame.program.types.*;
 import se.lindhen.qrgame.program.expressions.Expression;
@@ -31,18 +30,18 @@ public class HashMapClass extends QgClass<HashMapClass.HashMapValue> {
         Type keyType = new GenericType(0);
         Type valueType = new GenericType(1);
         ObjectType objectType = new ObjectType(this, keyType, valueType);
-        methods.add(new LambdaMethod<>("size", (obj, args, prog) -> obj.size(), new FunctionDeclaration(2, NumberType.NUMBER_TYPE, objectType)));
-        methods.add(new LambdaMethod<>("get", (obj, args, prog) -> obj.get(args.get(0).calculate(prog)), new FunctionDeclaration(2, valueType, objectType, keyType)));
-        methods.add(new LambdaMethod<>("getOrDefault", (obj, args, prog) -> obj.getOrDefault(args.get(0).calculate(prog), args.get(1).calculate(prog)), new FunctionDeclaration(2, valueType, objectType, keyType, valueType)));
-        methods.add(new LambdaMethod<>("put", (obj, args, prog) -> obj.put(args.get(0).calculate(prog), args.get(1).calculate(prog)), new FunctionDeclaration(2, valueType, objectType, keyType, valueType)));
-        methods.add(new LambdaMethod<>("containsKey", (obj, args, prog) -> obj.containsKey(args.get(0).calculate(prog)), new FunctionDeclaration(2, BoolType.BOOL_TYPE, objectType, keyType)));
-        methods.add(new LambdaMethod<>("removeKey", (obj, args, prog) -> obj.removeKey(args.get(0).calculate(prog)), new FunctionDeclaration(2, valueType, objectType, keyType)));
-        methods.add(new LambdaMethod<>("remove", (obj, args, prog) -> obj.remove(args.get(0).calculate(prog), args.get(1).calculate(prog)), new FunctionDeclaration(2, BoolType.BOOL_TYPE, objectType, keyType, valueType)));
-        methods.add(new LambdaMethod<>("values", (obj, args, prog) -> obj.values(), new FunctionDeclaration(2, listWithGenericType(1), objectType)));
-        methods.add(new LambdaMethod<>("keys", (obj, args, prog) -> obj.keys(), new FunctionDeclaration(2, setWithGenericType(HashSetClass.getQgClass(), 0), objectType)));
+        methods.add(new LambdaMethod<>("size", (obj, args, prog) -> obj.size(), new FunctionType(NumberType.NUMBER_TYPE, objectType)));
+        methods.add(new LambdaMethod<>("get", (obj, args, prog) -> obj.get(args.get(0).calculate(prog)), new FunctionType(valueType, objectType, keyType)));
+        methods.add(new LambdaMethod<>("getOrDefault", (obj, args, prog) -> obj.getOrDefault(args.get(0).calculate(prog), args.get(1).calculate(prog)), new FunctionType(valueType, objectType, keyType, valueType)));
+        methods.add(new LambdaMethod<>("put", (obj, args, prog) -> obj.put(args.get(0).calculate(prog), args.get(1).calculate(prog)), new FunctionType(valueType, objectType, keyType, valueType)));
+        methods.add(new LambdaMethod<>("containsKey", (obj, args, prog) -> obj.containsKey(args.get(0).calculate(prog)), new FunctionType(BoolType.BOOL_TYPE, objectType, keyType)));
+        methods.add(new LambdaMethod<>("removeKey", (obj, args, prog) -> obj.removeKey(args.get(0).calculate(prog)), new FunctionType(valueType, objectType, keyType)));
+        methods.add(new LambdaMethod<>("remove", (obj, args, prog) -> obj.remove(args.get(0).calculate(prog), args.get(1).calculate(prog)), new FunctionType(BoolType.BOOL_TYPE, objectType, keyType, valueType)));
+        methods.add(new LambdaMethod<>("values", (obj, args, prog) -> obj.values(), new FunctionType(listWithGenericType(1), objectType)));
+        methods.add(new LambdaMethod<>("keys", (obj, args, prog) -> obj.keys(), new FunctionType(setWithGenericType(HashSetClass.getQgClass(), 0), objectType)));
         methods.add(new ForEachMapEntryMethod<>("putAll", HashMapValue::put, objectType));
         methods.add(new ForEachMapEntryMethod<>("removeAll", HashMapValue::remove, objectType));
-        methods.add(new ForEachMethod<>("removeAllKeys", HashMapValue::removeKey, objectType, 2, 0));
+        methods.add(new ForEachMethod<>("removeAllKeys", HashMapValue::removeKey, objectType, 0));
         return methods;
     }
 

@@ -1,14 +1,10 @@
 package se.lindhen.qrgame.program.objects;
 
 import se.lindhen.qrgame.program.Program;
-import se.lindhen.qrgame.program.functions.FunctionDeclaration;
 import se.lindhen.qrgame.program.objects.utils.LambdaMethod;
-import se.lindhen.qrgame.program.types.NumberType;
-import se.lindhen.qrgame.program.types.ObjectType;
-import se.lindhen.qrgame.program.types.Type;
+import se.lindhen.qrgame.program.types.*;
 import se.lindhen.qrgame.program.drawings.Shape;
 import se.lindhen.qrgame.program.expressions.Expression;
-import se.lindhen.qrgame.program.types.VoidType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,10 +60,10 @@ public class ShapeClass extends QgClass<ShapeClass.ShapeObject> {
         methods.add(new GetShapeParamFunction("getAccelerationPerSecondY", Shape::getAccelerationPerSecondY));
         methods.add(new GetShapeParamFunction("getRotationDegSpeedPerSecond", Shape::getRotationDegSpeedPerSecond));
         ObjectType shapeType = new ObjectType(ShapeClass.this);
-        methods.add(new LambdaMethod<>("setColorBackground", (shape, args, prog) -> shape.setColorBackground(), new FunctionDeclaration(0, shapeType, shapeType)));
-        methods.add(new LambdaMethod<>("setColorForeground", (shape, args, prog) -> shape.setColorForeground(), new FunctionDeclaration(0, shapeType, shapeType)));
-        methods.add(new LambdaMethod<>("addChild", (shape, args, prog) -> shape.addChild((ShapeObject) args.get(0).calculate(prog)), new FunctionDeclaration(0, shapeType, shapeType, shapeType)));
-        methods.add(new LambdaMethod<>("update", (shape, args, prog) -> shape.update(prog.getSecondsDeltaTime()), new FunctionDeclaration(0, VoidType.VOID_TYPE, shapeType)));
+        methods.add(new LambdaMethod<>("setColorBackground", (shape, args, prog) -> shape.setColorBackground(), new FunctionType(shapeType, shapeType)));
+        methods.add(new LambdaMethod<>("setColorForeground", (shape, args, prog) -> shape.setColorForeground(), new FunctionType(shapeType, shapeType)));
+        methods.add(new LambdaMethod<>("addChild", (shape, args, prog) -> shape.addChild((ShapeObject) args.get(0).calculate(prog)), new FunctionType(shapeType, shapeType, shapeType)));
+        methods.add(new LambdaMethod<>("update", (shape, args, prog) -> shape.update(prog.getSecondsDeltaTime()), new FunctionType(VoidType.VOID_TYPE, shapeType)));
         return methods;
     }
 
@@ -95,7 +91,7 @@ public class ShapeClass extends QgClass<ShapeClass.ShapeObject> {
                         function.apply(shape.getShape(), (double) value);
                         return shape;
                     },
-                    new FunctionDeclaration(0, new ObjectType(ShapeClass.this), new ObjectType(ShapeClass.this), NumberType.NUMBER_TYPE));
+                    new FunctionType(new ObjectType(ShapeClass.this), new ObjectType(ShapeClass.this), NumberType.NUMBER_TYPE));
         }
     }
 
@@ -108,7 +104,7 @@ public class ShapeClass extends QgClass<ShapeClass.ShapeObject> {
             super(
                     name,
                     (shape, args, vars) -> function.apply(shape.getShape()),
-                    new FunctionDeclaration(0, NumberType.NUMBER_TYPE, new ObjectType(ShapeClass.this)));
+                    new FunctionType(NumberType.NUMBER_TYPE, new ObjectType(ShapeClass.this)));
         }
     }
 
