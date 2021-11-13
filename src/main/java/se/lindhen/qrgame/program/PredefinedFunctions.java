@@ -63,8 +63,10 @@ public class PredefinedFunctions {
             add(new PredefinedFunction(new LinkedListFromVarargFunction(), 56));
             add(new PredefinedFunction(new MapEntryFunction(), 57));
             add(new PredefinedFunction(new TreeMapFromTypeFunction(), 58));
+            add(new PredefinedFunction(new TreeMapWithCompareFuncFunction(), 63));
             add(new PredefinedFunction(new TreeMapFromVarargFunction(), 59));
             add(new PredefinedFunction(new TreeSetFromTypeFunction(), 60));
+            add(new PredefinedFunction(new TreeSetWithCompareFuncFunction(), 62));
             add(new PredefinedFunction(new TreeSetFromVarargFunction(), 61));
 
             // math

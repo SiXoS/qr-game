@@ -3,6 +3,7 @@ package se.lindhen.qrgame.program.functions.datastructures;
 import se.lindhen.qrgame.program.Program;
 import se.lindhen.qrgame.program.expressions.Expression;
 import se.lindhen.qrgame.program.functions.Function;
+import se.lindhen.qrgame.program.types.ComparableType;
 import se.lindhen.qrgame.program.types.FunctionType;
 import se.lindhen.qrgame.program.objects.MapEntryClass;
 import se.lindhen.qrgame.program.objects.TreeMapClass;
@@ -19,7 +20,7 @@ public class TreeMapFromVarargFunction extends Function {
     public TreeMapFromVarargFunction() {
         super("treeMap", new FunctionType(
                 TreeMapClass.getQgClass().getObjectTypeFromTypeArgs(Arrays.asList(new GenericType(0), new GenericType(1))),
-                new VarargType(MapEntryClass.getQgClass().getObjectTypeFromTypeArgs(Arrays.asList(new GenericType(0), new GenericType(1))))));
+                new VarargType(MapEntryClass.getQgClass().getObjectTypeFromTypeArgs(Arrays.asList(new GenericType(0).withConstraints(ComparableType.COMPARABLE_TYPE), new GenericType(1))))));
     }
 
     @Override

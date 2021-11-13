@@ -89,7 +89,7 @@ public class Program {
      * @param prevStackContextResetOffset The return value from {@link Program#enterStackContext(int)}
      */
     public void leaveStackContext(int prevStackContextResetOffset) {
-        stack.reset(stackOffset, stack.size());
+        stack.reset(stackOffset, stackContextSize);
         stackOffset -= prevStackContextResetOffset;
         stackContextSize = prevStackContextResetOffset;
     }

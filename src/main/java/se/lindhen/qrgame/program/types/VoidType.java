@@ -12,11 +12,6 @@ public class VoidType extends Type {
     }
 
     @Override
-    public boolean isComparable() {
-        return false;
-    }
-
-    @Override
     public boolean acceptsType(Type sourceType) {
         return sourceType.isVoid();
     }

@@ -1,36 +1,31 @@
 package se.lindhen.qrgame.program.functions.datastructures;
 
 import se.lindhen.qrgame.program.Program;
+import se.lindhen.qrgame.program.expressions.ConstantExpression;
 import se.lindhen.qrgame.program.expressions.Expression;
 import se.lindhen.qrgame.program.functions.Function;
-import se.lindhen.qrgame.program.types.*;
 import se.lindhen.qrgame.program.objects.TreeSetClass;
+import se.lindhen.qrgame.program.types.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.TreeSet;
+import java.util.*;
 
-public class TreeSetFromVarargFunction extends Function {
+public class TreeSetWithCompareFuncFunction extends Function {
 
-    public TreeSetFromVarargFunction() {
+    public TreeSetWithCompareFuncFunction() {
         super("treeSet", new FunctionType(
                 TreeSetClass.getQgClass().getObjectTypeFromTypeArgs(Collections.singletonList(new GenericType(0))),
-                new VarargType(new GenericType(0).withConstraints(ComparableType.COMPARABLE_TYPE))));
+                new FunctionType(NumberType.NUMBER_TYPE, new GenericType(0), new GenericType(0))));
     }
 
     @Override
     public Object execute(List<Expression> arguments, Program program) {
-        TreeSet<Object> treeSet = new TreeSet<>();
-        for (Expression argument : arguments) {
-            treeSet.add(argument.calculate(program));
-        }
-        return TreeSetClass.getQgClass().createInstance(treeSet);
+        Function sortableFunction = (Function) arguments.get(0).calculate(program);
+        return TreeSetClass.getQgClass().createInstance(new TreeSet<>(new FunctionReferenceComparator(sortableFunction, program)));
     }
 
     @Override
     public Optional<Integer> getConstantParameterCount() {
-        return Optional.empty();
+        return Optional.of(1);
     }
 
     @Override

@@ -3,29 +3,24 @@ package se.lindhen.qrgame.program.functions.datastructures;
 import se.lindhen.qrgame.program.Program;
 import se.lindhen.qrgame.program.expressions.Expression;
 import se.lindhen.qrgame.program.functions.Function;
-import se.lindhen.qrgame.program.types.ComparableType;
-import se.lindhen.qrgame.program.types.FunctionType;
 import se.lindhen.qrgame.program.objects.TreeMapClass;
-import se.lindhen.qrgame.program.types.GenericType;
-import se.lindhen.qrgame.program.types.TypeType;
+import se.lindhen.qrgame.program.types.*;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.util.*;
 
-public class TreeMapFromTypeFunction extends Function {
+public class TreeMapWithCompareFuncFunction extends Function {
 
-    public TreeMapFromTypeFunction() {
+    public TreeMapWithCompareFuncFunction() {
         super("treeMap", new FunctionType(
                 TreeMapClass.getQgClass().getObjectTypeFromTypeArgs(Arrays.asList(new GenericType(0), new GenericType(1))),
-                new TypeType(new GenericType(0).withConstraints(ComparableType.COMPARABLE_TYPE)),
+                new FunctionType(NumberType.NUMBER_TYPE, new GenericType(0), new GenericType(0)),
                 new TypeType(new GenericType(1))));
     }
 
     @Override
     public Object execute(List<Expression> arguments, Program program) {
-        return TreeMapClass.getQgClass().createInstance(new TreeMap<>());
+        Function sortableFunction = (Function) arguments.get(0).calculate(program);
+        return TreeMapClass.getQgClass().createInstance(new TreeMap<>(new FunctionReferenceComparator(sortableFunction, program)));
     }
 
     @Override

@@ -3,17 +3,17 @@ package se.lindhen.qrgame.program.types;
 import java.util.Map;
 import java.util.Set;
 
-public class BoolType extends Type {
+public class ComparableType extends Type {
 
-    public final static BoolType BOOL_TYPE = new BoolType();
+    public static final ComparableType COMPARABLE_TYPE = new ComparableType();
 
-    private BoolType() {
-        super(BaseType.BOOL);
+    private ComparableType() {
+        super(BaseType.COMPARABLE);
     }
 
     @Override
     public boolean acceptsType(Type sourceType) {
-        return sourceType.isBool();
+        return sourceType.isNumber() || sourceType.isBool();
     }
 
     @Override
@@ -39,6 +39,6 @@ public class BoolType extends Type {
 
     @Override
     public String toString() {
-        return "bool";
+        return "comparable";
     }
 }

@@ -1,0 +1,8 @@
+
+init {
+    set = treeSet(arrayList(1))
+}
+
+run true
+
+input(a,b) true

@@ -16,11 +16,6 @@ public class IterableType extends Type {
     }
 
     @Override
-    public boolean isComparable() {
-        return false;
-    }
-
-    @Override
     public boolean acceptsType(Type sourceType) {
         if (sourceType.isIterable()) {
             return elementType.acceptsType(((IterableType)sourceType).elementType);

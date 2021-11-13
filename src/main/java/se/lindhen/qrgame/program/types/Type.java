@@ -23,22 +23,18 @@ public abstract class Type implements Cloneable {
         return Objects.hash(baseType);
     }
 
-    public boolean isNumber() {
-        return baseType == BaseType.NUMBER;
-    }
-    public boolean isBool() {
-        return baseType == BaseType.BOOL;
-    }
-    public boolean isType() { return baseType == BaseType.TYPE; }
-    public boolean isObject() { return baseType == BaseType.OBJECT; }
-    public boolean isStruct() { return baseType == BaseType.STRUCT; }
-    public boolean isVoid() { return baseType == BaseType.VOID; }
-    public boolean isVararg() { return baseType == BaseType.VARARG; }
-    public boolean isGeneric() {  return baseType == BaseType.GENERIC; }
-    public boolean isIterable() {  return baseType == BaseType.ITERABLE; }
-    public boolean isFunction() {  return baseType == BaseType.FUNCTION; }
+    public final boolean isNumber() { return baseType == BaseType.NUMBER; }
+    public final boolean isBool() { return baseType == BaseType.BOOL; }
+    public final boolean isType() { return baseType == BaseType.TYPE; }
+    public final boolean isObject() { return baseType == BaseType.OBJECT; }
+    public final boolean isStruct() { return baseType == BaseType.STRUCT; }
+    public final boolean isVoid() { return baseType == BaseType.VOID; }
+    public final boolean isVararg() { return baseType == BaseType.VARARG; }
+    public final boolean isGeneric() {  return baseType == BaseType.GENERIC; }
+    public final boolean isIterable() {  return baseType == BaseType.ITERABLE; }
+    public final boolean isFunction() {  return baseType == BaseType.FUNCTION; }
+    public final boolean isComparable() {  return baseType == BaseType.COMPARABLE; }
 
-    public abstract boolean isComparable();
     public abstract boolean acceptsType(Type sourceType);
     public abstract Type coerce(Type type, GenericTypeTracker genericTypeTracker) throws CoercionException;
     public abstract Type inferFromGenerics(GenericTypeTracker genericTypeTracker);
@@ -72,6 +68,7 @@ public abstract class Type implements Cloneable {
         VARARG,
         GENERIC,
         ITERABLE,
-        FUNCTION
+        FUNCTION,
+        COMPARABLE
     }
 }
