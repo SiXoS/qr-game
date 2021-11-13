@@ -14,11 +14,6 @@ public class StructType extends Type {
     }
 
     @Override
-    public boolean isComparable() {
-        return false;
-    }
-
-    @Override
     public boolean acceptsType(Type sourceType) {
         return sourceType.isStruct() && structId == ((StructType) sourceType).structId;
     }

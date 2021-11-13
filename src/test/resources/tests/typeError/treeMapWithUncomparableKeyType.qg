@@ -1,0 +1,8 @@
+
+init {
+    set = treeMap(:List<number>, :number)
+}
+
+run true
+
+input(a,b) true

@@ -18,11 +18,6 @@ public class ObjectType extends Type {
     }
 
     @Override
-    public boolean isComparable() {
-        return false;
-    }
-
-    @Override
     public boolean acceptsType(Type sourceType) {
         if (!sourceType.isObject()) return false;
 

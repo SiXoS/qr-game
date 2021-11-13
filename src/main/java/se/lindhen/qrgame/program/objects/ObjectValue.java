@@ -23,14 +23,10 @@ public abstract class ObjectValue {
     public abstract Object execute(int methodId, List<Expression> arguments, Program program);
 
     @Override
-    public int hashCode() {
-        throw new UnsupportedOperationException("Hash code not implemented for " + getClass());
-    }
+    public abstract int hashCode();
 
     @Override
-    public boolean equals(Object obj) {
-        throw new UnsupportedOperationException("Equals not implemented for " + getClass());
-    }
+    public abstract boolean equals(Object obj);
 
     public Iterator<Object> iterator() {
         return null;

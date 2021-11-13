@@ -1,0 +1,8 @@
+
+init {
+    set = treeSet(:List<number>)
+}
+
+run true
+
+input(a,b) true

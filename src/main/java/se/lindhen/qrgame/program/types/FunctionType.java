@@ -29,11 +29,6 @@ public class FunctionType extends Type {
     }
 
     @Override
-    public boolean isComparable() {
-        return false;
-    }
-
-    @Override
     public boolean acceptsType(Type sourceType) {
         if (!sourceType.isFunction()) return false;
         FunctionType functionType = (FunctionType) sourceType;

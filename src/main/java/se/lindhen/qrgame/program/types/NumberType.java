@@ -12,11 +12,6 @@ public class NumberType extends Type {
     }
 
     @Override
-    public boolean isComparable() {
-        return true;
-    }
-
-    @Override
     public boolean acceptsType(Type sourceType) {
         return sourceType.isNumber();
     }

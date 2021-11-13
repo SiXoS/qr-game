@@ -43,6 +43,18 @@ run {
     assert(16, mapByValues.size() == 1)
     assert(17, !mapByValues.containsKey(2))
     assert(18, !mapByValues.containsKey(6))
+    mapWithArray = treeMap(mapEntry(1, arrayList(2)))
+    assert(19, mapWithArray.get(1).get(0) == 2)
+
+    mapWithReverseOrder = treeMap(::reverseOrder, :number)
+    mapWithReverseOrder.put(1, 10)
+    mapWithReverseOrder.put(2, 10)
+    assert(20, mapWithReverseOrder.firstKey() == 2)
+    assert(21, mapWithReverseOrder.lastKey() == 1)
 }
 
 input (button, pushed) true
+
+fun reverseOrder(a: number, b: number): number {
+    return b - a
+}

@@ -14,11 +14,6 @@ public class TypeType extends Type {
     }
 
     @Override
-    public boolean isComparable() {
-        return false;
-    }
-
-    @Override
     public boolean acceptsType(Type sourceType) {
         return sourceType.isType() && actualType.acceptsType(((TypeType) sourceType).actualType);
     }
@@ -69,6 +64,6 @@ public class TypeType extends Type {
 
     @Override
     public String toString() {
-        return "typeValue";
+        return "typeValue<" + actualType + ">";
     }
 }

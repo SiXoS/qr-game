@@ -1,16 +1,21 @@
 package se.lindhen.qrgame.program.types;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class GenericType extends Type {
 
     private int id;
+    private final ArrayList<Type> constraints = new ArrayList<>();
 
     public GenericType(int id) {
         super(BaseType.GENERIC);
         this.id = id;
+    }
+
+    public GenericType withConstraints(Type... typeConstraints) {
+        constraints.addAll(Arrays.asList(typeConstraints));
+        return this;
     }
 
     public int getId() {
@@ -18,12 +23,25 @@ public class GenericType extends Type {
     }
 
     @Override
-    public boolean isComparable() {
+    public boolean acceptsType(Type sourceType) {
+        return constraints.isEmpty() ||
+                sourceType.isGeneric() && allTypesAreAcceptedByAnyConstraint(((GenericType)sourceType).constraints) ||
+                anyConstraintAcceptsType(sourceType);
+    }
+
+    public boolean anyConstraintAcceptsType(Type sourceType) {
+        for (Type constraint : constraints) {
+            if (constraint.acceptsType(sourceType))
+                return true;
+        }
         return false;
     }
 
-    @Override
-    public boolean acceptsType(Type sourceType) {
+    public boolean allTypesAreAcceptedByAnyConstraint(Collection<Type> sourceTypes) {
+        for (Type sourceType : sourceTypes) {
+            if (!anyConstraintAcceptsType(sourceType))
+                return false;
+        }
         return true;
     }
 
@@ -35,7 +53,7 @@ public class GenericType extends Type {
     @Override
     public Type inferFromGenerics(GenericTypeTracker genericTypeTracker) {
         Type inferredType = genericTypeTracker.getInferredType(id);
-        return inferredType != null ? inferredType : new GenericType(id);
+        return inferredType != null && acceptsType(inferredType) ? inferredType : new GenericType(id);
     }
 
     @Override
@@ -50,12 +68,16 @@ public class GenericType extends Type {
 
     @Override
     protected Object clone() {
-        return new GenericType(id);
+        return new GenericType(id).withConstraints((Type[]) constraints.stream().map(Type::clone).toArray());
     }
 
     @Override
     public String toString() {
-        return "generic:" + id;
+        return "generic" +
+                (constraints.isEmpty() ?
+                        "" :
+                        "<" + constraints.stream().map(Type::toString).collect(Collectors.joining(", ")) + ">") +
+                ":" + id;
     }
 
     @Override
@@ -64,11 +86,11 @@ public class GenericType extends Type {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         GenericType that = (GenericType) o;
-        return id == that.id;
+        return id == that.id && constraints.equals(that.constraints);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id);
+        return Objects.hash(super.hashCode(), id, constraints);
     }
 }

@@ -33,6 +33,34 @@ run {
     setByValues.removeAll(arrayList(3, 6))
     assert(8, setByValues.size() == 3)
     assert(9, !setByValues.contains(3))
+
+    reverseSortedSet = treeSet(::descendingOrder)
+    reverseSortedSet.add(1)
+    reverseSortedSet.add(2)
+    assert(10, reverseSortedSet.first() == 2)
+    assert(11, reverseSortedSet.last() == 1)
+
+    treeSetWithStruct = treeSet(::sortTheStruct)
+    treeSetWithStruct.add(new aStructWithTwoNumbers(4,0))
+    treeSetWithStruct.add(new aStructWithTwoNumbers(3,1))
+    treeSetWithStruct.add(new aStructWithTwoNumbers(3,2))
+    theFirst = treeSetWithStruct.first()
+    assert(12, theFirst.num1 == 3 && theFirst.num2 == 1)
+
 }
 
 input (button, pushed) true
+
+fun descendingOrder(a: number, b: number): number {
+    return b - a
+}
+
+fun sortTheStruct(a: aStructWithTwoNumbers, b: aStructWithTwoNumbers): number {
+    num1Comparison = a.num1 - b.num1
+    return num1Comparison == 0 ? a.num2 - b.num2 : num1Comparison
+}
+
+struct aStructWithTwoNumbers {
+    num1: number
+    num2: number
+}

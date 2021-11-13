@@ -15,11 +15,6 @@ public class VarargType extends Type {
     }
 
     @Override
-    public boolean isComparable() {
-        return false;
-    }
-
-    @Override
     public boolean acceptsType(Type sourceType) {
         return sourceType.isVararg() && inner.acceptsType(((VarargType)sourceType).inner) || inner.acceptsType(sourceType);
     }
