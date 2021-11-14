@@ -170,6 +170,7 @@ Tree Set cons: Hash Set is faster for most operations.
 ```
 treeSet(type: Type<T>): TreeSet<T>
 treeSet(values: T...): TreeSet<T>
+treeSet(comparator: fun (T, T) -> number): TreeSet<T>
 ```
 
 ### Array List
@@ -244,6 +245,7 @@ Hash map cons:
 ```
 treeMap(keyType: Type<K>, valueType: Type<V>): TreeMap<K, V>
 treeMap(entries: MapEntry<K, V>...): TreeMap<K, V>
+treeMap(comparator: fun (K, K) -> number, valueType: Type<V>): TreeMap<K, V>
 ```
 
 ### Map Entry
