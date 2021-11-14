@@ -12,7 +12,7 @@
     <description>
         Compiler and runtime for .qg files.
         Allows the user to write games and compile them to a QR code.
-        This QR game can then be scanned and played on a not yet named Android app.
+        This QR game can then be scanned and played on the Android app QR Game.
     </description>
     <url>https://github.com/SiXoS/qr-game</url>
 
@@ -167,6 +167,12 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.antlr</groupId>
