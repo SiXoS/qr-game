@@ -76,8 +76,6 @@ public abstract class QgClass<O extends ObjectValue> {
 
     public abstract Type getObjectTypeFromTypeArgs(List<Type> typeArguments);
 
-    public abstract boolean isComparable();
-
     public static class ArgumentCountValidation {
         private final int expectedArgs;
         private final boolean valid;
@@ -85,14 +83,6 @@ public abstract class QgClass<O extends ObjectValue> {
         private ArgumentCountValidation(int expectedArgs, boolean valid) {
             this.expectedArgs = expectedArgs;
             this.valid = valid;
-        }
-
-        public static ArgumentCountValidation valid() {
-            return new ArgumentCountValidation(-1, true);
-        }
-
-        public static ArgumentCountValidation invalid(int expectedArgs) {
-            return new ArgumentCountValidation(expectedArgs, false);
         }
 
         public static ArgumentCountValidation validate(int expectedArgs, int actualArgs) {

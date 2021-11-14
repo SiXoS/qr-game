@@ -67,11 +67,6 @@ public class HashMapClass extends QgClass<HashMapClass.HashMapValue> {
     }
 
     @Override
-    public boolean isComparable() {
-        return false;
-    }
-
-    @Override
     public Type getObjectTypeFromTypeArgs(List<Type> typeArguments) {
         return new ObjectType(this, typeArguments.get(0), typeArguments.get(1));
     }
@@ -81,7 +76,6 @@ public class HashMapClass extends QgClass<HashMapClass.HashMapValue> {
         HashMap<Object, Object> map;
 
         public HashMapValue(HashMap<Object, Object> map) {
-            super(NAME);
             this.map = map;
         }
 

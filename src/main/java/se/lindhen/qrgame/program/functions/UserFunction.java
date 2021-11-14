@@ -88,23 +88,4 @@ public class UserFunction extends Function {
         return numVariables;
     }
 
-    public static class UserFunctionParameter {
-
-        private final int varId;
-        private final Type type;
-
-        public UserFunctionParameter(Variable variable) {
-            assert variable.isOnStack();
-            this.varId = variable.getId();
-            this.type = variable.getType();
-        }
-
-        public int getVarId() {
-            return varId;
-        }
-
-        public Type getType() {
-            return type;
-        }
-    }
 }

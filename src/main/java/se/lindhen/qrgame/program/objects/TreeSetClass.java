@@ -65,17 +65,11 @@ public class TreeSetClass extends QgClass<TreeSetClass.TreeSetObject> {
         return objectType.getInnerTypes().get(0);
     }
 
-    @Override
-    public boolean isComparable() {
-        return false;
-    }
-
     public class TreeSetObject extends ObjectValue {
 
         private final TreeSet<Object> set;
 
         private TreeSetObject(TreeSet<Object> value) {
-            super(TreeSetClass.NAME);
             this.set = value;
         }
 
@@ -121,10 +115,6 @@ public class TreeSetClass extends QgClass<TreeSetClass.TreeSetObject> {
         public Object last() {
             if (set.isEmpty()) return null;
             return set.last();
-        }
-
-        public TreeSet<Object> getBackingSet() {
-            return set;
         }
 
         @Override

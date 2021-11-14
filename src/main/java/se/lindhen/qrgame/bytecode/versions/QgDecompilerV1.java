@@ -54,22 +54,22 @@ public class QgDecompilerV1 {
 
     private ArrayList<UserFunction> decompileFunctions() {
         int count = reader.readPositiveByte();
-        ArrayList<ArrayList<UserFunction.UserFunctionParameter>> parameters = new ArrayList<>();
+        ArrayList<ArrayList<UserFunctionParameter>> parameters = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             Type returnType = decompileType();
             int parameterCount = reader.readPositiveByte();
-            ArrayList<UserFunction.UserFunctionParameter> functionParameters = new ArrayList<>();
+            ArrayList<UserFunctionParameter> functionParameters = new ArrayList<>();
             for (int p = 0; p < parameterCount; p++) {
-                functionParameters.add(new UserFunction.UserFunctionParameter(new Variable(reader.readPositiveByte(), decompileType(), true)));
+                functionParameters.add(new UserFunctionParameter(new Variable(reader.readPositiveByte(), decompileType(), true)));
             }
             userFunctionData.put(i, new UserFunctionData(returnType, functionParameters.size()));
             parameters.add(functionParameters);
         }
         ArrayList<UserFunction> functions = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            ArrayList<UserFunction.UserFunctionParameter> funcParameters = parameters.get(i);
+            ArrayList<UserFunctionParameter> funcParameters = parameters.get(i);
             ArrayList<Type> parameterTypes = new ArrayList<>();
-            for (UserFunction.UserFunctionParameter param: funcParameters) {
+            for (UserFunctionParameter param: funcParameters) {
                 stackVariableTypes.add(param.getType());
                 parameterTypes.add(param.getType());
             }
@@ -82,7 +82,7 @@ public class QgDecompilerV1 {
     private void decompileStructs() {
         int count = reader.readPositiveByte();
         for (int i = 0; i < count; i++) {
-            StructDefinition structDef = new StructDefinition(i);
+            StructDefinition structDef = new StructDefinition();
             int numFields = reader.readPositiveByte();
             ArrayList<Type> fields = new ArrayList<>();
             for (int j = 0; j < numFields; j++) {
@@ -317,28 +317,29 @@ public class QgDecompilerV1 {
 
     private static class StructDefinition {
 
-        private final int structId;
         private final ArrayList<Type> fields = new ArrayList<>();
-
-        public StructDefinition(int structId) {
-            this.structId = structId;
-        }
-
-        public int getStructId() {
-            return structId;
-        }
 
         public void setFields(List<Type> fields) {
             this.fields.clear();
             this.fields.addAll(fields);
         }
 
-        public Type getFieldType(int id) {
-            return fields.get(id);
-        }
-
         public List<Type> getFields() {
             return fields;
+        }
+    }
+
+    private static class UserFunctionParameter {
+
+        private final Type type;
+
+        public UserFunctionParameter(Variable variable) {
+            assert variable.isOnStack();
+            this.type = variable.getType();
+        }
+
+        public Type getType() {
+            return type;
         }
     }
 }

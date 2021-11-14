@@ -13,7 +13,7 @@ public class ComparableType extends Type {
 
     @Override
     public boolean acceptsType(Type sourceType) {
-        return sourceType.isNumber() || sourceType.isBool();
+        return sourceType.isComparable() || sourceType.isNumber() || sourceType.isBool();
     }
 
     @Override

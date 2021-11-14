@@ -69,11 +69,6 @@ public class TreeMapClass extends QgClass<TreeMapClass.TreeMapValue> {
     }
 
     @Override
-    public boolean isComparable() {
-        return false;
-    }
-
-    @Override
     public Type getObjectTypeFromTypeArgs(List<Type> typeArguments) {
         return new ObjectType(this, typeArguments.get(0), typeArguments.get(1));
     }
@@ -87,7 +82,6 @@ public class TreeMapClass extends QgClass<TreeMapClass.TreeMapValue> {
         TreeMap<Object, Object> map;
 
         private TreeMapValue(TreeMap<Object, Object> map) {
-            super(NAME);
             this.map = map;
         }
 
