@@ -76,5 +76,10 @@ public class BackwardsCompatibilityTest {
         public void setResult(double result) {
             this.result = result;
         }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 }
