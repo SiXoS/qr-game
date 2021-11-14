@@ -1,7 +1,5 @@
 package se.lindhen.qrgame.program.objects.utils;
 
-import org.antlr.v4.runtime.ParserRuleContext;
-import se.lindhen.qrgame.parser.ValidationResult;
 import se.lindhen.qrgame.program.Program;
 import se.lindhen.qrgame.program.types.Type;
 import se.lindhen.qrgame.program.expressions.Expression;
@@ -35,33 +33,6 @@ public class CollectionConstructionUtils {
             }
         }
         return backingCollection;
-    }
-
-    public static ValidationResult validateCollection(List<Type> arguments, ParserRuleContext ctx) {
-        if (arguments.size() == 0) {
-            return ValidationResult.invalid(ctx, "At least a type is required, got 0 arguments.");
-        }
-        if (arguments.get(0).isType()) {
-            if (arguments.size() == 1) {
-                return ValidationResult.valid();
-            } else if (arguments.size() == 2) {
-                if (arguments.get(1).isNumber()) {
-                    return ValidationResult.valid();
-                } else {
-                    return ValidationResult.invalid(ctx, "Second parameter to a typed collection constructor can only be an integer denoting the size. Got '" + arguments.get(1));
-                }
-            } else {
-                return ValidationResult.invalid(ctx, "Typed collection constructor can only accept 1 or 2 arguments. Got '" + arguments.size());
-            }
-        }
-        Type firstArgType = arguments.get(0);
-        for (int i = 0; i < arguments.size(); i++) {
-            Type argType = arguments.get(i);
-            if (!argType.equals(firstArgType)) {
-                return ValidationResult.invalid(ctx, "First argument had type '" + firstArgType + "' but argument " + (i + 1) + " had type '" + argType + "'");
-            }
-        }
-        return ValidationResult.valid();
     }
 
 }

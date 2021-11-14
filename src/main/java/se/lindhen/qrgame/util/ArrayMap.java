@@ -8,11 +8,6 @@ import java.util.stream.Collectors;
 public class ArrayMap<V> {
 
     private final ArrayList<V> list = new ArrayList<>();
-    private int size = 0;
-
-    public int size() {
-        return size;
-    }
 
     public V get(int key) {
         if (list.size() <= key) {
@@ -22,9 +17,6 @@ public class ArrayMap<V> {
     }
 
     public V put(int key, V value) {
-        if (key >= size) {
-            size++;
-        }
         ensureSizeIncludesKey(key);
         return list.set(key, value);
     }
@@ -41,33 +33,21 @@ public class ArrayMap<V> {
         V toReturn = get(key);
         if (toReturn != null) {
             list.set(key, null);
-            size--;
         }
         return toReturn;
     }
 
     public void clear() {
         list.clear();
-        size = 0;
     }
 
     public Collection<V> values() {
         return list.stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 
-    public void forEach(BiConsumer<Integer, V> consumer) {
-        for (int i = 0; i < list.size(); i++) {
-            V value = list.get(i);
-            if (value != null) {
-                consumer.accept(i, value);
-            }
-        }
-    }
-
     public void reset(int from, int to) {
         for (int i = from; i < to; i++) {
-            V prev = list.set(i, null);
-            if (prev != null) size--;
+            list.set(i, null);
         }
     }
 }

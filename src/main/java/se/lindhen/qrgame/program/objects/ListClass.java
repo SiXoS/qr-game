@@ -71,17 +71,11 @@ public class ListClass extends QgClass<ListClass.ListObject> {
         return objectType.getInnerTypes().get(0);
     }
 
-    @Override
-    public boolean isComparable() {
-        return false;
-    }
-
     public class ListObject extends ObjectValue {
 
         private final List<Object> list;
 
         private ListObject(List<Object> backingList) {
-            super(ListClass.NAME);
             this.list = backingList;
         }
 

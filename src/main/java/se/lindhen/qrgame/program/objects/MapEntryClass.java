@@ -49,11 +49,6 @@ public class MapEntryClass extends QgClass<MapEntryClass.MapEntryObject> {
         return new ObjectType(this, typeArguments.get(0), typeArguments.get(1));
     }
 
-    @Override
-    public boolean isComparable() {
-        return false;
-    }
-
     public MapEntryObject createInstance(Object key, Object value) {
         return new MapEntryObject(key, value);
     }
@@ -64,7 +59,6 @@ public class MapEntryClass extends QgClass<MapEntryClass.MapEntryObject> {
         private final Object value;
 
         public MapEntryObject(Object key, Object value) {
-            super(NAME);
             this.key = key;
             this.value = value;
         }

@@ -77,11 +77,6 @@ public class ShapeClass extends QgClass<ShapeClass.ShapeObject> {
         return new ObjectType(this);
     }
 
-    @Override
-    public boolean isComparable() {
-        return false;
-    }
-
     private class SetShapeParamFunction extends LambdaMethod<ShapeObject> {
         public SetShapeParamFunction(String name, ShapeParamConsumer function) {
             super(
@@ -116,7 +111,6 @@ public class ShapeClass extends QgClass<ShapeClass.ShapeObject> {
         private final Shape shape;
 
         private ShapeObject(Shape shape) {
-            super(ShapeClass.NAME);
             this.shape = shape;
         }
 

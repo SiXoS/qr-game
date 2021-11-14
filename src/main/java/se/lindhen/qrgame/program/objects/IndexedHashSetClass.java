@@ -66,17 +66,11 @@ public class IndexedHashSetClass extends QgClass<IndexedHashSetClass.IndexedHash
         return objectType.getInnerTypes().get(0);
     }
 
-    @Override
-    public boolean isComparable() {
-        return false;
-    }
-
     public class IndexedHashSetObject extends ObjectValue {
 
         private final IndexedHashSet<Object> set;
 
         private IndexedHashSetObject(IndexedHashSet<Object> value) {
-            super(IndexedHashSetClass.NAME);
             this.set = value;
         }
 
@@ -113,10 +107,6 @@ public class IndexedHashSetClass extends QgClass<IndexedHashSetClass.IndexedHash
 
         public Object removeAt(int index) {
             return set.removeAt(index);
-        }
-
-        public IndexedHashSet<Object> getBackingSet() {
-            return set;
         }
 
         @Override

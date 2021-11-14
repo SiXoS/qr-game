@@ -61,17 +61,11 @@ public class HashSetClass extends QgClass<HashSetClass.HashSetObject> {
         return objectType.getInnerTypes().get(0);
     }
 
-    @Override
-    public boolean isComparable() {
-        return false;
-    }
-
     public class HashSetObject extends ObjectValue {
 
         private final HashSet<Object> set;
 
         private HashSetObject(HashSet<Object> value) {
-            super(HashSetClass.NAME);
             this.set = value;
         }
 
@@ -99,10 +93,6 @@ public class HashSetClass extends QgClass<HashSetClass.HashSetObject> {
 
         public boolean contains(Object item) {
             return set.contains(item);
-        }
-
-        public HashSet<Object> getBackingSet() {
-            return set;
         }
 
         @Override
